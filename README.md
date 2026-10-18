@@ -1,5 +1,8 @@
 # Gauss.jl
 
+[![CI](https://github.com/yvesguiraud/Gauss.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/yvesguiraud/Gauss.jl/actions/workflows/CI.yml)
+[![Coverage](https://codecov.io/gh/yvesguiraud/Gauss.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/yvesguiraud/Gauss.jl)
+
 Small free resolutions of Garside monoids and their homology, in Julia.
 
 Gauss.jl computes the *reduced lcm resolution* of a Garside monoid, a variant of the
