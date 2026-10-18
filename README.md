@@ -24,7 +24,7 @@ Elementary divisors of the large sparse differentials are computed by
 
 ## Development
 
-This package is an overhauled version of the code available here: [Gauss.jl](https://plmlab.math.cnrs.fr/guiraud/gauss.jl). The old version was developed by the author alone, while the new version is developed with the assistance of an AI model (Claude Opus 5.5).
+This package is an overhauled version of the code available here: [Gauss.jl](https://plmlab.math.cnrs.fr/guiraud/gauss.jl). The old version was developed by the author alone, while the new version is developed with the assistance of an AI model (Claude Opus 5.5). All code is reviewed, tested and validated by the author against reference computations
 
 ## License
 
