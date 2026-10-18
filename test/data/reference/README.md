@@ -12,11 +12,11 @@ comparison on the atom sequences, bar forms as a second level of diagnosis.
 - The snapshots themselves (`.txt.gz`) are not in this repository: 72 MB for the 300 small
   ones, and more for the heavy ones. The comparison only needs these fingerprints.
 
-Provenance, read from the headers of the 336 snapshots of the small cases:
+Provenance, read from the headers of the 336 snapshots kept in the experiment
+repository (the snapshots of G37, dual_E8, heavier, are kept outside git):
 
 - Chevie: 0.1.15
 - Julia: 1.13.1
 - SHA-256 of `gauss.jl` (LF line endings): a45f0c3b02d217da3a0287de6fc767e57bf134b4f5f65a40d1ff2ce264fd0b9c
 - Commit of the experiment repository: 6ea7f2ecc8cb36c40936b43a0e963e9871de9998, 8a2ba617063dc85663aca7990b57637c260a8f8d, cad379d4c3a7fe9898cdded1492208409ef2cb21
-- Computed from 2026-10-14 to 2026-10-15; the heavy cases (G₃₄, G₃₇,
-  B*(E₈), large classical monoids) were computed in October 2026 as well.
+- Computed from 2026-10-14 to 2026-10-15.
