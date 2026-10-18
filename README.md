@@ -6,9 +6,8 @@
 Small free resolutions of Garside monoids and their homology, in Julia.
 
 Gauss.jl computes the *reduced lcm resolution* of a Garside monoid, a variant of the
-Dehornoy–Lafont resolution with far fewer cells, and the homology of the corresponding
-groups with various coefficients. The first target is the homology of real and complex
-braid groups, through the dual braid monoids of well-generated complex reflection groups.
+Dehornoy–Lafont resolution with fewer cells, and the homology of the corresponding
+groups with various coefficients. The first target is the homology of real and well-generated complex braid groups.
 
 ## Status
 
@@ -25,8 +24,7 @@ Elementary divisors of the large sparse differentials are computed by
 
 ## Development
 
-This package is developed with the assistance of an AI model (Claude, by Anthropic).
-All code is reviewed, tested and validated against reference computations by the author.
+This package is an overhauled version of the code available here: [Gauss.jl](https://plmlab.math.cnrs.fr/guiraud/gauss.jl). The old version was developed by the author alone, while the new version is developed with the assistance of an AI model (Claude Opus 5.5).
 
 ## License
 
