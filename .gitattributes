@@ -1,0 +1,6 @@
+# LF line endings everywhere: reference fingerprints are computed byte by byte
+* text=auto eol=lf
+
+*.gz   binary
+*.jld2 binary
+*.png  binary

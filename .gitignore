@@ -1,0 +1,15 @@
+# Package manifests are not committed
+Manifest*.toml
+
+# Coverage and allocation files
+*.jl.cov
+*.jl.*.cov
+*.jl.mem
+/lcov.info
+
+# Documentation build
+/docs/build/
+
+# Local files
+CLAUDE.md
+.vscode/

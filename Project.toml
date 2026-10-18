@@ -1,0 +1,28 @@
+name = "Gauss"
+uuid = "8020c2ec-8931-47b1-870e-dab20b57e67e"
+authors = ["Yves Guiraud"]
+version = "0.1.0-DEV"
+
+[deps]
+AbstractAlgebra = "c3fe647b-3220-5bb0-a1ea-a7954cac585d"
+SparseElementaryDivisors = "ae1c1434-3cf1-4e28-ab82-3ca23b97895f"
+
+[weakdeps]
+Chevie = "367f69f0-ca63-11e8-2372-438b29340c1b"
+
+[extensions]
+GaussChevieExt = "Chevie"
+
+[compat]
+AbstractAlgebra = "0.50, 0.51"
+Chevie = "0.1.15"
+SparseElementaryDivisors = "0.1"
+Test = "1"
+julia = "1.11"
+
+[extras]
+Chevie = "367f69f0-ca63-11e8-2372-438b29340c1b"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Chevie", "Test"]
