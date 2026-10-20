@@ -17,6 +17,8 @@ GaussChevieExt = "Chevie"
 [compat]
 AbstractAlgebra = "0.50, 0.51"
 Chevie = "0.1.15"
+CodecZlib = "0.7"
+SHA = "0.7, 1"
 SparseArrays = "1"
 SparseElementaryDivisors = "0.1"
 Test = "1"
@@ -24,7 +26,9 @@ julia = "1.11"
 
 [extras]
 Chevie = "367f69f0-ca63-11e8-2372-438b29340c1b"
+CodecZlib = "944b1d66-785c-5afd-91f1-9de20f533193"
+SHA = "ea8e919c-243c-51af-8825-aaa63cd721ce"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Chevie", "Test"]
+test = ["Chevie", "CodecZlib", "SHA", "Test"]
