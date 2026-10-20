@@ -1,13 +1,17 @@
 # Tests of the snapshot tool (snapshot_io.jl): a round trip on a snapshot written by hand,
 # the three tiny reference snapshots of data/snapshots/ against their fingerprints, and,
 # when the environment variable GAUSS_SNAPSHOT_DIR names a folder of snapshots (CatLab
-# j0/ref, j0/out/gros), every snapshot of that folder against its reference fingerprints.
+# j0/ref, j0/out/gros), every snapshot of that folder: its fingerprints against the
+# reference, and its homology (trivial coefficients) against the expected values of
+# data/expected/, between the four variants of a case, and between the classical and
+# dual monoids of a real group.
 
 include("snapshot_io.jl")
 
 using Gauss
 using Gauss: rank
 using Test
+import TOML
 
 const SNAP_REFERENCE = joinpath(@__DIR__, "data", "reference")
 const SNAP_TINY = joinpath(@__DIR__, "data", "snapshots")
@@ -134,34 +138,59 @@ _sign(m::SnapshotMonoid) = l -> iseven(simple_length(m, l[1]) + simple_length(m,
               "of snapshots (.txt.gz) to check them against data/reference."
     else
         @testset "Snapshots of GAUSS_SNAPSHOT_DIR" begin
+            expected = TOML.parsefile(joinpath(@__DIR__, "data", "expected", "complex_braid_groups.toml"))
+            group_of_real = Dict(entry["real"] => group for (group, entry) in expected if haskey(entry, "real"))
+            # Expected homology of a case (G34, classic_E8, dual_H3, ...), or nothing.
+            function expected_homology(case)
+                m = match(r"^(classic|dual)_(.+)$", case)
+                group = m === nothing ? case : get(group_of_real, m[2], "")
+                haskey(expected, group) || return nothing
+                return FinitelyGeneratedGradedAbelianGroup(
+                    [parse(FinitelyGeneratedAbelianGroup, h) for h in expected[group]["trivial"]])
+            end
+
             files = sort!(filter(f -> endswith(f, ".txt.gz"), readdir(SNAP_DIR)))
             @test !isempty(files)
-            results = NamedTuple{(:name, :lines, :seconds, :same_gzip), Tuple{String, Int, Float64, Bool}}[]
+            homologies = Dict{String, Vector{Pair{String, FinitelyGeneratedGradedAbelianGroup}}}()
+            n_expected = Ref(0)
             println("Checking $(length(files)) snapshots of $SNAP_DIR")
             elapsed = @elapsed for f in files
                 name = f[1:(end - 7)]
+                case, variant = name[1:(end - 2)], name[end:end]
                 reference = joinpath(SNAP_REFERENCE, name * ".sha.csv")
                 if !isfile(reference)
                     @warn "No reference fingerprints for $f"
                     continue
                 end
                 @testset "$name" begin
-                    t = @elapsed begin
-                        rows, file = read_fingerprints(reference)
-                        s = read_snapshot(joinpath(SNAP_DIR, f))
-                        @test snapshot_fingerprints(s) == rows
-                        target = write_snapshot(joinpath(workdir, f), s)
-                        same_gzip = bytes2hex(open(SHA.sha256, target)) == file.sha
-                        rm(target)
+                    rows, _ = read_fingerprints(reference)
+                    t_read = @elapsed s = read_snapshot(joinpath(SNAP_DIR, f))
+                    @test snapshot_fingerprints(s) == rows
+                    t_homology = @elapsed H = homology(specialise(s.complex))
+                    push!(get!(homologies, case, Pair{String, FinitelyGeneratedGradedAbelianGroup}[]),
+                          variant => H)
+                    E = expected_homology(case)
+                    if E !== nothing
+                        @test H == E
+                        n_expected[] += 1
                     end
-                    push!(results, (name = name, lines = rows[end].lines, seconds = t,
-                                    same_gzip = same_gzip))
-                    println("  ", rpad(name, 22), lpad(rows[end].lines, 9), " lines ",
-                            lpad(round(t; digits = 2), 8), " s", same_gzip ? "" : "  (gzip bytes differ)")
+                    println("  ", rpad(name, 22), lpad(rows[end].lines, 9), " lines, read ",
+                            lpad(round(t_read; digits = 1), 6), " s, homology ",
+                            lpad(round(t_homology; digits = 1), 6), " s: ",
+                            join((string(H[n]) for n in range(H)), "; "))
                 end
             end
-            @info "$(length(results)) snapshots checked in $(round(elapsed; digits = 1)) s; " *
-                  "gzip bytes identical for $(count(r -> r.same_gzip, results))."
+            @testset "Variants of $case agree" for (case, hs) in sort!(collect(homologies); by = first)
+                @test all(h.second == first(hs).second for h in hs)
+            end
+            both = sort!([c[9:end] for c in keys(homologies)
+                          if startswith(c, "classic_") && haskey(homologies, "dual_" * c[9:end])])
+            @testset "Classical and dual monoids of $X agree" for X in both
+                @test first(homologies["classic_" * X]).second == first(homologies["dual_" * X]).second
+            end
+            @info "$(sum(length, values(homologies); init = 0)) snapshots checked in " *
+                  "$(round(elapsed; digits = 1)) s; homology compared with the expected values " *
+                  "for $(n_expected[]) of them."
         end
     end
 end

@@ -9,6 +9,7 @@ import Chevie  # loads the package extension GaussChevieExt
     end
     include("test_complexes.jl")
     include("test_snapshots.jl")
+    include("test_homology.jl")
     @testset "Chevie extension" begin
         @test Base.get_extension(Gauss, :GaussChevieExt) isa Module
     end

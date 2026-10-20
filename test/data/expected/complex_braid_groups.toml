@@ -1,0 +1,96 @@
+# Integral homology of the braid groups of the 26 well-generated exceptional complex
+# reflection groups W, with trivial coefficients: H₀, …, Hₙ for W of rank n.
+#
+# Provenance: the table of section 4.2 of the development plan, computed in the
+# experiment repository with the preliminary implementation (homologie.jl, dual monoids,
+# Gauss_a), and for G37 from the elementary divisors of d₀ to d₇ computed by
+# SparseElementaryDivisors. To be confronted with table 3 of O. Garnier
+# (arXiv:2302.10033, section 3.6) in J1.f, which will also add table 4 (coefficients ℤε).
+#
+# One table per group, named as the snapshots (G4, …, G37). `trivial` lists H₀ to Hₙ in
+# the notation read by parse(FinitelyGeneratedAbelianGroup, s); `real` names the Coxeter
+# type of the real groups, whose classical and dual monoids must give the same homology.
+
+[G4]
+trivial = ["ℤ", "ℤ", "0"]
+
+[G8]
+trivial = ["ℤ", "ℤ", "0"]
+
+[G16]
+trivial = ["ℤ", "ℤ", "0"]
+
+[G20]
+trivial = ["ℤ", "ℤ", "0"]
+
+[G5]
+trivial = ["ℤ", "ℤ²", "ℤ"]
+
+[G6]
+trivial = ["ℤ", "ℤ²", "ℤ"]
+
+[G9]
+trivial = ["ℤ", "ℤ²", "ℤ"]
+
+[G10]
+trivial = ["ℤ", "ℤ²", "ℤ"]
+
+[G14]
+trivial = ["ℤ", "ℤ²", "ℤ"]
+
+[G17]
+trivial = ["ℤ", "ℤ²", "ℤ"]
+
+[G18]
+trivial = ["ℤ", "ℤ²", "ℤ"]
+
+[G21]
+trivial = ["ℤ", "ℤ²", "ℤ"]
+
+[G23]
+real = "H3"
+trivial = ["ℤ", "ℤ", "ℤ", "ℤ"]
+
+[G24]
+trivial = ["ℤ", "ℤ", "ℤ", "ℤ"]
+
+[G25]
+trivial = ["ℤ", "ℤ", "ℤ/2ℤ", "0"]
+
+[G26]
+trivial = ["ℤ", "ℤ²", "ℤ²", "ℤ"]
+
+[G27]
+trivial = ["ℤ", "ℤ", "ℤ/3ℤ ⊕ ℤ", "ℤ"]
+
+[G28]
+real = "F4"
+trivial = ["ℤ", "ℤ²", "ℤ²", "ℤ²", "ℤ"]
+
+[G29]
+trivial = ["ℤ", "ℤ", "ℤ/2ℤ ⊕ ℤ/4ℤ", "ℤ/2ℤ ⊕ ℤ", "ℤ"]
+
+[G30]
+real = "H4"
+trivial = ["ℤ", "ℤ", "ℤ/2ℤ", "ℤ", "ℤ"]
+
+[G32]
+trivial = ["ℤ", "ℤ", "ℤ/2ℤ", "0", "0"]
+
+[G33]
+trivial = ["ℤ", "ℤ", "ℤ/6ℤ", "ℤ/6ℤ", "ℤ", "ℤ"]
+
+[G34]
+trivial = ["ℤ", "ℤ", "ℤ/6ℤ", "ℤ/6ℤ", "(ℤ/3ℤ)² ⊕ ℤ/6ℤ", "(ℤ/3ℤ)² ⊕ ℤ", "ℤ"]
+
+[G35]
+real = "E6"
+trivial = ["ℤ", "ℤ", "ℤ/2ℤ", "ℤ/2ℤ", "ℤ/6ℤ", "ℤ/3ℤ", "0"]
+
+[G36]
+real = "E7"
+trivial = ["ℤ", "ℤ", "ℤ/2ℤ", "(ℤ/2ℤ)²", "(ℤ/6ℤ)²", "ℤ/3ℤ ⊕ ℤ/6ℤ", "ℤ", "ℤ"]
+
+[G37]
+real = "E8"
+trivial = ["ℤ", "ℤ", "ℤ/2ℤ", "ℤ/2ℤ", "ℤ/2ℤ ⊕ ℤ/6ℤ", "ℤ/3ℤ ⊕ ℤ/6ℤ", "ℤ/2ℤ ⊕ ℤ/6ℤ", "ℤ", "ℤ"]

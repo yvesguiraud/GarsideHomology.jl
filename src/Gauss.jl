@@ -23,7 +23,9 @@ using .Complexes: rank
 # Public interface of the complexes layer (kept equal to its export list by the tests).
 export MonoidAlgebra, BasedFreeModule, LabelledSparseMatrix, ChainComplex
 export FinitelyGeneratedModule, FinitelyGeneratedAbelianGroup
+export FinitelyGeneratedGradedModule, FinitelyGeneratedGradedAbelianGroup
 export labelled_sparse, cells, labels, differential, specialise, torsion, is_square_zero
+export homology
 export base_ring, nrows, ncols
 # Public, not exported: Chevie exports its own `rank` (see Complexes.jl).
 public rank
