@@ -4,7 +4,7 @@
 # j0/ref, j0/out/gros), every snapshot of that folder: its fingerprints against the
 # reference, and its homology (trivial coefficients) against the expected values of
 # data/expected/, between the four variants of a case, and between the classical and
-# dual monoids of a real group.
+# dual monoids of a real group; its collapsible pairs against the counts recorded in J0.
 
 include("snapshot_io.jl")
 
@@ -16,6 +16,7 @@ import TOML
 const SNAP_REFERENCE = joinpath(@__DIR__, "data", "reference")
 const SNAP_TINY = joinpath(@__DIR__, "data", "snapshots")
 const SNAP_DIR = get(ENV, "GAUSS_SNAPSHOT_DIR", "")
+const SNAP_PAIRS = joinpath(SNAP_REFERENCE, "collapsible_pairs.csv")
 
 # Free commutative monoid on two atoms a = 1, b = 2: Koszul resolution of bimodules,
 # ∂[a] = a·[]·e − e·[]·a, ∂[b] likewise, ∂[a|b] = (a⊗1 − 1⊗a)[b] − (b⊗1 − 1⊗b)[a].
@@ -153,6 +154,9 @@ _sign(m::SnapshotMonoid) = l -> iseven(simple_length(m, l[1]) + simple_length(m,
             @test !isempty(files)
             homologies = Dict{String, Vector{Pair{String, FinitelyGeneratedGradedAbelianGroup}}}()
             n_expected = Ref(0)
+            pair_reference = read_pair_counts(SNAP_PAIRS)
+            n_non_units = Ref(0)
+            n_with_targets = Ref(0)
             println("Checking $(length(files)) snapshots of $SNAP_DIR")
             elapsed = @elapsed for f in files
                 name = f[1:(end - 7)]
@@ -174,9 +178,22 @@ _sign(m::SnapshotMonoid) = l -> iseven(simple_length(m, l[1]) + simple_length(m,
                         @test H == E
                         n_expected[] += 1
                     end
+                    # Collapsible pairs: B3 counted the monomials 1·y·1 whatever their coefficient.
+                    monomials = identity_monomials(s.complex)
+                    counts = get(pair_reference, name, nothing)
+                    if counts === nothing
+                        @warn "No reference counts of collapsible pairs for $name"
+                    else
+                        @test pair_counts_agree(pair_counts(monomials), counts)
+                        counts.targets === nothing || (n_with_targets[] += 1)
+                    end
+                    non_units = count(m -> abs(m.coefficient) != 1, monomials)
+                    n_pairs = length(collapsible_pairs(s.complex))
+                    @test n_pairs == length(monomials) - non_units
+                    n_non_units[] += non_units
                     println("  ", rpad(name, 22), lpad(rows[end].lines, 9), " lines, read ",
                             lpad(round(t_read; digits = 1), 6), " s, homology ",
-                            lpad(round(t_homology; digits = 1), 6), " s: ",
+                            lpad(round(t_homology; digits = 1), 6), " s, ", n_pairs, " pairs: ",
                             join((string(H[n]) for n in range(H)), "; "))
                 end
             end
@@ -190,7 +207,9 @@ _sign(m::SnapshotMonoid) = l -> iseven(simple_length(m, l[1]) + simple_length(m,
             end
             @info "$(sum(length, values(homologies); init = 0)) snapshots checked in " *
                   "$(round(elapsed; digits = 1)) s; homology compared with the expected values " *
-                  "for $(n_expected[]) of them."
+                  "for $(n_expected[]) of them; collapsible pairs compared with J0 " *
+                  "(targets included for $(n_with_targets[])); $(n_non_units[]) monomials 1·y·1 " *
+                  "with a coefficient other than ±1."
         end
     end
 end

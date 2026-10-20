@@ -349,3 +349,68 @@ end
 "The decompressed text of a gzip-compressed file."
 gunzip_text(path::AbstractString) =
     open(io -> read(GzipDecompressorStream(io), String), path)
+
+# ------------------------------------------------------------------------------------
+# Collapsible pairs, as counted by the script B3 of J0
+
+"""
+    identity_monomials(C)
+
+The monomials of the differentials of a complex of snapshot type whose label is the
+identity (σ = τ = e), as the script B3 of J0 counted them, without looking at the
+coefficient: named tuples `(n, source, target, coefficient)`.
+"""
+function identity_monomials(C)
+    monomials = NamedTuple{(:n, :source, :target, :coefficient), NTuple{4, Int}}[]
+    one_label = Gauss.Complexes.identity_label(NTuple{2, Int32})
+    for n in first(range(C)):(last(range(C)) - 1)
+        d = differential(C, n)
+        rows, labs, vals = _SNAP_SA.rowvals(d), labels(d), _SNAP_SA.nonzeros(d)
+        for j in 1:ncols(d), k in _SNAP_SA.nzrange(d, j)
+            labs[k] == one_label &&
+                push!(monomials, (n = n, source = j, target = Int(rows[k]), coefficient = vals[k]))
+        end
+    end
+    return monomials
+end
+
+"""
+    pair_counts(pairs)
+
+The counts `(sources, pairs, targets)` of a list of pairs or monomials, as B3 gave them:
+the distinct `(n, source)`, the elements of the list, the distinct `(n, target)`.
+"""
+pair_counts(pairs) = (length(unique((p.n, p.source) for p in pairs)), length(pairs),
+                      length(unique((p.n, p.target) for p in pairs)))
+
+"""
+    read_pair_counts(path)
+
+The file `collapsible_pairs.csv` of data/reference as a dictionary
+`"<case>_<variant>" => (sources, pairs, targets)`, `targets` being `nothing` for the
+snapshots recorded only by the first series of J0, whose output had no targets.
+"""
+function read_pair_counts(path::AbstractString)
+    lines = readlines(path)
+    lines[1] == "case,variant,sources,pairs,targets" ||
+        throw(ArgumentError("$path: unexpected header $(lines[1])"))
+    counts = Dict{String, NamedTuple{(:sources, :pairs, :targets), Tuple{Int, Int, Union{Int, Nothing}}}}()
+    for l in lines[2:end]
+        isempty(l) && continue
+        f = split(l, ',')
+        length(f) == 5 || throw(ArgumentError("$path: row with $(length(f)) fields: $l"))
+        counts[f[1] * "_" * f[2]] = (sources = parse(Int, f[3]), pairs = parse(Int, f[4]),
+                                     targets = isempty(f[5]) ? nothing : parse(Int, f[5]))
+    end
+    return counts
+end
+
+"""
+    pair_counts_agree(counts, reference)
+
+Whether the counts `(sources, pairs, targets)` agree with a row of
+[`read_pair_counts`](@ref), the targets being compared only when they are known.
+"""
+pair_counts_agree(counts::NTuple{3, Int}, reference) =
+    counts[1] == reference.sources && counts[2] == reference.pairs &&
+    (reference.targets === nothing || counts[3] == reference.targets)

@@ -25,7 +25,7 @@ export MonoidAlgebra, BasedFreeModule, LabelledSparseMatrix, ChainComplex
 export FinitelyGeneratedModule, FinitelyGeneratedAbelianGroup
 export FinitelyGeneratedGradedModule, FinitelyGeneratedGradedAbelianGroup
 export labelled_sparse, cells, labels, differential, specialise, torsion, is_square_zero
-export homology
+export homology, collapsible_pairs
 export base_ring, nrows, ncols
 # Public, not exported: Chevie exports its own `rank` (see Complexes.jl).
 public rank
