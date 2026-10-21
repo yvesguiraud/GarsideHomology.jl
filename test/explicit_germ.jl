@@ -262,16 +262,117 @@ function check_germ(G)
             divides(a, s) && !(m == s && τ == 0) && fail("lcm_atom($s, $a) = $r with a ≼ s")
         end
     end
-    # Opposite: same keys, reversed products, own canonical numbering.
+    # Opposite: an involution, with the reversed products. The simple s = a₁⋯aₖ of G is
+    # aₖ ·ᵒᵖ ⋯ ·ᵒᵖ a₁ in the opposite germ.
     O = Gauss.opposite(G)
     natoms(O) == N && nsimples(O) == n || fail("size of the opposite")
     Gauss.opposite(O) == G || fail("opposite(opposite(G)) != G")
-    φ = Dict(k => Int32(i - 1) for (i, k) in enumerate(O.keys))
-    image(s) = φ[G.keys[s + 1]]
+    image = [foldl((x, a) -> Gauss.product(O, x, a)::Int32, reverse(Gauss.word(G, s));
+                   init = Int32(0)) for s in S]
+    sort(image) == S || fail("the simples of the opposite are not those of G")
     for s in S, t in S
         p = Gauss.product(G, s, t)
-        q = Gauss.product(O, image(t), image(s))
-        (p === nothing ? q === nothing : q == image(p)) || fail("opposite on ($s, $t)")
+        q = Gauss.product(O, image[t + 1], image[s + 1])
+        (p === nothing ? q === nothing : q == image[p + 1]) || fail("opposite on ($s, $t)")
     end
     return failures
 end
+
+# ------------------------------------------------------------------------------------
+# Right covers, for Gauss.tabulate
+
+"""
+    right_covers_of(G)
+
+The right covers of a germ whose simples are all numbered, in the form taken by
+`Gauss.tabulate`: `R[a, s + 1]` is `sa + 1`, or 0; the identity is numbered 1.
+"""
+function right_covers_of(G)
+    S, N = Gauss.simples(G), natoms(G)
+    R = zeros(Int32, N, length(S))
+    for s in S, a in 1:N
+        v = Gauss.product(G, s, a)
+        v === nothing || (R[a, s + 1] = v + 1)
+    end
+    return R
+end
+
+"""
+    interval_covers(S, atoms, identity, mul, len) -> (R, identity_number)
+
+The right covers of the interval germ of `interval_germ`, for `Gauss.tabulate`, the
+elements being numbered by their positions in `S`; no lcm is computed, so that the
+germ need not be a lattice.
+"""
+function interval_covers(S, atoms, identity, mul, len)
+    index = Dict(x => i for (i, x) in enumerate(S))
+    R = zeros(Int32, length(atoms), length(S))
+    for (p, x) in enumerate(S), (a, y) in enumerate(atoms)
+        z = mul(x, y)
+        haskey(index, z) && len(z) == len(x) + 1 && (R[a, p] = index[z])
+    end
+    return R, index[identity]
+end
+
+# ------------------------------------------------------------------------------------
+# Interval germs of the groups of signed permutations, types B and D
+
+# A signed permutation of 1:n is a tuple p, p[i] being the image ±j of i; (pq)(i) = p(q(i)).
+signed_mul(p, q) = ntuple(i -> sign(q[i]) * p[abs(q[i])], length(p))
+
+function signed_inv(p)
+    r = zeros(Int, length(p))
+    for (i, v) in enumerate(p)
+        r[abs(v)] = sign(v) * i
+    end
+    return Tuple(r)
+end
+
+_permutations(n) = n == 0 ? [Int[]] :
+    [vcat(q[1:(k - 1)], n, q[k:end]) for q in _permutations(n - 1) for k in 1:n]
+
+"""
+    signed_interval(n, type, w) -> (S, atoms, e, mul, len)
+
+The interval [1, w] for the reflection length in the group of signed permutations of
+type `type` (`:B` or `:D`) on `1:n`: its elements, sorted, its atoms (the reflections it
+contains), the identity, the product and the reflection length.
+"""
+function signed_interval(n, type, w)
+    e = ntuple(identity, n)
+    elements = NTuple{n, Int}[]
+    for q in _permutations(n), mask in 0:(2^n - 1)
+        type === :D && isodd(count_ones(mask)) && continue
+        push!(elements, ntuple(i -> (mask >> (i - 1)) & 1 == 1 ? -q[i] : q[i], n))
+    end
+    reflections = NTuple{n, Int}[]
+    if type === :B
+        for i in 1:n
+            push!(reflections, ntuple(k -> k == i ? -k : k, n))
+        end
+    end
+    for i in 1:n, j in (i + 1):n
+        push!(reflections, ntuple(k -> k == i ? j : k == j ? i : k, n))
+        push!(reflections, ntuple(k -> k == i ? -j : k == j ? -i : k, n))
+    end
+    len = Dict(e => 0)
+    queue = [e]
+    while !isempty(queue)
+        x = popfirst!(queue)
+        for r in reflections
+            y = signed_mul(x, r)
+            haskey(len, y) || (len[y] = len[x] + 1; push!(queue, y))
+        end
+    end
+    S = sort!([x for x in elements if len[x] + len[signed_mul(signed_inv(x), w)] == len[w]])
+    atoms = [x for x in S if len[x] == 1]
+    return S, atoms, e, signed_mul, x -> len[x]
+end
+
+"""
+    signed_interval_germ(n, type, w)
+
+The [`ExplicitGerm`](@ref) of the interval [1, w] of `signed_interval`; for instance
+`signed_interval_germ(4, :D, (2, -4, -3, 1))` is B*(D₄), for a Coxeter element.
+"""
+signed_interval_germ(n, type, w) = interval_germ(signed_interval(n, type, w)...)

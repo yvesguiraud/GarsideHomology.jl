@@ -186,15 +186,15 @@ order, a prefix coming first. The generic method compares the words letter by le
 without allocating; a tabulated germ compares precomputed ranks.
 """
 function isless_lex(G::AbstractGerm, s::Integer, t::Integer)
-    s, t = Int32(s), Int32(t)
+    x, y = Int32(s), Int32(t)
     while true
-        s == t && return false
-        iszero(t) && return false
-        iszero(s) && return true
-        a = Int32(first(left_descents(G, s)))
-        b = Int32(first(left_descents(G, t)))
+        x == y && return false
+        iszero(y) && return false
+        iszero(x) && return true
+        a = Int32(first(left_descents(G, x)))
+        b = Int32(first(left_descents(G, y)))
         a == b || return a < b
-        s = ldiv(G, a, s)::Int32
-        t = ldiv(G, b, t)::Int32
+        x = ldiv(G, a, x)::Int32
+        y = ldiv(G, b, y)::Int32
     end
 end

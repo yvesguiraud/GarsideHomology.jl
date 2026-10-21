@@ -10,7 +10,8 @@ corresponding groups with various coefficients.
 This version is a package skeleton: the layers (germs, cell schemes, cell tree,
 projection, resolution and certificates, modules, complexes) are added step by step.
 Present so far: the generic layer of complexes, `Gauss.Complexes`, whose public names
-are re-exported, and the interface of germs ([`AbstractGerm`](@ref)).
+are re-exported, the interface of germs ([`AbstractGerm`](@ref)) and tabulated germs
+([`TableGerm`](@ref)).
 """
 module Gauss
 
@@ -23,6 +24,7 @@ using .Complexes: rank, AbstractMonoid
 # Germs: numbering of the simples, partial product, divisions, descents, lcms.
 include("germs/bitsets.jl")
 include("germs/interface.jl")
+include("germs/table.jl")
 
 # Public interface of the complexes layer (kept equal to its export list by the tests).
 export MonoidAlgebra, BasedFreeModule, LabelledSparseMatrix, ChainComplex
@@ -40,5 +42,6 @@ public rank
 export natoms, nsimples, simples, opposite
 public AbstractGerm, StaticBitSet
 public product, ldiv, left_descents, lcm_atom, atoms, is_left_divisor, word, isless_lex
+public TableGerm, tabulate
 
 end # module Gauss

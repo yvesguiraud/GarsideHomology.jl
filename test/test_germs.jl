@@ -42,6 +42,7 @@ _sum_elements(s) = (c = 0; for i in s; c += i; end; c)
         @test 64 in s && 65 in s && !(63 in s) && !(0 in s) && !(129 in s) && !(-1 in s)
         @test sprint(show, s) == "StaticBitSet{2}([1, 64, 65, 128])"
         @test s == Set([1, 64, 65, 128]) && s != SBS{2}([1, 64, 65])
+        @test copy(s) === s
         @test _sum_elements(s) == 258
         @test (@allocated _sum_elements(s)) == 0
 
@@ -149,7 +150,7 @@ _sum_elements(s) = (c = 0; for i in s; c += i; end; c)
             @test Base.isexported(Gauss, s)
         end
         for s in (:AbstractGerm, :StaticBitSet, :product, :ldiv, :left_descents, :lcm_atom,
-                  :atoms, :is_left_divisor, :word, :isless_lex)
+                  :atoms, :is_left_divisor, :word, :isless_lex, :TableGerm, :tabulate)
             @test Base.ispublic(Gauss, s) && !Base.isexported(Gauss, s)
         end
         # No name exported by Gauss is exported by Chevie for another object.
