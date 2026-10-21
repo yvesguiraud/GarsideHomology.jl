@@ -20,3 +20,19 @@ repository (the snapshots of G37, dual_E8, heavier, are kept outside git):
 - SHA-256 of `gauss.jl` (LF line endings): a45f0c3b02d217da3a0287de6fc767e57bf134b4f5f65a40d1ff2ce264fd0b9c
 - Commit of the experiment repository: 6ea7f2ecc8cb36c40936b43a0e963e9871de9998, 8a2ba617063dc85663aca7990b57637c260a8f8d, cad379d4c3a7fe9898cdded1492208409ef2cb21
 - Computed from 2026-10-14 to 2026-10-15.
+
+## Collapsible pairs
+
+`collapsible_pairs.csv` gives, for each snapshot, the counts of collapsible pairs recorded
+in J0 by the experiment repository (script B3), extracted by its script
+`j1/b4_collapsible_reference.jl`: the number of cells x such that ∂x has a term 1·y·1
+(`sources`), the number of such pairs (x, y) (`pairs`) and the number of distinct cells y
+(`targets`). Columns: `case,variant,sources,pairs,targets`.
+
+The column `targets` is empty for the 248 snapshots recorded only by the first series of
+J0, whose output did not count the targets. Where both series recorded a snapshot, they
+agree on sources and pairs.
+
+These terms were counted whatever their coefficient. The tests compare these counts with
+the monomials of label (e, e) of the snapshots, and check that `collapsible_pairs` keeps
+exactly those whose coefficient is ±1.

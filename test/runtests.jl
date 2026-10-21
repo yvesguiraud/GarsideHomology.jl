@@ -7,6 +7,11 @@ import Chevie  # loads the package extension GaussChevieExt
         @test isdefined(Gauss, :Complexes)
         @test parentmodule(Gauss.Complexes) === Gauss
     end
+    include("test_complexes.jl")
+    include("test_snapshots.jl")
+    include("test_homology.jl")
+    include("test_pairs.jl")
+    include("test_solver_matrices.jl")
     @testset "Chevie extension" begin
         @test Base.get_extension(Gauss, :GaussChevieExt) isa Module
     end

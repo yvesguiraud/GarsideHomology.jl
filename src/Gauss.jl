@@ -9,11 +9,25 @@ corresponding groups with various coefficients.
 
 This version is a package skeleton: the layers (germs, cell schemes, cell tree,
 projection, resolution and certificates, modules, complexes) are added step by step.
+The first one is the generic layer of complexes, `Gauss.Complexes`, whose public
+names are re-exported.
 """
 module Gauss
 
 # Generic layer of free modules and chain complexes. It must not depend on anything
 # else in Gauss, so that it can later become a package of its own.
 include("complexes/Complexes.jl")
+using .Complexes
+using .Complexes: rank
+
+# Public interface of the complexes layer (kept equal to its export list by the tests).
+export MonoidAlgebra, BasedFreeModule, LabelledSparseMatrix, ChainComplex
+export FinitelyGeneratedModule, FinitelyGeneratedAbelianGroup
+export FinitelyGeneratedGradedModule, FinitelyGeneratedGradedAbelianGroup
+export labelled_sparse, cells, labels, differential, specialise, torsion, is_square_zero
+export homology, collapsible_pairs
+export base_ring, nrows, ncols
+# Public, not exported: Chevie exports its own `rank` (see Complexes.jl).
+public rank
 
 end # module Gauss
