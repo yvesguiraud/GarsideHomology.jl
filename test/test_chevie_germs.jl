@@ -35,6 +35,36 @@ import Chevie
         @test check_germ(G) == 0
     end
 
+    @testset "Enumeration without Chevie's simples (c3bis): $name" for (name, M) in [
+            "B*(A₃)" => Chevie.DualBraidMonoid(A(3); c = collect(1:3)),
+            "B*(B₃)" => Chevie.DualBraidMonoid(B(3); c = collect(1:3)),
+            "B*(D₄)" => Chevie.DualBraidMonoid(Chevie.coxgroup(:D, 4); c = collect(1:4)),
+            "B*(H₃)" => Chevie.DualBraidMonoid(Chevie.coxgroup(:H, 3); c = collect(1:3)),
+            "B*(I₂(5))" => Chevie.DualBraidMonoid(Chevie.coxgroup(:I, 2, 5); c = [1, 2]),
+            "B*(G₄)" => Chevie.DualBraidMonoid(Chevie.crg(4)),
+            "B*(G₅)" => Chevie.DualBraidMonoid(Chevie.crg(5)),
+            "B*(G₆)" => Chevie.DualBraidMonoid(Chevie.crg(6)),        # c: a word of 19 letters
+            "B*(G₂₅)" => Chevie.DualBraidMonoid(Chevie.crg(25)),
+            "B*(G₂₆)" => Chevie.DualBraidMonoid(Chevie.crg(26))]
+        ext = Base.get_extension(Gauss, :GaussChevieExt)
+        G = Gauss.TableGerm(M)
+        # Same germ as by the simples of left_divisors (the reference of c3).
+        @test G == Gauss.TableGerm(ext._right_covers(M; method = :chevie)...)
+        # From the group alone, for the same Coxeter element.
+        @test dual_germ(M.W; c = M.δword) == G
+    end
+
+    @testset "Default Coxeter element of dual_germ" begin
+        # Chevie's default c is 1:n for these groups (j1/c3bis_coxeter.jl): Springer's test
+        # accepts it and the germ is that of DualBraidMonoid(W).
+        for W in (A(3), B(3), Chevie.coxgroup(:H, 3), Chevie.crg(4), Chevie.crg(5), Chevie.crg(25))
+            @test dual_germ(W) == Gauss.TableGerm(Chevie.DualBraidMonoid(W; c = collect(1:length(Chevie.gens(W)))))
+        end
+        @test_throws "well-generated" dual_germ(Chevie.crg(31))     # 5 generators in rank 4
+        # Cat(A₁₁) = 208 012 simples, decided from the degrees.
+        @test_throws "above the tabulation threshold" dual_germ(Chevie.coxgroup(:A, 11))
+    end
+
     @testset "Opposite monoids" begin
         # w ↦ w⁻¹ fixes the atoms: B⁺(W)ᵒᵖ ≅ B⁺(W) and, for a real group,
         # B*(W, c)ᵒᵖ ≅ B*(W, c⁻¹), with the same order of the atoms.

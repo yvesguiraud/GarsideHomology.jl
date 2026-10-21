@@ -145,12 +145,23 @@ _sum_elements(s) = (c = 0; for i in s; c += i; end; c)
         @test check_germ(D) == 0
     end
 
+    @testset "Hurwitz orbit" begin
+        # The transpositions 1 = (12), 2 = (13), 3 = (23) of S₃; xyx⁻¹ for x ≠ y is the
+        # third one. The reduced decompositions of a 3-cycle: 3 = n!·hⁿ/|W| = 2·9/6.
+        conj(i, j) = i == j ? i : 6 - i - j
+        orbit = Gauss.hurwitz_orbit((1, 3), conj)
+        @test orbit[1] == (1, 3) && Set(orbit) == Set([(1, 3), (2, 1), (3, 2)])
+        @test Gauss.hurwitz_orbit((Int32(2),), conj) == [(Int32(2),)]
+        @test_throws ArgumentError Gauss.hurwitz_orbit((1, 3), conj; limit = 2)
+    end
+
     @testset "Exports" begin
-        for s in (:natoms, :nsimples, :simples, :opposite, :germ)
+        for s in (:natoms, :nsimples, :simples, :opposite, :germ, :dual_germ)
             @test Base.isexported(Gauss, s)
         end
         for s in (:AbstractGerm, :StaticBitSet, :product, :ldiv, :left_descents, :lcm_atom,
-                  :atoms, :is_left_divisor, :word, :isless_lex, :TableGerm, :tabulate)
+                  :atoms, :is_left_divisor, :word, :isless_lex, :TableGerm, :tabulate,
+                  :hurwitz_orbit)
             @test Base.ispublic(Gauss, s) && !Base.isexported(Gauss, s)
         end
         # No name exported by Gauss is exported by Chevie for another object.

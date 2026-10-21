@@ -214,3 +214,17 @@ is thrown for now: the lazy germ of the large classical monoids is still to be w
 `TableGerm(M)` forces the tabulation.
 """
 function germ end
+
+"""
+    dual_germ(W; c = 1:n)
+
+The germ of the dual braid monoid of the well-generated irreducible reflection group
+`W` for the Coxeter element `c`, given as a word in the generators of `W` (by default
+their product in order, accepted only if it is a regular element of order h, by a test
+of Springer's criterion). The monoid itself is not built: for a real group (2 among the
+degrees), the simples are found by the criterion of Brady and Watt; for a complex group,
+by the Hurwitz orbit of a reduced decomposition of `c` ([`hurwitz_orbit`](@ref)).
+Methods are added by the package extensions (Chevie). The same threshold as for
+[`germ`](@ref) applies.
+"""
+function dual_germ end
