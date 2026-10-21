@@ -21,7 +21,7 @@ Invariants, checked by the constructor unless `check = false` (see
 3. in each column, the pairs `(rowval[k], label[k])` are strictly increasing: the
    storage is canonical, two equal matrices have equal arrays;
 4. no stored coefficient is zero;
-5. labels are positive, label `1` (or `(1, 1)`) being the identity.
+5. labels are nonnegative, label `0` (or `(0, 0)`) being the identity.
 
 Constructors: `LabelledSparseMatrix(m, n, colptr, rowval, label, nzval; check = true)`
 from the CSC arrays, `LabelledSparseMatrix{L, Tv}(m, n)` for the zero matrix, and
@@ -53,8 +53,8 @@ function LabelledSparseMatrix{L, Tv}(m::Integer, n::Integer) where {L, Tv}
     return LabelledSparseMatrix{L, Tv}(m, n, ones(Int, Int(n) + 1), Int32[], L[], Tv[])
 end
 
-_label_valid(l::Integer) = l >= 1
-_label_valid(l::NTuple{2, Integer}) = l[1] >= 1 && l[2] >= 1
+_label_valid(l::Integer) = l >= 0
+_label_valid(l::NTuple{2, Integer}) = l[1] >= 0 && l[2] >= 0
 
 """
     check_invariants(d::LabelledSparseMatrix)

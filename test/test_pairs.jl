@@ -18,15 +18,16 @@ struct PairsTestMonoid <: Gauss.Complexes.AbstractMonoid end
 
     @testset "Complexes written by hand" begin
         # ⟨a⟩: ∂[a] = a·[]·e − e·[]·a has no monomial 1·y·1.
-        da = labelled_sparse([1, 1], [1, 1], L2[(2, 1), (1, 2)], [1, -1], 1, 1)
+        da = labelled_sparse([1, 1], [1, 1], L2[(1, 0), (0, 1)], [1, -1], 1, 1)
         P = ChainComplex([BasedFreeModule(A, 1), BasedFreeModule(A, 1)], [da])
         @test isempty(collapsible_pairs(P))
         @test isempty(identity_monomials(P))
 
         # C₁ = ⟨x₁, x₂, x₃⟩ → C₀ = ⟨y₁, y₂⟩ with ∂x₁ = y₁, ∂x₂ = 2·y₁ and
-        # ∂x₃ = −y₁ + (1 + σ)·y₂: only (x₁, y₁) and (x₃, y₁) are collapsible.
+        # ∂x₃ = −y₁ + (1 + σ)·y₂: only (x₁, y₁) and (x₃, y₁) are collapsible. Labels: e = 0,
+        # σ = 1.
         d = labelled_sparse([1, 1, 1, 2, 2], [1, 2, 3, 3, 3],
-                            L2[(1, 1), (1, 1), (1, 1), (1, 1), (2, 1)], [1, 2, -1, 1, 1], 2, 3)
+                            L2[(0, 0), (0, 0), (0, 0), (0, 0), (1, 0)], [1, 2, -1, 1, 1], 2, 3)
         C = ChainComplex([BasedFreeModule(A, 2), BasedFreeModule(A, 3)], [d])
         pairs = collapsible_pairs(C)
         @test pairs == [(n = 0, source = 1, target = 1), (n = 0, source = 3, target = 1)]

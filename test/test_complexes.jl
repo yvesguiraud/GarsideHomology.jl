@@ -14,7 +14,8 @@ const SA = Gauss.Complexes.SparseArrays
 const ZZ = AA.ZZ
 const L2 = NTuple{2, Int32}
 
-# A monoid described by the names of its simples, in the numbering of the labels.
+# A monoid described by the names of its simples; label l names simples[l + 1], so that
+# label 0 is the identity.
 struct NamedMonoid <: Gauss.Complexes.AbstractMonoid
     simples::Vector{String}
 end
@@ -35,8 +36,8 @@ end
         @test hash(A) == hash(MonoidAlgebra(ZZ, m, :both))
         @test A != MonoidAlgebra(ZZ, m, :left)
         @test A != MonoidAlgebra(ZZ, NamedMonoid(["e", "b"]))
-        @test Gauss.Complexes.identity_label(Int32) === Int32(1)
-        @test Gauss.Complexes.identity_label(L2) === (Int32(1), Int32(1))
+        @test Gauss.Complexes.identity_label(Int32) === Int32(0)
+        @test Gauss.Complexes.identity_label(L2) === (Int32(0), Int32(0))
         @test occursin("bimodules", sprint(show, A))
     end
 
@@ -96,7 +97,7 @@ end
 
         # Invariants.
         @test_throws ArgumentError LabelledSparseMatrix(1, 1, [1, 2], Int32[2], Int32[1], [1])
-        @test_throws ArgumentError LabelledSparseMatrix(1, 1, [1, 2], Int32[1], Int32[0], [1])
+        @test_throws ArgumentError LabelledSparseMatrix(1, 1, [1, 2], Int32[1], Int32[-1], [1])
         @test_throws ArgumentError LabelledSparseMatrix(1, 1, [1, 2], Int32[1], Int32[1], [0])
         @test_throws ArgumentError LabelledSparseMatrix(2, 1, [1, 3], Int32[2, 1], Int32[1, 1], [1, 1])
         @test_throws ArgumentError LabelledSparseMatrix(1, 1, [1, 3], Int32[1, 1], Int32[1, 1], [1, 1])
@@ -104,7 +105,9 @@ end
         @test_throws ArgumentError LabelledSparseMatrix(1, 1, [2, 2], Int32[1], Int32[1], [1])
         @test_throws ArgumentError LabelledSparseMatrix(1, 2, [1, 3, 2], Int32[1], Int32[1], [1])
         @test_throws ArgumentError LabelledSparseMatrix(1, 1, [1, 2], Int32[1], Int32[1], [1, 2])
-        @test_throws ArgumentError LabelledSparseMatrix(1, 1, [1, 2], Int32[1], L2[(1, 0)], [1])
+        @test_throws ArgumentError LabelledSparseMatrix(1, 1, [1, 2], Int32[1], L2[(1, -1)], [1])
+        # Label 0, the identity, is valid.
+        @test labels(LabelledSparseMatrix(1, 1, [1, 2], Int32[1], L2[(0, 0)], [1])) == L2[(0, 0)]
         bad = LabelledSparseMatrix(1, 1, [1, 2], Int32[1], Int32[1], [0]; check = false)
         @test bad isa LabelledSparseMatrix
         @test_throws ArgumentError Gauss.Complexes.check_invariants(bad)
@@ -113,7 +116,7 @@ end
         # Monomials out of bounds, invalid labels, overflow.
         @test_throws ArgumentError labelled_sparse([2], [1], Int32[1], [1], 1, 1)
         @test_throws ArgumentError labelled_sparse([1], [2], Int32[1], [1], 1, 1)
-        @test_throws ArgumentError labelled_sparse([1], [1], Int32[0], [1], 1, 1)
+        @test_throws ArgumentError labelled_sparse([1], [1], Int32[-1], [1], 1, 1)
         @test_throws ArgumentError labelled_sparse([1, 1], [1], Int32[1], [1], 1, 1)
         @test_throws OverflowError labelled_sparse([1, 1], [1, 1], Int32[1, 1],
                                                    [typemax(Int), 1], 1, 1)
@@ -190,11 +193,11 @@ end
     end
 
     @testset "Complexes over a monoid algebra" begin
-        # Free monoid on one atom a, simples e = 1 and a = 2: resolution of bimodules
+        # Free monoid on one atom a, simples e = 0 and a = 1: resolution of bimodules
         # 0 → C₁ = ⟨[a]⟩ → C₀ = ⟨[]⟩, ∂[a] = a·[]·e − e·[]·a.
         A = MonoidAlgebra(ZZ, NamedMonoid(["e", "a"]))
-        len = [0, 1]
-        da = labelled_sparse([1, 1], [1, 1], L2[(2, 1), (1, 2)], [1, -1], 1, 1)
+        len = [0, 1]                                 # len[l + 1] = ℓ(label l)
+        da = labelled_sparse([1, 1], [1, 1], L2[(1, 0), (0, 1)], [1, -1], 1, 1)
         P = ChainComplex([BasedFreeModule(A, ["[]"]), BasedFreeModule(A, ["[a]"])], [da])
         @test base_ring(P) == A
         @test differential(P, 0) === da
@@ -205,24 +208,24 @@ end
         @test cells(S[1]) === cells(P[1])            # bases are shared, not copied
         @test iszero(differential(S, 0)) && size(differential(S, 0)) == (1, 1)
         # Sign on the right, trivial on the left: H₀(ℕ ; ℤε) = ℤ/2ℤ.
-        sign_right(l) = isodd(len[l[2]]) ? -1 : 1
+        sign_right(l) = isodd(len[l[2] + 1]) ? -1 : 1
         @test differential(specialise(P, sign_right), 0) == SA.sparse([1], [1], [2], 1, 1)
 
-        # Free commutative monoid on a, b, simples e = 1, a = 2, b = 3, ab = 4: Koszul
+        # Free commutative monoid on a, b, simples e = 0, a = 1, b = 2, ab = 3: Koszul
         # resolution of bimodules, ∂[a|b] = (a⊗1 − 1⊗a)[b] − (b⊗1 − 1⊗b)[a].
         B = MonoidAlgebra(ZZ, NamedMonoid(["e", "a", "b", "ab"]))
         lenB = [0, 1, 1, 2]
         d0 = labelled_sparse([1, 1, 1, 1], [1, 1, 2, 2],
-                             L2[(2, 1), (1, 2), (3, 1), (1, 3)], [1, -1, 1, -1], 1, 2)
+                             L2[(1, 0), (0, 1), (2, 0), (0, 2)], [1, -1, 1, -1], 1, 2)
         d1 = labelled_sparse([1, 1, 2, 2], [1, 1, 1, 1],
-                             L2[(3, 1), (1, 3), (2, 1), (1, 2)], [-1, 1, 1, -1], 2, 1)
+                             L2[(2, 0), (0, 2), (1, 0), (0, 1)], [-1, 1, 1, -1], 2, 1)
         T = ChainComplex([BasedFreeModule(B, ["[]"]), BasedFreeModule(B, ["[a]", "[b]"]),
                           BasedFreeModule(B, ["[a|b]"])], [d0, d1])
         @test sprint(show, T) == "ChainComplex over $(B) in degrees 0:2, ranks 1, 2, 1"
         ST = specialise(T)
         @test all(iszero(differential(ST, n)) for n in -1:2)
         @test is_square_zero(ST)
-        sign_right_B(l) = isodd(lenB[l[2]]) ? -1 : 1
+        sign_right_B(l) = isodd(lenB[l[2] + 1]) ? -1 : 1
         SE = specialise(T, sign_right_B)
         @test differential(SE, 0) == SA.sparse([1, 1], [1, 2], [2, 2], 1, 2)
         @test differential(SE, 1) == SA.sparse([1, 2], [1, 1], [-2, 2], 2, 1)

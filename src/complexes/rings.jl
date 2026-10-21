@@ -9,7 +9,7 @@
 
 Supertype of the objects that describe a monoid for a [`MonoidAlgebra`](@ref): the germs
 of the Gauss layer, a table of simples read from a file, etc. Such an object fixes the
-numbering of the elements used as labels (1 for the identity). No method is required
+numbering of the elements used as labels (0 for the identity). No method is required
 by this layer.
 """
 abstract type AbstractMonoid end
@@ -21,8 +21,8 @@ Descriptor of the monoid algebra `base[M]` of a monoid `M` (`side = :left` or `:
 or of the algebra `base[M × Mᵒᵖ]` over which bimodules are left modules (`side = :both`).
 `base` is an AbstractAlgebra ring and `monoid` an [`AbstractMonoid`](@ref).
 
-Elements of `M` are encoded by positive integers in the numbering fixed by `monoid`,
-`1` being the identity; for `side = :both`, an element `(σ, τ)` of `M × Mᵒᵖ` is encoded
+Elements of `M` are encoded by nonnegative integers in the numbering fixed by `monoid`,
+`0` being the identity; for `side = :both`, an element `(σ, τ)` of `M × Mᵒᵖ` is encoded
 by a pair of such integers. These codes are the labels of a
 [`LabelledSparseMatrix`](@ref) (see [`label_type`](@ref)).
 
@@ -56,10 +56,10 @@ label_type(A::MonoidAlgebra) = A.side === :both ? NTuple{2, Int32} : Int32
 """
     identity_label(L)
 
-Label of the identity of the monoid: `one(L)` for integer labels, `(1, 1)` for pairs.
+Label of the identity of the monoid: `zero(L)` for integer labels, `(0, 0)` for pairs.
 """
-identity_label(::Type{L}) where {L <: Integer} = one(L)
-identity_label(::Type{NTuple{2, T}}) where {T <: Integer} = (one(T), one(T))
+identity_label(::Type{L}) where {L <: Integer} = zero(L)
+identity_label(::Type{NTuple{2, T}}) where {T <: Integer} = (zero(T), zero(T))
 
 Base.:(==)(A::MonoidAlgebra, B::MonoidAlgebra) =
     A.side === B.side && A.base == B.base && (A.monoid === B.monoid || A.monoid == B.monoid)
