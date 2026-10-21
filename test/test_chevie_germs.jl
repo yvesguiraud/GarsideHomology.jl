@@ -70,6 +70,14 @@ import Chevie
         @test ext._next_permutation!(p) && p == [2, 1, 3]
         p = [3, 2, 1]
         @test !ext._next_permutation!(p)
+        # No order of the generators of A₁ × A₁ is regular for e^{2iπ/2} = −1: the eigenspace
+        # of s₁s₂ = −1 is the whole plane.
+        @test_throws "no order of the generators" ext._default_coxeter_word(A(1) * A(1), Val(2))
+        # −1 = c³ in G₄ has no fixed vector but is not a product of two reflections (r⁻¹·(−1)
+        # never has a fixed vector): the search of a reduced decomposition fails.
+        W4 = Chevie.crg(4)
+        @test_throws "no decomposition" ext._reduced_decomposition(W4, ext._Roots(W4, 2), W4(1, 2)^3,
+                                                                   Int[], unique(Chevie.refls(W4)), Val(2))
         @test_throws "well-generated" dual_germ(Chevie.crg(31))     # 5 generators in rank 4
         # Cat(A₁₁) = 208 012 simples, decided from the degrees.
         @test_throws "above the tabulation threshold" dual_germ(Chevie.coxgroup(:A, 11))
