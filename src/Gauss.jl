@@ -39,7 +39,7 @@ public rank
 # Interface of germs. Exported: the names an ordinary user types. Public only: the
 # vocabulary of germs and of the construction, and the names exported elsewhere
 # (`product` and `atoms` by Oscar, `word` by Chevie and Oscar).
-export natoms, nsimples, simples, opposite
+export natoms, nsimples, simples, opposite, germ
 public AbstractGerm, StaticBitSet
 public product, ldiv, left_descents, lcm_atom, atoms, is_left_divisor, word, isless_lex
 public TableGerm, tabulate

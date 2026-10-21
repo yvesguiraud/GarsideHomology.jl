@@ -127,7 +127,19 @@ cover); that each simple has a common multiple with each atom, the smallest of w
 unique among the common multiples of its length. The full lattice property and the
 numbers of simples and of intervals are checked separately.
 """
-function tabulate(R0::AbstractMatrix{<:Integer}, identity::Integer)
+tabulate(R0::AbstractMatrix{<:Integer}, identity::Integer) = _tabulate(R0, identity, nothing)
+
+# Durations of the steps of the construction, for the measurements of J1.c (c3): with a
+# vector `timings`, each step pushes `name => seconds`; with `nothing`, nothing is done.
+@inline _mark!(::Nothing, ::Symbol, t::UInt64) = t
+function _mark!(timings::Vector{Pair{Symbol, Float64}}, name::Symbol, t::UInt64)
+    now = time_ns()
+    push!(timings, name => (now - t) / 1e9)
+    return now
+end
+
+function _tabulate(R0::AbstractMatrix{<:Integer}, identity::Integer, timings)
+    t = time_ns()
     N, n = size(R0)
     n >= 1 || _tab_error("no simple")
     n <= typemax(Int32) || _tab_error("$n simples, at most typemax(Int32) allowed")
@@ -149,6 +161,7 @@ function tabulate(R0::AbstractMatrix{<:Integer}, identity::Integer)
         seen[x] = true
         atom[a] = x
     end
+    t = _mark!(timings, :input, t)
 
     # 1. Lengths, by a breadth-first search from the identity; homogeneity.
     len = fill(Int32(-1), n)
@@ -175,6 +188,7 @@ function tabulate(R0::AbstractMatrix{<:Integer}, identity::Integer)
     tail == n || _tab_error("simple $(findfirst(<(0), len)) not reached from the identity")
     maxlen = len[bylen[n]]
     maxlen <= 255 || _tab_error("length $maxlen of simple $(bylen[n]) larger than 255")
+    t = _mark!(timings, :lengths, t)
 
     # Right cancellation: ua = u'a implies u = u', so the rows of R are injective.
     mark = zeros(Int32, n)
@@ -184,6 +198,7 @@ function tabulate(R0::AbstractMatrix{<:Integer}, identity::Integer)
         mark[y] == a && _tab_error("right cancellation fails: two simples times atom $a give $y")
         mark[y] = a
     end
+    t = _mark!(timings, :right_cancellation, t)
 
     # 2. Left covers by the atoms, L[a, u] = au, propagated along the right covers:
     # a(ub) = (au)b; the values reached by different paths must agree (associativity).
@@ -209,6 +224,7 @@ function tabulate(R0::AbstractMatrix{<:Integer}, identity::Integer)
         end
         done[v] = true
     end
+    t = _mark!(timings, :left_covers, t)
 
     # 3. Left quotients by the atoms (left cancellation), descents, boundedness.
     Q = zeros(Int32, N, n)
@@ -219,6 +235,7 @@ function tabulate(R0::AbstractMatrix{<:Integer}, identity::Integer)
                                    "times $u give $ν")
         Q[a, ν] = u
     end
+    t = _mark!(timings, :left_quotients, t)
     maximal = [x for x in 1:n if all(iszero, view(R, :, x))]
     length(maximal) == 1 ||
         _tab_error("not bounded: $(length(maximal)) simples without right cover ($(first(maximal, 5)))")
@@ -227,6 +244,7 @@ function tabulate(R0::AbstractMatrix{<:Integer}, identity::Integer)
         a = findfirst(!iszero, view(Q, :, ν))
         firstdesc[ν] = a === nothing ? 0 : a
     end
+    t = _mark!(timings, :bounded, t)
 
     # 4. Canonical numbering, stratum by stratum: key (first letter, rank of the rest).
     canon = Vector{Int32}(undef, n)               # provisional -> canonical
@@ -249,6 +267,7 @@ function tabulate(R0::AbstractMatrix{<:Integer}, identity::Integer)
         end
         lo = hi + 1
     end
+    t = _mark!(timings, :canonical, t)
 
     # 5. Lexicographic ranks: the smallest words are closed under prefixes, so they form
     # a tree, whose preorder (children by last letter) is the lexicographic order.
@@ -285,15 +304,16 @@ function tabulate(R0::AbstractMatrix{<:Integer}, identity::Integer)
             push!(stack, children[k][3])
         end
     end
+    t = _mark!(timings, :lex_ranks, t)
 
     K = max(1, cld(N, 64))
-    G = _tabulate_canonical(Val(K), N, n, R, Q, len, canon, lexrank)
+    G = _tabulate_canonical(Val(K), N, n, R, Q, len, canon, lexrank, timings, t)
     return G, canon
 end
 
 # The tables in the canonical numbering, and step 6: the lcms with the atoms, by a
 # search of the multiples of each simple by layers of increasing length.
-function _tabulate_canonical(::Val{K}, N, n, R, Q, len, canon, lexrank) where {K}
+function _tabulate_canonical(::Val{K}, N, n, R, Q, len, canon, lexrank, timings, t) where {K}
     lengths = Vector{UInt8}(undef, n)
     ranks = Vector{Int32}(undef, n)
     Rc = Matrix{Int32}(undef, N, n)
@@ -311,6 +331,7 @@ function _tabulate_canonical(::Val{K}, N, n, R, Q, len, canon, lexrank) where {K
     for c in 1:n
         descents[c] = StaticBitSet{K}(a for a in 1:N if Qc[a, c] >= 0)
     end
+    t = _mark!(timings, :tables, t)
 
     lcms = Matrix{NTuple{2, Int32}}(undef, N, n)
     visited = zeros(Int32, n)                     # visited[m + 1] == ω + 1: m met for ω
@@ -354,6 +375,7 @@ function _tabulate_canonical(::Val{K}, N, n, R, Q, len, canon, lexrank) where {K
             layer, next = next, layer
         end
     end
+    _mark!(timings, :lcms, t)
     return TableGerm{K}(N, lengths, descents, Rc, Qc, lcms, ranks)
 end
 
@@ -397,3 +419,7 @@ opposite monoid, built from the left covers `a·s` of `G`, which are the right c
 `Mᵒᵖ`. It is recomputed at each call.
 """
 opposite(G::AbstractGerm) = TableGerm(_covers(G; left = true), 1)
+
+# Monoids with more simples than this are not tabulated by `germ` (provisional value,
+# J1.c, c3; to be revised with the probe of the lazy germ, c4).
+const _TABULATION_THRESHOLD = 10^5

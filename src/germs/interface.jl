@@ -198,3 +198,19 @@ function isless_lex(G::AbstractGerm, s::Integer, t::Integer)
         y = ldiv(G, b, y)::Int32
     end
 end
+
+# ------------------------------------------------------------------------------------
+# Entry point
+
+"""
+    germ(M)
+
+The germ of the monoid `M`, of the type best suited to its size. Methods are added by
+the package extensions: with Chevie loaded, `M` may be a `BraidMonoid` of a finite
+Coxeter group or a `DualBraidMonoid` (of a Coxeter group, or of a well-generated
+irreducible complex reflection group), and the result is a [`TableGerm`](@ref) if the
+number of simples, computed from the degrees, is at most 10⁵. Above, an `ArgumentError`
+is thrown for now: the lazy germ of the large classical monoids is still to be written;
+`TableGerm(M)` forces the tabulation.
+"""
+function germ end

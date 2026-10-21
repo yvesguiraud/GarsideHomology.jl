@@ -146,7 +146,7 @@ _sum_elements(s) = (c = 0; for i in s; c += i; end; c)
     end
 
     @testset "Exports" begin
-        for s in (:natoms, :nsimples, :simples, :opposite)
+        for s in (:natoms, :nsimples, :simples, :opposite, :germ)
             @test Base.isexported(Gauss, s)
         end
         for s in (:AbstractGerm, :StaticBitSet, :product, :ldiv, :left_descents, :lcm_atom,
