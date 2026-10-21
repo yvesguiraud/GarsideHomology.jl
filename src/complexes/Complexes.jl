@@ -16,6 +16,7 @@ module Complexes
 
 using SparseArrays: SparseArrays, SparseMatrixCSC, spzeros, nnz, nzrange, rowvals, nonzeros
 import AbstractAlgebra
+import SparseElementaryDivisors
 using SparseElementaryDivisors: sparse_elementary_divisors
 # The same functions as AbstractAlgebra's: methods are added for our types, so that the
 # names do not clash with AbstractAlgebra, Nemo, Hecke or Oscar. `rank` is public but not
