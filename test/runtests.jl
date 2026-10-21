@@ -8,6 +8,7 @@ import Chevie  # loads the package extension GaussChevieExt
         @test parentmodule(Gauss.Complexes) === Gauss
     end
     include("test_complexes.jl")
+    include("test_germs.jl")
     include("test_snapshots.jl")
     include("test_homology.jl")
     include("test_pairs.jl")
