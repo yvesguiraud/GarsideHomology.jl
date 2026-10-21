@@ -11,9 +11,21 @@ groups with various coefficients. The first target is the homology of real and w
 
 ## Status
 
-Early development, not registered. This version is a package skeleton: the computation
-code is being ported from a preliminary implementation and rewritten with integer-coded
-simples and precomputed lcm tables.
+Early development, not registered. The first layer is in place: `Gauss.Complexes`, with
+based free modules over monoid algebras, labelled sparse matrices, chain complexes, their
+specialisation to integer coefficients and their homology over ℤ, computed by
+[SparseElementaryDivisors.jl](https://github.com/yvesguiraud/SparseElementaryDivisors.jl). It has been validated on the 344 reference resolutions of
+the preliminary implementation, among which those of the dual braid monoids of the 26
+well-generated exceptional complex reflection groups: the integral homology of the corresponding complex braid groups is reproduced. The construction of the resolutions themselves is being
+ported, with integer-coded simples and precomputed lcm tables.
+
+```julia
+using Gauss, SparseArrays
+
+# Cellular chain complex of the real projective plane: d₀ = 0, d₁ = 2.
+C = ChainComplex([spzeros(Int, 1, 1), sparse([1], [1], [2], 1, 1)])
+homology(C)    # ℤ, ℤ/2ℤ, 0 in degrees 0 to 2
+```
 
 ## Requirements
 
@@ -24,7 +36,7 @@ Elementary divisors of the large sparse differentials are computed by
 
 ## Development
 
-This package is an overhauled version of the code available here: [Gauss.jl](https://plmlab.math.cnrs.fr/guiraud/gauss.jl). The old version was developed by the author alone, while the new version is developed with the assistance of an AI model (Claude Opus 5.5). All code is reviewed, tested and validated by the author against reference computations
+This package is an overhauled version of the code available here: [Gauss.jl](https://plmlab.math.cnrs.fr/guiraud/gauss.jl). The old version was developed by the author alone, while the new version is developed with the assistance of an AI model (Claude Opus 5.5). All code is reviewed, tested and validated by the author against reference computations.
 
 ## License
 
