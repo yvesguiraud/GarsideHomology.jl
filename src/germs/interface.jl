@@ -219,9 +219,12 @@ function germ end
     dual_germ(W; c = 1:n)
 
 The germ of the dual braid monoid of the well-generated irreducible reflection group
-`W` for the Coxeter element `c`, given as a word in the generators of `W` (by default
-their product in order, accepted only if it is a regular element of order h, by a test
-of Springer's criterion). The monoid itself is not built: for a real group (2 among the
+`W` for the Coxeter element `c`, given as a word in the generators of `W`. By default,
+`c` is their product in order, `1:n`, if it is a regular element of order h (Springer's
+criterion: its eigenspace for e^{2iπ/h} is a line outside the reflecting hyperplanes);
+otherwise, the first order of the generators that is, in the lexicographic order, with
+a message naming it (for G₂₉: `[1, 2, 4, 3]`); an `ArgumentError` if there is none. The
+germ depends on `c` up to isomorphism. The monoid itself is not built: for a real group (2 among the
 degrees), the simples are found by the criterion of Brady and Watt; for a complex group,
 by the Hurwitz orbit of a reduced decomposition of `c` ([`hurwitz_orbit`](@ref)).
 Methods are added by the package extensions (Chevie). The same threshold as for

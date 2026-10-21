@@ -69,9 +69,8 @@ function Gauss.dual_germ(W::ReflectionGroup; c = nothing)
     length(Chevie.refltype(W)) == 1 && n == Chevie.semisimplerank(W) ||
         throw(ArgumentError("dual_germ: $W must be well-generated and irreducible"))
     _check_threshold(_dual_count(W), "dual_germ: $W")
-    word = c === nothing ? collect(1:n) : collect(Int, c)
-    return Gauss.TableGerm(_dual_covers(W, W(word...), word, nothing;
-                                        check_coxeter = c === nothing)...)
+    word = c === nothing ? _default_coxeter_word(W, Val(n)) : collect(Int, c)
+    return Gauss.TableGerm(_dual_covers(W, W(word...), word, nothing)...)
 end
 
 # ------------------------------------------------------------------------------------
@@ -284,16 +283,15 @@ end
 # Dual braid monoid from the group W, the Coxeter element c (a permutation) and a word of
 # c in the generators. `atoms`: those of a monoid of Chevie, or nothing (then the
 # reflections ≤ c, in the order of unique(refls(W)), as in Chevie).
-function _dual_covers(W, c, word, timings; atoms = nothing, check_coxeter::Bool = false)
+function _dual_covers(W, c, word, timings; atoms = nothing)
     nb = length(Chevie.gens(W))
-    return _dual_covers(W, c, word, Val(nb), timings, atoms, check_coxeter)
+    return _dual_covers(W, c, word, Val(nb), timings, atoms)
 end
 
-function _dual_covers(W, c, word, ::Val{nb}, timings, atoms, check_coxeter) where {nb}
+function _dual_covers(W, c, word, ::Val{nb}, timings, atoms) where {nb}
     t = time_ns()
     roots = _Roots(W, nb)
     reflections = unique(Chevie.refls(W))
-    check_coxeter && _check_regular(W, roots, c, reflections, Val(nb))
     expected = _dual_count(W)
     if 2 in Chevie.degrees(W)
         atomlist = atoms === nothing ? reflections : atoms
@@ -466,24 +464,47 @@ end
 # Springer's criterion: c is a Coxeter element if its eigenspace for e^{2iπ/h} is a line
 # (a(h) = 1) not contained in any reflecting hyperplane.
 
-function _check_regular(W, roots, c, reflections, ::Val{nb}) where {nb}
+function _is_regular(W, roots, c, reflections, ::Val{nb}) where {nb}
     h = maximum(Chevie.degrees(W))
     ζ = Chevie.E(h)
     X = _matrix(roots, _key(c, Val(nb)))
     M = [X[i, j] - (i == j ? ζ : 0 * ζ) for i in 1:nb, j in 1:nb]
     V = _nullspace(M)
-    length(V) == 1 ||
-        throw(ArgumentError("dual_germ: the product of the generators is not a Coxeter element " *
-                            "of $W (its eigenspace for e^{2iπ/$h} has dimension $(length(V))); " *
-                            "give c"))
+    length(V) == 1 || return false
     v = V[1]
     for r in reflections
         Xr = _matrix(roots, _key(r, Val(nb)))
-        all(i -> iszero(sum(Xr[i, j] * v[j] for j in 1:nb) - v[i]), 1:nb) &&
-            throw(ArgumentError("dual_germ: the product of the generators is not a Coxeter " *
-                                "element of $W (not regular); give c"))
+        all(i -> iszero(sum(Xr[i, j] * v[j] for j in 1:nb) - v[i]), 1:nb) && return false
     end
-    return nothing
+    return true
+end
+
+# The next permutation of p in the lexicographic order, in place; false after the last.
+function _next_permutation!(p::Vector{Int})
+    i = findlast(k -> p[k] < p[k + 1], 1:(length(p) - 1))
+    i === nothing && return false
+    j = findlast(k -> p[k] > p[i], eachindex(p))
+    p[i], p[j] = p[j], p[i]
+    reverse!(p, i + 1, length(p))
+    return true
+end
+
+# The default Coxeter element of dual_germ: the product 1:n of the generators if it is
+# regular, otherwise the first order of the generators, in the lexicographic order, that
+# is (with a message naming it); an error if there is none.
+function _default_coxeter_word(W, ::Val{nb}) where {nb}
+    roots = _Roots(W, nb)
+    reflections = unique(Chevie.refls(W))
+    p = collect(1:nb)
+    while true
+        if _is_regular(W, roots, W(p...), reflections, Val(nb))
+            p == 1:nb || @info "dual_germ: 1:$nb is not a Coxeter element of $W; c = $p"
+            return p
+        end
+        _next_permutation!(p) || break
+    end
+    throw(ArgumentError("dual_germ: no order of the generators of $W is a Coxeter element " *
+                        "(Springer's criterion); give c"))
 end
 
 end # module GaussChevieExt

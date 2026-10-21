@@ -60,6 +60,16 @@ import Chevie
         for W in (A(3), B(3), Chevie.coxgroup(:H, 3), Chevie.crg(4), Chevie.crg(5), Chevie.crg(25))
             @test dual_germ(W) == Gauss.TableGerm(Chevie.DualBraidMonoid(W; c = collect(1:length(Chevie.gens(W)))))
         end
+        # For G₂₉, 1.2.3.4 has order h = 20 but is not regular: the search finds 1.2.4.3,
+        # Chevie's choice.
+        W29 = Chevie.crg(29)
+        G29 = @test_logs (:info, r"not a Coxeter element.*\[1, 2, 4, 3\]") dual_germ(W29)
+        @test G29 == Gauss.TableGerm(Chevie.DualBraidMonoid(W29; c = [1, 2, 4, 3]))
+        ext = Base.get_extension(Gauss, :GaussChevieExt)
+        p = [1, 3, 2]
+        @test ext._next_permutation!(p) && p == [2, 1, 3]
+        p = [3, 2, 1]
+        @test !ext._next_permutation!(p)
         @test_throws "well-generated" dual_germ(Chevie.crg(31))     # 5 generators in rank 4
         # Cat(A₁₁) = 208 012 simples, decided from the degrees.
         @test_throws "above the tabulation threshold" dual_germ(Chevie.coxgroup(:A, 11))
