@@ -222,6 +222,15 @@ function product(G::CoxeterGerm{n}, s::Integer, t::Integer) where {n}
     return _length_of(G, k) == ℓ ? _register!(G, k, ℓ) : nothing
 end
 
+# The smallest left descent of the element of key k, 0 for the identity (a loop rather than
+# findfirst with a closure, which would box a key reassigned in the callers' loops).
+@inline function _first_descent(k::NTuple{n, Int16}, N) where {n}
+    for i in 1:n
+        k[i] > N && return i
+    end
+    return 0
+end
+
 # s\t along the smallest word of s, on the keys: only the result is numbered, not the
 # intermediate quotients a\s and a\t.
 function ldiv(G::CoxeterGerm{n}, s::Integer, t::Integer) where {n}
@@ -234,7 +243,7 @@ function ldiv(G::CoxeterGerm{n}, s::Integer, t::Integer) where {n}
     ky = _key(G, y)
     N = G.npositive
     for _ in 1:ℓx
-        a = findfirst(i -> kx[i] > N, 1:n)                 # smallest left descent of x
+        a = _first_descent(kx, N)                          # smallest left descent of x
         ky[a] > N || return nothing                        # a ⋠ y
         kx = _left_atom(G, kx, a)
         ky = _left_atom(G, ky, a)
@@ -248,7 +257,7 @@ function word(G::CoxeterGerm{n}, s::Integer) where {n}
     N = G.npositive
     w = Vector{Int32}(undef, length(G, s))
     for i in eachindex(w)
-        a = findfirst(j -> k[j] > N, 1:n)
+        a = _first_descent(k, N)
         w[i] = a
         k = _left_atom(G, k, a)
     end
@@ -263,8 +272,8 @@ function isless_lex(G::CoxeterGerm{n}, s::Integer, t::Integer) where {n}
         kx == ky && return false
         ky == e && return false
         kx == e && return true
-        a = findfirst(j -> kx[j] > N, 1:n)
-        b = findfirst(j -> ky[j] > N, 1:n)
+        a = _first_descent(kx, N)
+        b = _first_descent(ky, N)
         a == b || return a < b
         kx = _left_atom(G, kx, a)
         ky = _left_atom(G, ky, b)
