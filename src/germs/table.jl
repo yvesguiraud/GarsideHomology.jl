@@ -420,6 +420,7 @@ opposite monoid, built from the left covers `a·s` of `G`, which are the right c
 """
 opposite(G::AbstractGerm) = TableGerm(_covers(G; left = true), 1)
 
-# Monoids with more simples than this are not tabulated by `germ` (provisional value,
-# J1.c, c3; to be revised with the probe of the lazy germ, c4).
-const _TABULATION_THRESHOLD = 10^5
+# Braid monoids with more simples than this are not tabulated by `germ` but given a lazy
+# CoxeterGerm (J1.c, c4: tabulation in a few seconds up to B⁺(D₇) and B⁺(A₈), 12.9 s for
+# B⁺(B₇), 154 s for B⁺(E₇), measured by j1/c4_threshold.jl of CatLab).
+const _TABULATION_THRESHOLD = 5 * 10^5

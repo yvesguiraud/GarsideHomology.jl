@@ -51,16 +51,20 @@ end
 function _check_threshold(n, what)
     n <= Gauss._TABULATION_THRESHOLD ||
         throw(ArgumentError("$what has $n simples, above the tabulation threshold " *
-                            "$(Gauss._TABULATION_THRESHOLD); the lazy germ of the large " *
-                            "classical monoids is not written yet; TableGerm forces " *
-                            "the tabulation"))
+                            "$(Gauss._TABULATION_THRESHOLD), and there is no lazy germ " *
+                            "for the dual braid monoids; TableGerm forces the tabulation"))
     return nothing
 end
 
-function Gauss.germ(M::ChevieMonoid)
+function Gauss.germ(M::Chevie.DualBraidMonoid)
     _check_threshold(_simples_count(M), "germ: $M")
     return Gauss.TableGerm(M)
 end
+
+# Braid monoid: tabulated under the threshold, lazy above.
+Gauss.germ(M::Chevie.BraidMonoid) =
+    _simples_count(M) <= Gauss._TABULATION_THRESHOLD ? Gauss.TableGerm(M) :
+    Gauss.CoxeterGerm(Chevie.cartan(M.W))
 
 Gauss.TableGerm(M::ChevieMonoid) = Gauss.TableGerm(_right_covers(M)...)
 

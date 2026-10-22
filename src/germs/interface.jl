@@ -209,9 +209,10 @@ The germ of the monoid `M`, of the type best suited to its size. Methods are add
 the package extensions: with Chevie loaded, `M` may be a `BraidMonoid` of a finite
 Coxeter group or a `DualBraidMonoid` (of a Coxeter group, or of a well-generated
 irreducible complex reflection group), and the result is a [`TableGerm`](@ref) if the
-number of simples, computed from the degrees, is at most 10⁵. Above, an `ArgumentError`
-is thrown for now: the lazy germ of the large classical monoids is still to be written;
-`TableGerm(M)` forces the tabulation.
+number of simples, computed from the degrees, is at most 5·10⁵. Above, a braid monoid
+gets a lazy [`CoxeterGerm`](@ref), and a dual braid monoid an `ArgumentError` (there is
+no lazy germ for them). `TableGerm(M)` forces the tabulation, `CoxeterGerm(cartan(W))`
+the lazy germ.
 """
 function germ end
 

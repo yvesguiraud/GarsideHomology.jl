@@ -376,3 +376,70 @@ The [`ExplicitGerm`](@ref) of the interval [1, w] of `signed_interval`; for inst
 `signed_interval_germ(4, :D, (2, -4, -3, 1))` is B*(D₄), for a Coxeter element.
 """
 signed_interval_germ(n, type, w) = interval_germ(signed_interval(n, type, w)...)
+
+# ------------------------------------------------------------------------------------
+# Lazy germs: exploration and comparison with a tabulated germ
+
+"""
+    explore!(G)
+
+Number every simple of the lazy germ `G`, by products with the atoms from the identity;
+returns the simples, sorted.
+"""
+function explore!(G)
+    queue = Int32[0]
+    seen = Set{Int32}(queue)
+    head = 1
+    while head <= length(queue)
+        x = queue[head]
+        head += 1
+        for a in 1:natoms(G)
+            y = Gauss.product(G, x, a)
+            y === nothing || y in seen || (push!(seen, y); push!(queue, y))
+        end
+    end
+    return sort!(queue)
+end
+
+# The simple of H with the same smallest word as the simple s of G.
+word_image(H, G, s) = foldl((x, a) -> Gauss.product(H, x, a)::Int32, Gauss.word(G, s); init = Int32(0))
+
+"""
+    same_germ(L, T; max_pairs = 200_000, sample = 50_000)
+
+Whether the lazy germ `L`, once explored, and the germ `T`, whose simples are all
+numbered, give the same answers to the interface under the bijection by the words:
+lengths, descents, words, lcms with the atoms, and, on all the pairs if there are at most
+`max_pairs` of them (otherwise on a reproducible sample), products, divisions and
+lexicographic comparisons.
+"""
+function same_germ(L, T; max_pairs = 200_000, sample = 50_000)
+    S = explore!(L)
+    length(S) == nsimples(T) == nsimples(L) == Gauss.nnumbered(L) || return false
+    φ = Dict(s => word_image(T, L, s) for s in S)
+    length(Set(values(φ))) == length(S) || return false
+    ψ(x) = x === nothing ? nothing : φ[x]
+    for s in S
+        length(L, s) == length(T, φ[s]) || return false
+        collect(Gauss.left_descents(L, s)) == collect(Gauss.left_descents(T, φ[s])) || return false
+        Gauss.word(L, s) == Gauss.word(T, φ[s]) || return false
+        for a in 1:natoms(L)
+            r, q = Gauss.lcm_atom(L, s, a), Gauss.lcm_atom(T, φ[s], a)
+            (φ[r.lcm], φ[r.complement]) == (q.lcm, q.complement) || return false
+        end
+    end
+    n = length(S)
+    pairs = if n^2 <= max_pairs
+        [(s, t) for s in S for t in S]
+    else
+        x = UInt64(1)
+        [(x = x * 0x5851f42d4c957f2d + 0x14057b7ef767814f; (S[(x >> 16) % n + 1], S[(x >> 40) % n + 1]))
+         for _ in 1:sample]
+    end
+    for (s, t) in pairs
+        ψ(Gauss.product(L, s, t)) == Gauss.product(T, φ[s], φ[t]) || return false
+        ψ(Gauss.ldiv(L, s, t)) == Gauss.ldiv(T, φ[s], φ[t]) || return false
+        Gauss.isless_lex(L, s, t) == Gauss.isless_lex(T, φ[s], φ[t]) || return false
+    end
+    return Gauss.nnumbered(L) == n
+end

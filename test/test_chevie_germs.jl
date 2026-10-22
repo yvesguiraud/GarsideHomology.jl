@@ -79,8 +79,22 @@ import Chevie
         @test_throws "no decomposition" ext._reduced_decomposition(W4, ext._Roots(W4, 2), W4(1, 2)^3,
                                                                    Int[], unique(Chevie.refls(W4)), Val(2))
         @test_throws "well-generated" dual_germ(Chevie.crg(31))     # 5 generators in rank 4
-        # Cat(A₁₁) = 208 012 simples, decided from the degrees.
-        @test_throws "above the tabulation threshold" dual_germ(Chevie.coxgroup(:A, 11))
+        # Cat(A₁₂) = 742 900 simples, decided from the degrees: no lazy dual germ.
+        @test_throws "above the tabulation threshold" dual_germ(Chevie.coxgroup(:A, 12))
+    end
+
+    @testset "CoxeterGerm against TableGerm: $name" for (name, W) in [
+            "B⁺(A₃)" => A(3), "B⁺(B₃)" => B(3), "B⁺(D₄)" => Chevie.coxgroup(:D, 4),
+            "B⁺(A₄)" => A(4), "B⁺(B₄)" => B(4), "B⁺(F₄)" => Chevie.coxgroup(:F, 4)]
+        L = Gauss.CoxeterGerm(Chevie.cartan(W))
+        @test same_germ(L, Gauss.TableGerm(Chevie.BraidMonoid(W)))
+    end
+
+    @testset "Orders of the Weyl groups from the Cartan matrices" begin
+        for (T, n) in [(:A, 12), (:B, 10), (:D, 10), (:E, 6), (:E, 7), (:E, 8), (:F, 4), (:G, 2)]
+            W = Chevie.coxgroup(T, n)
+            @test nsimples(Gauss.CoxeterGerm(Chevie.cartan(W))) == prod(Chevie.degrees(W))
+        end
     end
 
     @testset "Opposite monoids" begin
@@ -95,8 +109,11 @@ import Chevie
     end
 
     @testset "Entry point" begin
-        # Above the threshold, without enumeration: 696 729 600 simples.
-        @test_throws "above the tabulation threshold" germ(Chevie.BraidMonoid(Chevie.coxgroup(:E, 8)))
+        # Above the threshold, a braid monoid gets a lazy CoxeterGerm, without enumeration.
+        E8 = germ(Chevie.BraidMonoid(Chevie.coxgroup(:E, 8)))
+        @test E8 isa Gauss.CoxeterGerm{8} && nsimples(E8) == 696729600 && Gauss.nnumbered(E8) == 9
+        @test germ(Chevie.BraidMonoid(Chevie.coxgroup(:B, 7))) isa Gauss.CoxeterGerm    # 645 120 simples
+        @test Gauss._TABULATION_THRESHOLD == 5 * 10^5
         @test_throws MethodError germ(A(2))
         ext = Base.get_extension(Gauss, :GaussChevieExt)
         # (B*(G₃₄) is not built here: Chevie takes minutes; j1/c3_chevie.jl of CatLab
