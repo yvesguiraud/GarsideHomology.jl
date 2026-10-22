@@ -16,7 +16,9 @@ An element w is identified by its key, the indices of the roots w(α₁), …, w
 the convention of Chevie for the product (`σ·τ` acts as σ then τ on the indices of the
 roots). For each simple met, only its key and its length are kept; left descents are
 read on the key, and the other operations computed with the coordinates of the roots
-in the basis of the simple roots. The lcms with the atoms are memorised.
+in the basis of the simple roots. The lcms with the atoms are memorised. A query numbers
+only the simple it returns: divisions, words and lexicographic comparisons follow the
+smallest words on the keys, without numbering the intermediate quotients.
 
 [`nsimples`](@ref) is |W|, from the exponents (Kostant: heights of the positive roots);
 [`nnumbered`](@ref) is the number of simples numbered so far; [`simples`](@ref) is not
@@ -220,21 +222,53 @@ function product(G::CoxeterGerm{n}, s::Integer, t::Integer) where {n}
     return _length_of(G, k) == ℓ ? _register!(G, k, ℓ) : nothing
 end
 
+# s\t along the smallest word of s, on the keys: only the result is numbered, not the
+# intermediate quotients a\s and a\t.
 function ldiv(G::CoxeterGerm{n}, s::Integer, t::Integer) where {n}
     x, y = Int32(s), Int32(t)
-    _key(G, x)
+    kx = _key(G, x)
     iszero(x) && (_key(G, y); return y)
     x == y && return Int32(0)
-    length(G, x) < length(G, y) || return nothing
+    ℓx, ℓy = length(G, x), length(G, y)
+    ℓx < ℓy || return nothing
+    ky = _key(G, y)
     N = G.npositive
-    while !iszero(x)
-        kx, ky = _key(G, x), _key(G, y)
+    for _ in 1:ℓx
         a = findfirst(i -> kx[i] > N, 1:n)                 # smallest left descent of x
         ky[a] > N || return nothing                        # a ⋠ y
-        x = _register!(G, _left_atom(G, kx, a), length(G, x) - 1)
-        y = _register!(G, _left_atom(G, ky, a), length(G, y) - 1)
+        kx = _left_atom(G, kx, a)
+        ky = _left_atom(G, ky, a)
     end
-    return y
+    return _register!(G, ky, ℓy - ℓx)
+end
+
+# The smallest word and the lexicographic comparison, on the keys, numbering nothing.
+function word(G::CoxeterGerm{n}, s::Integer) where {n}
+    k = _key(G, s)
+    N = G.npositive
+    w = Vector{Int32}(undef, length(G, s))
+    for i in eachindex(w)
+        a = findfirst(j -> k[j] > N, 1:n)
+        w[i] = a
+        k = _left_atom(G, k, a)
+    end
+    return w
+end
+
+function isless_lex(G::CoxeterGerm{n}, s::Integer, t::Integer) where {n}
+    kx, ky = _key(G, s), _key(G, t)
+    e = G.keys[1]
+    N = G.npositive
+    while true
+        kx == ky && return false
+        ky == e && return false
+        kx == e && return true
+        a = findfirst(j -> kx[j] > N, 1:n)
+        b = findfirst(j -> ky[j] > N, 1:n)
+        a == b || return a < b
+        kx = _left_atom(G, kx, a)
+        ky = _left_atom(G, ky, b)
+    end
 end
 
 function lcm_atom(G::CoxeterGerm{n}, ω::Integer, a::Integer) where {n}

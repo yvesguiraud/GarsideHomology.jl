@@ -44,6 +44,17 @@ const CARTAN_E8 = [ 2  0 -1  0  0  0  0  0
         s = Gauss.product(G, Gauss.product(G, 1, 3)::Int32, 4)::Int32       # s₁s₃s₄
         @test length(G, s) == 3 && Gauss.ldiv(G, 1, s) == Gauss.product(G, 3, 4)
         @test Gauss.product(G, 3, 3) === nothing && Gauss.product(G, 1, 2) == Gauss.product(G, 2, 1)
+        # A query numbers only the simple it returns.
+        H = Gauss.CoxeterGerm(CARTAN_E8)
+        walk(w) = foldl((x, a) -> Gauss.product(H, x, a)::Int32, w; init = Int32(0))
+        s, t = walk([1, 3, 4]), walk([1, 3, 4, 5, 6])
+        before = Gauss.nnumbered(H)
+        @test Gauss.word(H, t) == [1, 3, 4, 5, 6] && Gauss.isless_lex(H, s, t) && !Gauss.isless_lex(H, t, s)
+        @test Gauss.nnumbered(H) == before
+        u = Gauss.ldiv(H, s, t)
+        @test Gauss.nnumbered(H) == before + 1 && Gauss.word(H, u) == [5, 6]
+        @test Gauss.ldiv(H, t, s) === nothing && Gauss.ldiv(H, walk([2, 4]), t) === nothing
+        @test Gauss.nnumbered(H) == before + 2                  # s₂s₄ numbered by walk
         @test startswith(sprint(show, G), "CoxeterGerm of rank 8, ")
         @test G == G && G != Gauss.CoxeterGerm(CARTAN_E8)
         A = MonoidAlgebra(Gauss.Complexes.AbstractAlgebra.ZZ, G)
