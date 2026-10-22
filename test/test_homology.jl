@@ -62,12 +62,13 @@ end
     end
 
     @testset "Complexes over a monoid algebra" begin
-        # Free commutative monoid on a, b (simples e, a, b, ab), Koszul resolution.
+        # Free commutative monoid on a, b (simples e = 0, a = 1, b = 2, ab = 3), Koszul
+        # resolution.
         L2 = NTuple{2, Int32}
         B = MonoidAlgebra(Gauss.Complexes.AbstractAlgebra.ZZ, HomologyTestMonoid(["e", "a", "b", "ab"]))
-        d0 = labelled_sparse([1, 1, 1, 1], [1, 1, 2, 2], L2[(2, 1), (1, 2), (3, 1), (1, 3)],
+        d0 = labelled_sparse([1, 1, 1, 1], [1, 1, 2, 2], L2[(1, 0), (0, 1), (2, 0), (0, 2)],
                              [1, -1, 1, -1], 1, 2)
-        d1 = labelled_sparse([1, 1, 2, 2], [1, 1, 1, 1], L2[(3, 1), (1, 3), (2, 1), (1, 2)],
+        d1 = labelled_sparse([1, 1, 2, 2], [1, 1, 1, 1], L2[(2, 0), (0, 2), (1, 0), (0, 1)],
                              [-1, 1, 1, -1], 2, 1)
         T = ChainComplex([BasedFreeModule(B, ["[]"]), BasedFreeModule(B, ["[a]", "[b]"]),
                           BasedFreeModule(B, ["[a|b]"])], [d0, d1])
@@ -75,8 +76,8 @@ end
         @test_throws ArgumentError homology(T, 0)
         # Trivial coefficients: the torus; sign on the right: ℤ/2ℤ, ℤ/2ℤ, 0.
         @test homology(specialise(T)) == GG([G(1), G(2), G(1)])
-        lengths = [0, 1, 1, 2]
-        @test homology(specialise(T, l -> isodd(lengths[l[2]]) ? -1 : 1)) ==
+        lengths = [0, 1, 1, 2]                    # lengths[l + 1] = ℓ(label l)
+        @test homology(specialise(T, l -> isodd(lengths[l[2] + 1]) ? -1 : 1)) ==
               GG([G(0, [2]), G(0, [2]), G(0)])
     end
 

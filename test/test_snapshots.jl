@@ -18,7 +18,7 @@ const SNAP_TINY = joinpath(@__DIR__, "data", "snapshots")
 const SNAP_DIR = get(ENV, "GAUSS_SNAPSHOT_DIR", "")
 const SNAP_PAIRS = joinpath(SNAP_REFERENCE, "collapsible_pairs.csv")
 
-# Free commutative monoid on two atoms a = 1, b = 2: Koszul resolution of bimodules,
+# Free commutative monoid on two atoms a = 1, b = 2 (e = 0): Koszul resolution of bimodules,
 # ∂[a] = a·[]·e − e·[]·a, ∂[b] likewise, ∂[a|b] = (a⊗1 − 1⊗a)[b] − (b⊗1 − 1⊗b)[a].
 const KOSZUL_SNAPSHOT = """
 # format: cliche-gauss 1
@@ -65,17 +65,17 @@ _sign(m::SnapshotMonoid) = l -> iseven(simple_length(m, l[1]) + simple_length(m,
         @test header_value(s, "cas") == "test_koszul"
         @test header_value(s, "absent") === nothing
         @test s.monoid.simples == ["e", "1", "2", "1.2"]
-        @test [simple_length(s.monoid, i) for i in 1:4] == [0, 1, 1, 2]
+        @test [simple_length(s.monoid, i) for i in 0:3] == [0, 1, 1, 2]
         C = s.complex
         @test range(C) == 0:2
         @test [rank(C[n]) for n in range(C)] == [1, 2, 1]
-        @test cells(C[2]) == [SnapshotCell("1.2", "[1|2]", 4)]
+        @test cells(C[2]) == [SnapshotCell("1.2", "[1|2]", 3)]
         L2 = NTuple{2, Int32}
         @test differential(C, 0) ==
-              labelled_sparse([1, 1, 1, 1], [1, 1, 2, 2], L2[(2, 1), (1, 2), (3, 1), (1, 3)],
+              labelled_sparse([1, 1, 1, 1], [1, 1, 2, 2], L2[(1, 0), (0, 1), (2, 0), (0, 2)],
                               [1, -1, 1, -1], 1, 2)
         @test differential(C, 1) ==
-              labelled_sparse([1, 1, 2, 2], [1, 1, 1, 1], L2[(3, 1), (1, 3), (2, 1), (1, 2)],
+              labelled_sparse([1, 1, 2, 2], [1, 1, 1, 1], L2[(2, 0), (0, 2), (1, 0), (0, 1)],
                               [-1, 1, 1, -1], 2, 1)
 
         # Writing regenerates the same text, hence the same snapshot.

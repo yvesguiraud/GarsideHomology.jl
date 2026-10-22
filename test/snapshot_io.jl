@@ -18,7 +18,8 @@ const _SNAP_SA = Gauss.Complexes.SparseArrays
     SnapshotMonoid(simples)
 
 The simples met in a snapshot, given by their smallest words in the atoms (`"2.1.3"`,
-`"e"` for the identity) and numbered 1 for the identity, then by length and word.
+`"e"` for the identity) and numbered 0 for the identity, then by length and word:
+the simple numbered `i` is `simples[i + 1]`.
 """
 struct SnapshotMonoid <: Gauss.Complexes.AbstractMonoid
     simples::Vector{String}
@@ -26,14 +27,14 @@ struct SnapshotMonoid <: Gauss.Complexes.AbstractMonoid
 end
 
 SnapshotMonoid(simples::Vector{String}) =
-    SnapshotMonoid(simples, Dict(w => Int32(i) for (i, w) in enumerate(simples)))
+    SnapshotMonoid(simples, Dict(w => Int32(i - 1) for (i, w) in enumerate(simples)))
 
 Base.:(==)(a::SnapshotMonoid, b::SnapshotMonoid) = a.simples == b.simples
 Base.hash(m::SnapshotMonoid, h::UInt) = hash(m.simples, hash(:SnapshotMonoid, h))
 
-"Length of a simple of a snapshot: the number of atoms of its word."
+"Length of the simple numbered `i` of a snapshot: the number of atoms of its word."
 simple_length(m::SnapshotMonoid, i::Integer) =
-    m.simples[i] == "e" ? 0 : count(==('.'), m.simples[i]) + 1
+    m.simples[i + 1] == "e" ? 0 : count(==('.'), m.simples[i + 1]) + 1
 
 # Order of the simples: by length, then by word, read as a sequence of atom indices.
 _word_key(w::AbstractString) =
@@ -204,12 +205,12 @@ function read_snapshot(io::IO, name::AbstractString)
             _snapshot_error(name, lineno, "$value $key read, $(header[k].second) announced")
     end
 
-    # Final numbering of the simples: identity first, then by length and word.
+    # Final numbering of the simples: identity 0, then by length and word.
     haskey(met, "e") || _snapshot_error(name, lineno, "the identity e does not appear")
     order = sortperm(words; by = _word_key)
     renumber = Vector{Int32}(undef, length(words))
     for (r, p) in enumerate(order)
-        renumber[p] = r
+        renumber[p] = r - 1
     end
     monoid = SnapshotMonoid(words[order])
     A = MonoidAlgebra(_SNAP_ZZ, monoid, :both)
@@ -245,8 +246,8 @@ function foreach_group(f, s::Snapshot)
     w = s.monoid.simples
     for n in range(C)
         cs = cells(C[n])
-        atom_lines = ["C $n $(x.atoms) $(x.bar) $(w[x.weight])" for x in cs]
-        bar_lines = ["C $n $(x.bar) $(w[x.weight])" for x in cs]
+        atom_lines = ["C $n $(x.atoms) $(x.bar) $(w[x.weight + 1])" for x in cs]
+        bar_lines = ["C $n $(x.bar) $(w[x.weight + 1])" for x in cs]
         f("C", n, sort!(atom_lines), sort!(bar_lines))
     end
     for n in first(range(C)):(last(range(C)) - 1)
@@ -257,7 +258,7 @@ function foreach_group(f, s::Snapshot)
         bar_lines = Vector{String}(undef, _SNAP_SA.nnz(d))
         for j in 1:ncols(d), k in _SNAP_SA.nzrange(d, j)
             x, y = source[j], target[rows[k]]
-            σ, τ = w[labs[k][1]], w[labs[k][2]]
+            σ, τ = w[labs[k][1] + 1], w[labs[k][2] + 1]
             c = _coefficient_string(vals[k])
             atom_lines[k] = "D $n $(x.atoms) $c $σ $(y.atoms) $τ"
             bar_lines[k] = "D $n $(x.bar) $c $σ $(y.bar) $τ"
