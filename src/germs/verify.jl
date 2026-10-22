@@ -133,3 +133,79 @@ function _verify_lattice(G::AbstractGerm)
     end
     return nothing
 end
+
+# ------------------------------------------------------------------------------------
+# Fingerprint
+
+"""
+    GermFingerprint
+
+An invariant of isomorphism of germs, independent of the numberings of the simples and
+of the atoms (J1.c, c6), given by [`fingerprint`](@ref): the number of atoms, the length
+of Δ, the number of simples of each length, the numbers of multichains for m = 2 and 3
+(see [`count_multichains`](@ref)), the profile of the descents (`descent_profile[ℓ + 1,
+d + 1]` simples of length ℓ with d left descents) and the Möbius invariant μ(1, Δ). Two
+fingerprints compare by `==`. Not a complete invariant, but enough to detect an error of
+construction or of convention between two presentations of a germ.
+"""
+struct GermFingerprint
+    natoms::Int
+    delta_length::Int
+    simples_by_length::Vector{Int}
+    multichains::NTuple{2, Int}
+    descent_profile::Matrix{Int}
+    mobius::Int
+end
+
+const _FINGERPRINT_FIELDS = fieldnames(GermFingerprint)
+
+Base.:(==)(a::GermFingerprint, b::GermFingerprint) =
+    all(getfield(a, f) == getfield(b, f) for f in _FINGERPRINT_FIELDS)
+Base.hash(a::GermFingerprint, h::UInt) =
+    foldl((h, f) -> hash(getfield(a, f), h), _FINGERPRINT_FIELDS; init = hash(GermFingerprint, h))
+
+Base.show(io::IO, a::GermFingerprint) =
+    print(io, "GermFingerprint(", a.natoms, " atoms, ℓ(Δ) = ", a.delta_length, ", ",
+          sum(a.simples_by_length), " simples by length ", a.simples_by_length, ", multichains ",
+          a.multichains, ", μ(1, Δ) = ", a.mobius, ")")
+
+"""
+    fingerprint(G::AbstractGerm) -> GermFingerprint
+
+The [`GermFingerprint`](@ref) of a germ whose simples are all numbered, in
+O(#intervals · N) operations.
+"""
+function fingerprint(G::AbstractGerm)
+    S = simples(G)
+    N = natoms(G)
+    lengths = [length(G, s) for s in S]
+    L = maximum(lengths)
+    top = findall(==(L), lengths)
+    length(top) == 1 || throw(ArgumentError("fingerprint: $(length(top)) simples of maximal length $L"))
+    profile = zeros(Int, L + 1, N + 1)
+    for s in S
+        profile[lengths[s + 1] + 1, length(left_descents(G, s)) + 1] += 1
+    end
+    return GermFingerprint(N, L, [count(==(ℓ), lengths) for ℓ in 0:L],
+                           (count_multichains(G, 2), count_multichains(G, 3)), profile,
+                           _mobius(G, lengths, Int32(top[1] - 1)))
+end
+
+# μ(1, Δ): in the order of the lengths, μ(1, 1) = 1 and μ(1, σ) = −Σ_{ρ ≺ σ} μ(1, ρ), each σ
+# adding its value to the accumulators of its strict multiples.
+function _mobius(G::AbstractGerm, lengths::Vector{Int}, Δ::Int32)
+    n = length(lengths)
+    acc = zeros(Int, n)
+    μ = zeros(Int, n)
+    marks = zeros(Int32, n)
+    layer, next = Int32[], Int32[]
+    for (k, i) in enumerate(sortperm(lengths))
+        σ = Int32(i - 1)
+        m = iszero(σ) ? 1 : -acc[i]
+        μ[i] = m
+        _foreach_multiple(G, σ, marks, Int32(k), layer, next) do ν
+            ν == σ || (acc[ν + 1] = Base.checked_add(acc[ν + 1], m))
+        end
+    end
+    return μ[Δ + 1]
+end

@@ -1,5 +1,5 @@
-# Tests of verify and count_multichains (verify.jl), without Chevie: consistent germs,
-# Fuss–Catalan numbers of dual germs, altered germs.
+# Tests of verify, count_multichains and fingerprint (verify.jl), without Chevie:
+# consistent germs, Fuss–Catalan numbers of dual germs, altered germs, fingerprints.
 
 isdefined(Main, :ExplicitGerm) || include("explicit_germ.jl")
 
@@ -8,10 +8,21 @@ using Test
 
 # A copy of a tabulated germ with one table replaced (the constructor of the structure
 # does not check anything, which is what these tests need).
-altered(T::Gauss.TableGerm{K}; lcms = T.atom_lcms, descents = T.descents) where {K} =
-    Gauss.TableGerm{K}(T.natoms, T.lengths, descents, T.right_covers, T.left_quotients, lcms, T.lex_ranks)
+altered(T::Gauss.TableGerm{K}; lcms = T.atom_lcms, descents = T.descents, lengths = T.lengths) where {K} =
+    Gauss.TableGerm{K}(T.natoms, lengths, descents, T.right_covers, T.left_quotients, lcms, T.lex_ranks)
 
-@testset "verify and count_multichains" begin
+# The same germ with its atoms renumbered: atom a of the result is atom π[a] of T.
+function permute_atoms(T, π)
+    n, N = nsimples(T), natoms(T)
+    R = zeros(Int32, N, n)
+    for σ in 0:(n - 1), a in 1:N
+        p = Gauss.product(T, σ, π[a])
+        R[a, σ + 1] = p === nothing ? 0 : p + 1
+    end
+    return Gauss.TableGerm(R, 1)
+end
+
+@testset "verify, count_multichains and fingerprint" begin
 
     @testset "Consistent germs: $name" for (name, E) in [
             "B⁺(A₂)" => classical_dihedral_germ(3), "B⁺(I₂(6))" => classical_dihedral_germ(6),
@@ -56,4 +67,32 @@ altered(T::Gauss.TableGerm{K}; lcms = T.atom_lcms, descents = T.descents) where 
     end
 
     @test_throws MethodError Gauss.verify(Gauss.CoxeterGerm([2 -1; -1 2]))   # no simples
+
+    @testset "Fingerprints" begin
+        # μ(1, Δ), recomputed by brute force: m − 1 for B*(I₂(m)), (−1)² for B⁺(I₂(m)).
+        for m in (3, 5, 8)
+            @test Gauss.fingerprint(Gauss.TableGerm(dual_dihedral_germ(m))).mobius == m - 1
+            @test Gauss.fingerprint(Gauss.TableGerm(classical_dihedral_germ(m))).mobius == 1
+        end
+        D4 = signed_interval_germ(4, :D, (2, -4, -3, 1))
+        f = Gauss.fingerprint(Gauss.TableGerm(D4))
+        @test f.natoms == 12 && f.delta_length == 4 && f.simples_by_length == [1, 12, 24, 12, 1]
+        @test f.multichains == (336, 1210) && f.mobius == 20 && sum(f.descent_profile) == 50
+        @test Gauss.fingerprint(D4) == f && hash(Gauss.fingerprint(D4)) == hash(f)
+        @test startswith(sprint(show, f), "GermFingerprint(12 atoms, ℓ(Δ) = 4, 50 simples")
+        # A permutation of the atoms: other tables, same fingerprint.
+        for (E, π) in [(dual_dihedral_germ(5), [2, 1, 3, 4, 5]), (D4, [3, 1, 2, 12, 5, 6, 7, 8, 9, 10, 11, 4])]
+            T = Gauss.TableGerm(E)
+            P = permute_atoms(T, π)
+            @test Gauss.fingerprint(P) == Gauss.fingerprint(T)
+            E === D4 || @test P != T
+        end
+        # [1, −1] in B₃: 20 simples and 9 atoms, like B*(B₃), but μ(1, Δ) = −7 instead of −10.
+        @test Gauss.fingerprint(Gauss.TableGerm(signed_interval_germ(3, :B, (-1, -2, -3)))).mobius == -7
+        # Two simples of maximal length (tst given the length of Δ in B⁺(I₂(4))).
+        T4 = Gauss.TableGerm(classical_dihedral_germ(4))
+        lengths = copy(T4.lengths)
+        lengths[7] = lengths[8]
+        @test_throws "simples of maximal length" Gauss.fingerprint(altered(T4; lengths))
+    end
 end

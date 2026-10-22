@@ -101,6 +101,19 @@ import Chevie
         @test Gauss.verify(Gauss.TableGerm(Chevie.BraidMonoid(B(3))); full = true) === nothing
     end
 
+    @testset "Fingerprints with Chevie" begin
+        fp = Gauss.fingerprint
+        # B*(Bₙ) by coxgroup(:B, n) and by crg(2, 1, n): two presentations, one germ.
+        for n in 2:5
+            @test fp(dual_germ(B(n))) == fp(dual_germ(Chevie.crg(2, 1, n)))
+        end
+        @test fp(dual_germ(B(3); c = [1, 2, 3])) == fp(dual_germ(B(3); c = [3, 2, 1]))
+        fA3, fB3 = fp(dual_germ(A(3))), fp(dual_germ(B(3)))
+        @test fA3 != fp(Gauss.TableGerm(Chevie.BraidMonoid(A(3)))) && fA3 != fB3
+        # B*(B₃): μ(1, Δ) = (−1)³ Π (dᵢ + h − 2)/dᵢ = −10; [1, −1] in B₃ has −7.
+        @test fB3.mobius == -10 && fB3.natoms == 9 && sum(fB3.simples_by_length) == 20
+    end
+
     @testset "Orders of the Weyl groups from the Cartan matrices" begin
         for (T, n) in [(:A, 12), (:B, 10), (:D, 10), (:E, 6), (:E, 7), (:E, 8), (:F, 4), (:G, 2)]
             W = Chevie.coxgroup(T, n)

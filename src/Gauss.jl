@@ -45,6 +45,6 @@ public rank
 export natoms, nsimples, simples, opposite, germ, dual_germ
 public AbstractGerm, StaticBitSet
 public product, ldiv, left_descents, lcm_atom, atoms, is_left_divisor, word, isless_lex
-public TableGerm, tabulate, hurwitz_orbit, CoxeterGerm, nnumbered, verify, count_multichains
+public TableGerm, tabulate, hurwitz_orbit, CoxeterGerm, nnumbered, verify, count_multichains, GermFingerprint, fingerprint
 
 end # module Gauss
