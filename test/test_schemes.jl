@@ -1,0 +1,109 @@
+# Tests of the cell schemes (cells/schemes.jl): CellScheme and its order of the root, the
+# preorders on the lcms, compatibility with divisibility, isless_deglex of the germs (also
+# checked for every pair of simples by check_germ, explicit_germ.jl).
+
+isdefined(Main, :check_germ) || include("explicit_germ.jl")
+
+using Gauss
+using Test
+import Chevie
+
+@testset "Cell schemes" begin
+    lex = FunctionPreorder((G, ω, x, y) -> Gauss.isless_lex(G, x.complement, y.complement))
+
+    @testset "CellScheme" begin
+        S = CellScheme()
+        @test S.preorder === ComplementDeglex() && S.root_order === nothing
+        @test S == CellScheme(ComplementDeglex()) && hash(S) == hash(CellScheme(ComplementDeglex()))
+        @test sprint(show, S) == "CellScheme(ComplementDeglex())"
+        D = CellScheme(TrivialPreorder(); root_order = [2, 3, 1])
+        @test D.root_order == Int32[2, 3, 1] && D.root_order isa Vector{Int32}
+        @test sprint(show, D) == "CellScheme(TrivialPreorder(); root_order = [2, 3, 1])"
+        @test D == CellScheme(TrivialPreorder(); root_order = Int32[2, 3, 1])
+        @test hash(D) == hash(CellScheme(TrivialPreorder(); root_order = (2, 3, 1)))
+        @test D != CellScheme(TrivialPreorder()) && D != CellScheme(TrivialPreorder(); root_order = 1:3)
+        @test CellScheme(lex) == CellScheme(lex) && CellScheme(lex) != S
+        p = [2, 3, 1]
+        E = CellScheme(TrivialPreorder(); root_order = p)
+        p[1] = 7
+        @test E.root_order == Int32[2, 3, 1]                  # the order is copied
+        @test_throws ArgumentError CellScheme(; root_order = [1, 1, 3])
+        @test_throws ArgumentError CellScheme(; root_order = [0, 1])
+        @test_throws ArgumentError CellScheme(; root_order = [1.5, 2])
+        @test_throws MethodError CellScheme(:lex)
+        G = dual_dihedral_germ(3)
+        @test Gauss._root_order(S, G) == Int32[1, 2, 3]
+        @test Gauss._root_order(D, G) == Int32[2, 3, 1]
+        @test_throws ArgumentError Gauss._root_order(CellScheme(; root_order = [2, 1]), G)
+    end
+
+    @testset "Preorders on B⁺(A₃)" begin
+        G = germ(Chevie.BraidMonoid(Chevie.coxgroup(:A, 3)))
+        x = Gauss.lcm_atom(G, 1, 2)         # s₁ ∨ s₂ = s₁s₂s₁, complement s₂s₁
+        y = Gauss.lcm_atom(G, 1, 3)         # s₁ ∨ s₃ = s₁s₃, complement s₃
+        @test Gauss.word(G, x.complement) == [2, 1] && Gauss.word(G, y.complement) == [3]
+        @test Gauss.precedes(ComplementDeglex(), G, 1, y, x)
+        @test !Gauss.precedes(ComplementDeglex(), G, 1, x, y)
+        @test !Gauss.precedes(ComplementDeglex(), G, 1, x, x)
+        @test Gauss.precedes(lex, G, 1, x, y) && !Gauss.precedes(lex, G, 1, y, x)
+        @test !Gauss.precedes(TrivialPreorder(), G, 1, x, y)
+        @test !Gauss.precedes(TrivialPreorder(), G, 1, y, x)
+        # No two lcms ω ∨ a, ω ∨ b of B⁺(A₃) are strictly comparable: every preorder is
+        # compatible with divisibility, and the four variants of J0 coincide.
+        @test Gauss.extends_divisibility(ComplementDeglex(), G)
+        @test Gauss.extends_divisibility(TrivialPreorder(), G)
+        @test Gauss.extends_divisibility(lex, G)
+        bad = FunctionPreorder((G, ω, x, y) -> 1)
+        @test_throws TypeError Gauss.precedes(bad, G, 1, x, y)
+    end
+
+    @testset "Preorders on B*(A₃)" begin
+        G = Gauss.TableGerm(Chevie.DualBraidMonoid(Chevie.coxgroup(:A, 3); c = collect(1:3)))
+        @test Gauss.extends_divisibility(ComplementDeglex(), G)
+        @test !Gauss.extends_divisibility(TrivialPreorder(), G)
+        # The lexicographic order of the complements is not compatible: at ω = a₅,
+        # a₅ ∨ a₁ ≺ a₅ ∨ a₄ = Δ, but the complement 2.6 of a₄ comes before the complement 6
+        # of a₁. The construction never meets this pair (a₂ removes a₄ first), so that
+        # Gauss_c and Gauss_a coincide on B*(A₃). Only ω = a₄ and ω = a₅ break the condition.
+        @test !Gauss.extends_divisibility(lex, G)
+        x, y = Gauss.lcm_atom(G, 5, 1), Gauss.lcm_atom(G, 5, 4)
+        @test Gauss.word(G, x.complement) == [6] && Gauss.word(G, y.complement) == [2, 6]
+        @test x.lcm != y.lcm && Gauss.is_left_divisor(G, x.lcm, y.lcm)
+        @test Gauss.precedes(lex, G, 5, y, x) && Gauss.precedes(ComplementDeglex(), G, 5, x, y)
+        @test !Gauss.extends_divisibility(lex, G, [5]) && !Gauss.extends_divisibility(lex, G, [4])
+        @test Gauss.extends_divisibility(lex, G, 0:3)
+    end
+
+    @testset "Preorders on explicit germs" begin
+        D4 = signed_interval_germ(4, :D, (2, -4, -3, 1))      # B*(D₄)
+        for G in (classical_dihedral_germ(4), dual_dihedral_germ(3), dual_dihedral_germ(5), D4)
+            @test Gauss.extends_divisibility(ComplementDeglex(), G)
+        end
+        # In B*(I₂(m)), the lcms of an atom with the others are all Δ: nothing to order.
+        @test Gauss.extends_divisibility(TrivialPreorder(), dual_dihedral_germ(5))
+        @test !Gauss.extends_divisibility(TrivialPreorder(), D4)
+    end
+
+    @testset "isless_deglex" begin
+        T = Gauss.TableGerm(Chevie.DualBraidMonoid(Chevie.coxgroup(:B, 3); c = collect(1:3)))
+        generic(s, t) = invoke(Gauss.isless_deglex, Tuple{Gauss.AbstractGerm, Integer, Integer}, T, s, t)
+        S = Gauss.simples(T)
+        @test all(Gauss.isless_deglex(T, s, t) == generic(s, t) == (s < t) for s in S, t in S)
+        @test_throws BoundsError Gauss.isless_deglex(T, 0, nsimples(T))
+        H = Gauss.CoxeterGerm(Chevie.cartan(Chevie.coxgroup(:A, 3)))
+        s12 = Gauss.product(H, 1, 2)::Int32
+        s21 = Gauss.product(H, 2, 1)::Int32
+        @test Gauss.isless_deglex(H, 3, s12) && !Gauss.isless_deglex(H, s12, 3)
+        @test Gauss.isless_deglex(H, s12, s21) && !Gauss.isless_deglex(H, s21, s12)
+        @test !Gauss.isless_deglex(H, s12, s12)
+    end
+
+    @testset "Exports" begin
+        for s in (:CellScheme, :ComplementDeglex, :TrivialPreorder, :FunctionPreorder)
+            @test Base.isexported(Gauss, s)
+        end
+        for s in (:AbstractLcmPreorder, :precedes, :extends_divisibility)
+            @test Base.ispublic(Gauss, s) && !Base.isexported(Gauss, s)
+        end
+    end
+end

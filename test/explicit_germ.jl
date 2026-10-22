@@ -238,6 +238,9 @@ function check_germ(G)
         Gauss.is_left_divisor(G, s, t) == (q !== nothing) || fail("is_left_divisor($s, $t)")
         Gauss.isless_lex(G, s, t) == isless(Gauss.word(G, s), Gauss.word(G, t)) ||
             fail("isless_lex($s, $t)")
+        Gauss.isless_deglex(G, s, t) ==
+            isless((length(G, s), Gauss.word(G, s)), (length(G, t), Gauss.word(G, t))) ||
+            fail("isless_deglex($s, $t)")
     end
     for s in S
         Gauss.product(G, 0, s) == s && Gauss.product(G, s, 0) == s && Gauss.ldiv(G, 0, s) == s &&

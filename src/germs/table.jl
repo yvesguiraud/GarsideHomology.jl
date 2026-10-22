@@ -37,6 +37,9 @@ simples(G::TableGerm) = Int32(0):Int32(length(G.lengths) - 1)
 Base.length(G::TableGerm, s::Integer) = Int(G.lengths[_ix(s)])
 left_descents(G::TableGerm, s::Integer) = G.descents[_ix(s)]
 isless_lex(G::TableGerm, s::Integer, t::Integer) = G.lex_ranks[_ix(s)] < G.lex_ranks[_ix(t)]
+# The canonical numbering is the degree-lexicographic order (bounds checked as elsewhere).
+isless_deglex(G::TableGerm, s::Integer, t::Integer) =
+    (checkbounds(G.lengths, _ix(s)); checkbounds(G.lengths, _ix(t)); Int32(s) < Int32(t))
 
 function lcm_atom(G::TableGerm, ω::Integer, a::Integer)
     m, τ = G.atom_lcms[a, _ix(ω)]
