@@ -15,6 +15,7 @@ import Chevie  # loads the package extension GaussChevieExt
     include("test_chevie_germs.jl")
     include("test_schemes.jl")
     include("test_snapshots.jl")
+    include("test_tree.jl")
     include("test_homology.jl")
     include("test_pairs.jl")
     include("test_solver_matrices.jl")
