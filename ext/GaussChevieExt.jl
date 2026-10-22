@@ -42,10 +42,16 @@ _simples_count(M::Chevie.BraidMonoid) = _order(M.W)
 _simples_count(M::Chevie.DualBraidMonoid) = _dual_count(M.W)
 
 function _dual_count(W)
+    length(Chevie.refltype(W)) == 1 || return _order(W)
+    return _fuss_catalan(W, 1)
+end
+
+# The Fuss–Catalan number Π (dᵢ + m·h)/dᵢ of an irreducible well-generated group: the
+# number of m-multichains of simples of its dual braid monoid (Armstrong).
+function _fuss_catalan(W, m::Integer)
     d = Chevie.degrees(W)
-    length(Chevie.refltype(W)) == 1 || return prod(BigInt, d)
     h = maximum(d)
-    return prod(BigInt, d .+ h) ÷ prod(BigInt, d)
+    return prod(BigInt, d .+ m * h) ÷ prod(BigInt, d)
 end
 
 function _check_threshold(n, what)

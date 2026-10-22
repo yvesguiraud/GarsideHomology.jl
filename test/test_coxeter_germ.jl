@@ -67,5 +67,7 @@ const CARTAN_E8 = [ 2  0 -1  0  0  0  0  0
         @test_throws ArgumentError Gauss.CoxeterGerm([2 -1; 0 2])                  # not symmetric in its zeros
         @test_throws "not of finite crystallographic type" Gauss.CoxeterGerm([2 -2; -2 2])   # affine Ã₁
         @test_throws BoundsError Gauss.lcm_atom(Gauss.CoxeterGerm(CARTAN_A2), 0, 3)
+        A2 = Gauss.CoxeterGerm(CARTAN_A2)
+        @test Gauss._first_descent(A2.keys[1], A2.npositive) == 0           # the identity
     end
 end

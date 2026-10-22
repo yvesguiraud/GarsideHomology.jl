@@ -90,6 +90,17 @@ import Chevie
         @test same_germ(L, Gauss.TableGerm(Chevie.BraidMonoid(W)))
     end
 
+    @testset "verify and Fuss–Catalan numbers with Chevie" begin
+        ext = Base.get_extension(Gauss, :GaussChevieExt)
+        for W in (A(3), B(3), Chevie.coxgroup(:H, 3), Chevie.crg(4), Chevie.crg(25))
+            G = dual_germ(W; c = W isa Chevie.FiniteCoxeterGroup ? collect(1:length(Chevie.gens(W))) : nothing)
+            @test Gauss.verify(G; full = true) === nothing
+            @test all(Gauss.count_multichains(G, k) == ext._fuss_catalan(W, k) for k in 1:3)
+        end
+        @test [Gauss.count_multichains(dual_germ(A(3)), k) for k in 1:3] == [14, 55, 140]
+        @test Gauss.verify(Gauss.TableGerm(Chevie.BraidMonoid(B(3))); full = true) === nothing
+    end
+
     @testset "Orders of the Weyl groups from the Cartan matrices" begin
         for (T, n) in [(:A, 12), (:B, 10), (:D, 10), (:E, 6), (:E, 7), (:E, 8), (:F, 4), (:G, 2)]
             W = Chevie.coxgroup(T, n)

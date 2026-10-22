@@ -27,6 +27,7 @@ include("germs/interface.jl")
 include("germs/table.jl")
 include("germs/hurwitz.jl")
 include("germs/coxeter.jl")
+include("germs/verify.jl")
 
 # Public interface of the complexes layer (kept equal to its export list by the tests).
 export MonoidAlgebra, BasedFreeModule, LabelledSparseMatrix, ChainComplex
@@ -44,6 +45,6 @@ public rank
 export natoms, nsimples, simples, opposite, germ, dual_germ
 public AbstractGerm, StaticBitSet
 public product, ldiv, left_descents, lcm_atom, atoms, is_left_divisor, word, isless_lex
-public TableGerm, tabulate, hurwitz_orbit, CoxeterGerm, nnumbered
+public TableGerm, tabulate, hurwitz_orbit, CoxeterGerm, nnumbered, verify, count_multichains
 
 end # module Gauss
