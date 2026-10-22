@@ -15,10 +15,14 @@ const TREE_REFERENCE = joinpath(@__DIR__, "data", "reference")
 
 # The four variants of J0 as cell schemes: Gauss_a and Gauss_d by the public preorders,
 # Gauss_b and Gauss_c by preorders of the tests (length, then lexicographic order of the
-# complements), with the form of the comparison.
+# complements), with the form of the comparison (decisions of 22 October 2026): strict for
+# a and d, in bar form for c, numbers of cells by degree for b, whose variant of J0 combines
+# two orders. For the classical monoids, Gauss_a is checked by the invariant of
+# minimality instead (check_classical): its children are ordered by deglex, those of J0 by
+# lex, which differ from E₆ on.
 const TREE_VARIANTS = [
     "a" => (CellScheme(ComplementDeglex()), :atoms),
-    "b" => (CellScheme(FunctionPreorder((G, ω, x, y) -> length(G, x.complement) < length(G, y.complement))), :atoms),
+    "b" => (CellScheme(FunctionPreorder((G, ω, x, y) -> length(G, x.complement) < length(G, y.complement))), :counts),
     "c" => (CellScheme(FunctionPreorder((G, ω, x, y) -> Gauss.isless_lex(G, x.complement, y.complement))), :bar),
     "d" => (CellScheme(TrivialPreorder()), :atoms),
 ]
@@ -37,6 +41,15 @@ end
 function reference_c_fingerprints(case, variant)
     rows, _ = read_fingerprints(joinpath(TREE_REFERENCE, "$(case)_$(variant).sha.csv"))
     return Dict(parse(Int, r.n) => (r.lines, r.atoms, r.bar) for r in rows if r.section == "C")
+end
+
+# The invariant of minimality of a classical braid monoid with N atoms: one cell for each
+# subset J of the atoms (weight w₀(J), degree |J|), hence 2ᴺ cells, binomial(N, k) in
+# degree k, and pairwise distinct weights.
+function check_classical(T)
+    N = natoms(T.germ)
+    return ncells(T) == 2^N && all(ncells(T, k) == binomial(N, k) for k in 0:N) &&
+           allunique(Gauss.cell_weight(T, x) for x in 1:ncells(T))
 end
 
 # The structure of a tree: contiguous children, parents, degrees, lists read in the tree,
@@ -124,13 +137,17 @@ end
     ]
     @testset "C lines of J0: $case" for (case, M) in cases
         G = germ(M)
+        classical = startswith(case, "classic_")
         for (v, (S, form)) in TREE_VARIANTS
             T = CellTree(G, S)
+            @test check_tree(T) == 0
+            # Every preorder gives the minimal resolution of a classical braid monoid.
+            classical && @test check_classical(T)
+            classical && v == "a" && continue
             mine, ref = tree_c_fingerprints(T), reference_c_fingerprints(case, v)
             @test sort(collect(keys(mine))) == sort(collect(keys(ref)))
-            k = form === :atoms ? 2 : 3
+            k = form === :atoms ? 2 : form === :bar ? 3 : 1
             @test all(haskey(mine, n) && mine[n][1] == ref[n][1] && mine[n][k] == ref[n][k] for n in keys(ref))
-            @test check_tree(T) == 0
         end
     end
 
@@ -139,7 +156,7 @@ end
         H = Gauss.CoxeterGerm(Chevie.cartan(A(3)))
         L = CellTree(H)
         T = CellTree(germ(Chevie.BraidMonoid(A(3))))
-        @test Gauss._degree_counts(L) == [1, 3, 3, 1]
+        @test Gauss._degree_counts(L) == [1, 3, 3, 1] && check_classical(L)
         @test all(sort(Gauss._cell_lines(L, n)) == sort(Gauss._cell_lines(T, n)) for n in 0:3)
     end
 
