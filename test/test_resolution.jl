@@ -7,6 +7,7 @@ isdefined(Main, :read_snapshot) || include("snapshot_io.jl")
 isdefined(Main, :check_germ) || include("explicit_germ.jl")
 
 using Gauss
+using Gauss: MonoidAlgebra    # public, not exported (Oscar exports a MonoidAlgebra)
 using Gauss: CellTree, CellBasis, LCMResolution, cell_tree, LCMProjectionData
 # write_snapshot is called as Gauss.write_snapshot: the tool of J1.b (snapshot_io.jl)
 # defines a write_snapshot of its own in Main, for its Snapshot type.

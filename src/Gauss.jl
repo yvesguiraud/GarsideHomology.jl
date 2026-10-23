@@ -15,7 +15,9 @@ germs ([`TableGerm`](@ref), [`CoxeterGerm`](@ref)), the orderings
 ([`LCMOrdering`](@ref)), the tree of the cells ([`CellTree`](@ref)), the projection
 onto the cells ([`LCMProjectionData`](@ref)) and the lcm resolution
 ([`lcm_resolution`](@ref), [`LCMResolution`](@ref)), with its snapshots
-([`write_snapshot`](@ref)) and its certificate ([`certify`](@ref)).
+([`write_snapshot`](@ref)) and its certificate ([`certify`](@ref)), the modules of
+coefficients ([`TrivialModule`](@ref), [`SignModule`](@ref)) and the tensor products by
+them ([`tensor_product`](@ref), `homology(R, M)`).
 """
 module Gauss
 
@@ -23,7 +25,7 @@ module Gauss
 # else in Gauss, so that it can later become a package of its own.
 include("complexes/Complexes.jl")
 using .Complexes
-using .Complexes: rank, AbstractMonoid, AbstractModule, AbstractChainComplex
+using .Complexes: rank, MonoidAlgebra, AbstractMonoid, AbstractModule, AbstractChainComplex
 using SparseArrays: nnz, nzrange, rowvals, nonzeros
 import AbstractAlgebra
 import SHA
@@ -54,15 +56,20 @@ include("snapshots.jl")
 # Certificates of the resolutions: correctness, minimality, linearity.
 include("certificates.jl")
 
+# Modules of coefficients and tensor products over the monoid algebra.
+include("modules/monoid_modules.jl")
+include("modules/tensor.jl")
+
 # Public interface of the complexes layer (kept equal to its export list by the tests).
-export MonoidAlgebra, BasedFreeModule, LabelledSparseMatrix, ChainComplex
+export BasedFreeModule, LabelledSparseMatrix, ChainComplex
 export FinitelyGeneratedModule, FinitelyGeneratedAbelianGroup
 export FinitelyGeneratedGradedModule, FinitelyGeneratedGradedAbelianGroup
 export labelled_sparse, cells, labels, differential, specialise, torsion, is_square_zero
 export homology, collapsible_pairs
 export base_ring, nrows, ncols
-# Public, not exported: Chevie exports its own `rank` (see Complexes.jl).
-public rank
+# Public, not exported: Chevie exports its own `rank` (see Complexes.jl), Oscar a type
+# MonoidAlgebra of its own (J1.e, M5).
+public rank, MonoidAlgebra
 
 # Interface of germs. Exported: the names an ordinary user types. Public only: the
 # vocabulary of germs and of the construction, and the names exported elsewhere
@@ -89,5 +96,11 @@ public ChainTree, BimoduleTerm, LCMProjectionData, lcm_splitting, lcm_projection
 export lcm_resolution, certify
 public LCMResolution, CellBasis, cell_tree, write_snapshot
 public ResolutionCertificate, is_correct, is_minimal, is_linear
+
+# Modules of coefficients. Exported: the modules a user types. Public only: the abstract
+# type, and the tensor products (tensor_product is exported by Hecke and Oscar, ⊗ by Hecke):
+# write `using Gauss: ⊗` for the notation, which wins over the exports of those packages.
+export TrivialModule, SignModule
+public AbstractMonoidModule, tensor_product, ⊗
 
 end # module Gauss

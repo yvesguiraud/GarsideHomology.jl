@@ -4,6 +4,7 @@
 # integers.
 
 using Gauss
+using Gauss: MonoidAlgebra    # public, not exported (Oscar exports a MonoidAlgebra)
 using Gauss: rank     # public, not exported (Chevie exports its own `rank`)
 using Test
 
@@ -331,8 +332,10 @@ AA.base_ring(W::WrappedComplex) = base_ring(W.inner)
         # rank is public but not exported, because Chevie exports its own rank.
         @test !Base.isexported(Gauss, :rank) && Base.ispublic(Gauss, :rank)
         @test Gauss.rank === Gauss.Complexes.rank
-        for s in (:AbstractMonoid, :AbstractModule, :AbstractChainComplex)
+        for s in (:MonoidAlgebra, :AbstractMonoid, :AbstractModule, :AbstractChainComplex)
             @test Base.ispublic(Gauss.Complexes, s) && !Base.isexported(Gauss.Complexes, s)
         end
+        @test Base.ispublic(Gauss, :MonoidAlgebra) && !Base.isexported(Gauss, :MonoidAlgebra)
+        @test Gauss.MonoidAlgebra === Gauss.Complexes.MonoidAlgebra
     end
 end

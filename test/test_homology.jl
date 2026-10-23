@@ -5,6 +5,7 @@
 isdefined(Main, :read_snapshot) || include("snapshot_io.jl")
 
 using Gauss
+using Gauss: MonoidAlgebra    # public, not exported (Oscar exports a MonoidAlgebra)
 using Gauss: rank
 using Test
 import TOML

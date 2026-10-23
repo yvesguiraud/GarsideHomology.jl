@@ -24,14 +24,15 @@ using SparseElementaryDivisors: sparse_elementary_divisors
 # group): write `Gauss.rank`, or `using Gauss: rank` when Chevie is not loaded.
 using AbstractAlgebra: base_ring, rank, nrows, ncols
 
-export MonoidAlgebra, BasedFreeModule, LabelledSparseMatrix, ChainComplex
+export BasedFreeModule, LabelledSparseMatrix, ChainComplex
 export FinitelyGeneratedModule, FinitelyGeneratedAbelianGroup
 export FinitelyGeneratedGradedModule, FinitelyGeneratedGradedAbelianGroup
 export labelled_sparse, cells, labels, differential, specialise, torsion, is_square_zero
 export homology, collapsible_pairs
 export base_ring, nrows, ncols
 
-public rank, AbstractMonoid, AbstractModule, AbstractChainComplex, label_type, identity_label, check_invariants
+# MonoidAlgebra is public but not exported: Oscar exports a type of its own of that name.
+public rank, MonoidAlgebra, AbstractMonoid, AbstractModule, AbstractChainComplex, label_type, identity_label, check_invariants
 
 include("arithmetic.jl")
 include("rings.jl")

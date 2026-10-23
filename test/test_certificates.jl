@@ -6,6 +6,7 @@
 isdefined(Main, :check_germ) || include("explicit_germ.jl")
 
 using Gauss
+using Gauss: MonoidAlgebra    # public, not exported (Oscar exports a MonoidAlgebra)
 using Gauss: LCMResolution, ResolutionCertificate, is_correct, is_minimal, is_linear,
              cell_tree, CellTree, CellBasis
 using Test

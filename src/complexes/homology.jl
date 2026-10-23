@@ -104,4 +104,4 @@ end
 
 homology(::AbstractChainComplex{<:MonoidAlgebra}, args...; kwargs...) =
     throw(ArgumentError("homology needs a complex over ℤ: specialise the complex first, " *
-                        "e.g. homology(specialise(C))"))
+                        "e.g. homology(specialise(C)), or give a module of coefficients"))

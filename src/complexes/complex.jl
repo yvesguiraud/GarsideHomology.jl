@@ -117,6 +117,8 @@ _zero_map(::Type{LabelledSparseMatrix{L, Tv}}, m, n) where {L, Tv} = LabelledSpa
 
 The [`ChainComplex`](@ref) over the ring of coefficients of the monoid algebra of `C`, with
 the same bases (shared, not copied) and the maps `specialise(d_n)` or `specialise(d_n, χ)`.
+For a resolution of Gauss, the typed interface is `homology(R, M)` and
+`Gauss.tensor_product`, with a module of coefficients `M`.
 """
 function specialise(C::AbstractChainComplex{<:MonoidAlgebra, LabelledSparseMatrix{L, Tv}},
                     χ = nothing) where {L, Tv}
