@@ -214,8 +214,10 @@ function isless_deglex(G::AbstractGerm, s::Integer, t::Integer)
 end
 
 # Whether concurrent queries are safe (the contract, Mutability): `true` only for a germ
-# documented as immutable; a lazy germ may update its memo during a query.
-_thread_safe(::AbstractGerm) = false
+# documented as immutable; a lazy germ may update its memo during a query. The tests call
+# the methods of this trait, but the compiler replaces each call by its constant value, so
+# that the coverage never sees their lines.
+_thread_safe(::AbstractGerm) = false  # COV_EXCL_LINE
 
 # ------------------------------------------------------------------------------------
 # Entry point

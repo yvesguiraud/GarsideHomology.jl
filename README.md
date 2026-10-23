@@ -28,6 +28,10 @@ Early development, not registered. In place:
   ordering of the lcms chooses the resolution: the reduced one by default, that of
   Dehornoy and Lafont with `LCMOrdering(TrivialPreorder())`. `Gauss.write_snapshot`
   writes a resolution in the text format of the reference snapshots.
+- The certificates of the resolutions, `certify`: homogeneity of the boundaries, ∂² = 0
+  computed in the bimodules, Euler characteristic of each weight against the Möbius
+  function, minimality and linearity. The 344 reference resolutions are certified
+  correct, and the reduced one is minimal in all their 86 cases.
 
 ```julia
 using Gauss, SparseArrays
@@ -38,9 +42,10 @@ homology(C)    # ℤ, ℤ/2ℤ, 0 in degrees 0 to 2
 
 using Chevie
 
-# Reduced lcm resolution of the dual braid monoid of G₄, then the homology of its group,
-# the braid group on three strands.
+# Reduced lcm resolution of the dual braid monoid of G₄, its certificate, then the homology
+# of its group, the braid group on three strands.
 R = lcm_resolution(dual_germ(crg(4)))
+certify(R)                 # ResolutionCertificate: correct, minimal, linear
 homology(specialise(R))    # ℤ, ℤ, 0 in degrees 0 to 2
 ```
 

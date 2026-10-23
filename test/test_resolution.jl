@@ -104,7 +104,9 @@ import Chevie
     end
 
     @testset "Example of the README" begin
-        @test homology(specialise(lcm_resolution(dual_germ(Chevie.crg(4))))) == braid3
+        R = lcm_resolution(dual_germ(Chevie.crg(4)))
+        @test sprint(show, certify(R)) == "ResolutionCertificate: correct, minimal, linear"
+        @test homology(specialise(R)) == braid3
     end
 
     @testset "Lazy germ" begin

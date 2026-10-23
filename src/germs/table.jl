@@ -424,7 +424,7 @@ opposite monoid, built from the left covers `a·s` of `G`, which are the right c
 opposite(G::AbstractGerm) = TableGerm(_covers(G; left = true), 1)
 
 # The tables of a TableGerm are never modified after its construction.
-_thread_safe(::TableGerm) = true
+_thread_safe(::TableGerm) = true  # COV_EXCL_LINE (see the default method)
 
 # Braid monoids with more simples than this are not tabulated by `germ` but given a lazy
 # CoxeterGerm (J1.c, c4: tabulation in a few seconds up to B⁺(D₇) and B⁺(A₈), 12.9 s for

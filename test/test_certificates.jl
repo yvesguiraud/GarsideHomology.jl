@@ -123,6 +123,7 @@ _drop(ks) = (I, J, L, V) -> (keep = setdiff(eachindex(I), ks); (I[keep], J[keep]
         bad = LCMResolution(T, ChainComplex([BasedFreeModule(A, CellBasis(T, n)) for n in 0:2], R.complex.maps))
         e = certify(bad)
         @test e.euler == 2 && e.split_weights == 1 && e.homogeneity > 0 && !is_correct(e)
+        @test occursin("inhomogeneous terms, Euler fails on 2 weights), minimal, linear", sprint(show, e))
         @test Gauss._failure(e, :euler) == "weight 1: Σₙ (−1)ⁿ cₙ = 0, μ(1, ω) = -1"
     end
 
