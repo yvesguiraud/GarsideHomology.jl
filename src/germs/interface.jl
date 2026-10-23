@@ -213,6 +213,10 @@ function isless_deglex(G::AbstractGerm, s::Integer, t::Integer)
     return isless_lex(G, s, t)
 end
 
+# Whether concurrent queries are safe (the contract, Mutability): `true` only for a germ
+# documented as immutable; a lazy germ may update its memo during a query.
+_thread_safe(::AbstractGerm) = false
+
 # ------------------------------------------------------------------------------------
 # Entry point
 

@@ -133,6 +133,9 @@ AA.base_ring(W::WrappedComplex) = base_ring(W.inner)
                                                    [typemax(Int), 1], 1, 1)
         bd = labelled_sparse([1, 1], [1, 1], Int32[1, 1], BigInt[typemax(Int), 1], 1, 1)
         @test SA.nonzeros(bd) == [BigInt(typemax(Int)) + 1]
+        # Coefficients other than machine integers: the arithmetic of their type.
+        @test specialise(bd, l -> -1) == SA.sparse([1], [1], [-(BigInt(typemax(Int)) + 1)], 1, 1)
+        @test !is_square_zero(ChainComplex([SA.sparse([1], [1], [BigInt(2)], 1, 1), SA.sparse([1], [1], [BigInt(3)], 1, 1)]))
     end
 
     @testset "Specialisation of a matrix" begin

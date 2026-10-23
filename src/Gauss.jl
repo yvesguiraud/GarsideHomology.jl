@@ -15,7 +15,7 @@ germs ([`TableGerm`](@ref), [`CoxeterGerm`](@ref)), the orderings
 ([`LCMOrdering`](@ref)), the tree of the cells ([`CellTree`](@ref)), the projection
 onto the cells ([`LCMProjectionData`](@ref)) and the lcm resolution
 ([`lcm_resolution`](@ref), [`LCMResolution`](@ref)), with its snapshots
-([`write_snapshot`](@ref)).
+([`write_snapshot`](@ref)) and its certificate ([`certify`](@ref)).
 """
 module Gauss
 
@@ -24,7 +24,7 @@ module Gauss
 include("complexes/Complexes.jl")
 using .Complexes
 using .Complexes: rank, AbstractMonoid, AbstractModule, AbstractChainComplex
-using SparseArrays: nnz
+using SparseArrays: nnz, nzrange, rowvals, nonzeros
 import AbstractAlgebra
 import SHA
 import CodecZlib
@@ -50,6 +50,9 @@ include("resolution.jl")
 
 # Lines of the snapshots (format version 1).
 include("snapshots.jl")
+
+# Certificates of the resolutions: correctness, minimality, linearity.
+include("certificates.jl")
 
 # Public interface of the complexes layer (kept equal to its export list by the tests).
 export MonoidAlgebra, BasedFreeModule, LabelledSparseMatrix, ChainComplex
@@ -82,8 +85,9 @@ public cell_children, admissible_atoms, bar_form, atom_sequence
 # Projection onto the cells (provisional names, before the theory of the article).
 public ChainTree, BimoduleTerm, LCMProjectionData, lcm_splitting, lcm_projection!, lcm_boundary
 
-# The lcm resolution and its snapshots.
-export lcm_resolution
+# The lcm resolution, its snapshots and its certificate.
+export lcm_resolution, certify
 public LCMResolution, CellBasis, cell_tree, write_snapshot
+public ResolutionCertificate, is_correct, is_minimal, is_linear
 
 end # module Gauss

@@ -188,12 +188,16 @@ function fingerprint(G::AbstractGerm)
     end
     return GermFingerprint(N, L, [count(==(ℓ), lengths) for ℓ in 0:L],
                            (count_multichains(G, 2), count_multichains(G, 3)), profile,
-                           _mobius(G, lengths, Int32(top[1] - 1)))
+                           _mobius_values(G, lengths)[top[1]])
 end
 
-# μ(1, Δ): in the order of the lengths, μ(1, 1) = 1 and μ(1, σ) = −Σ_{ρ ≺ σ} μ(1, ρ), each σ
-# adding its value to the accumulators of its strict multiples.
-function _mobius(G::AbstractGerm, lengths::Vector{Int}, Δ::Int32)
+# ------------------------------------------------------------------------------------
+# The Möbius function μ(1, ω) (J1.e, task e1)
+
+# μ(1, σ) for every simple σ of a germ whose simples are all numbered, as the vector μ with
+# μ[σ + 1] = μ(1, σ): in the order of the lengths, μ(1, 1) = 1 and μ(1, σ) = −Σ_{ρ ≺ σ} μ(1, ρ),
+# each σ adding its value to the accumulators of its strict multiples. O(#intervals · N).
+function _mobius_values(G::AbstractGerm, lengths::Vector{Int} = [length(G, s) for s in simples(G)])
     n = length(lengths)
     acc = zeros(Int, n)
     μ = zeros(Int, n)
@@ -207,5 +211,24 @@ function _mobius(G::AbstractGerm, lengths::Vector{Int}, Δ::Int32)
             ν == σ || (acc[ν + 1] = Base.checked_add(acc[ν + 1], m))
         end
     end
-    return μ[Δ + 1]
+    return μ
+end
+
+# μ(1, ω) by the crosscut theorem of Rota, for any germ, lazy germs included: μ(1, ω) is the
+# sum of (−1)^|J| over the sets J of atoms whose join ∨J (right lcm) is ω, the empty set
+# giving μ(1, 1) = 1. The 2^N sets are enumerated depth first, ∨(J ∪ {a}) = (∨J) ∨ a by
+# lcm_atom; the result is the dictionary of the nonzero values, μ being 0 elsewhere.
+function _mobius_crosscut(G::AbstractGerm)
+    μ = Dict{Int32, Int}()
+    _crosscut!(μ, G, one(G), 1, natoms(G), 1)
+    filter!(p -> !iszero(p.second), μ)
+    return μ
+end
+
+function _crosscut!(μ::Dict{Int32, Int}, G::AbstractGerm, ω::Int32, first_atom::Int, N::Int, sign::Int)
+    μ[ω] = get(μ, ω, 0) + sign
+    for a in first_atom:N
+        _crosscut!(μ, G, Int32(lcm_atom(G, ω, a).lcm), a + 1, N, -sign)
+    end
+    return μ
 end

@@ -37,7 +37,7 @@ import Chevie
         @test specialise(C) isa ChainComplex && cells(specialise(C)[1]) === cells(C[1])
         @test isempty(collapsible_pairs(C))
         @test_throws ArgumentError homology(C)
-        @test_throws ArgumentError is_square_zero(C)
+        @test is_square_zero(C)                 # in the bimodules, since e1 (certificates.jl)
         @test differential(C, 5) == Gauss.Complexes.LabelledSparseMatrix{NTuple{2, Int32}, Int}(0, 0)
         # The constructor checks that the complex is that of the tree.
         @test_throws ArgumentError LCMResolution(cell_tree(lcm_resolution(dual_dihedral_germ(3))), C.complex)
