@@ -106,7 +106,7 @@ end
 
 # Insertion sort of buffer[1:k], stable: an element moves before another only if it
 # strictly precedes it. The lists have at most N elements.
-function _sort_candidates!(buffer, k, P::AbstractLcmPreorder, G, ω)
+function _sort_candidates!(buffer, k, P::AbstractLCMPreorder, G, ω)
     for i in 2:k
         c = buffer[i]
         x = _lcm_pair(c)

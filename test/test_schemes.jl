@@ -102,7 +102,7 @@ import Chevie
         for s in (:CellScheme, :ComplementDeglex, :TrivialPreorder, :FunctionPreorder)
             @test Base.isexported(Gauss, s)
         end
-        for s in (:AbstractLcmPreorder, :precedes, :extends_divisibility)
+        for s in (:AbstractLCMPreorder, :precedes, :extends_divisibility)
             @test Base.ispublic(Gauss, s) && !Base.isexported(Gauss, s)
         end
     end

@@ -2,7 +2,7 @@
 # matching, read by the construction of the cell tree (J1.d, task d2).
 
 """
-    AbstractLcmPreorder
+    AbstractLCMPreorder
 
 Supertype of the preorders of a [`CellScheme`](@ref): for each simple `ω`, a total
 preorder on the right lcms `ω ∨ a` of `ω` with the atoms, read in the interval `[ω, Δ]`,
@@ -22,10 +22,10 @@ reduced construction); see [`extends_divisibility`](@ref).
 Methods of Gauss: [`ComplementDeglex`](@ref) (the default), [`TrivialPreorder`](@ref)
 and [`FunctionPreorder`](@ref). A new preorder is a subtype with a method of `precedes`.
 """
-abstract type AbstractLcmPreorder end
+abstract type AbstractLCMPreorder end
 
 """
-    precedes(P::AbstractLcmPreorder, G::AbstractGerm, ω, x, y) -> Bool
+    precedes(P::AbstractLCMPreorder, G::AbstractGerm, ω, x, y) -> Bool
 
 Whether `x` comes strictly before `y` for the preorder `P` at the simple `ω`, where `x`
 and `y` are results `(lcm = ω ∨ a, complement = ω \\ (ω ∨ a))` of
@@ -34,7 +34,7 @@ and `y` are results `(lcm = ω ∨ a, complement = ω \\ (ω ∨ a))` of
 function precedes end
 
 """
-    ComplementDeglex() <: AbstractLcmPreorder
+    ComplementDeglex() <: AbstractLCMPreorder
 
 The degree-lexicographic order of the complements: `x` precedes `y` when
 [`isless_deglex`](@ref)`(G, x.complement, y.complement)`, the shorter complement first,
@@ -49,13 +49,13 @@ Comparing the lcms themselves in the degree-lexicographic order would not do: th
 smallest word of `ω ∨ a` often starts with `a`, so that this order follows that of the
 atoms rather than the shape of `[ω, Δ]`.
 """
-struct ComplementDeglex <: AbstractLcmPreorder end
+struct ComplementDeglex <: AbstractLCMPreorder end
 
 precedes(::ComplementDeglex, G::AbstractGerm, ω::Integer, x, y) =
     isless_deglex(G, x.complement, y.complement)
 
 """
-    TrivialPreorder() <: AbstractLcmPreorder
+    TrivialPreorder() <: AbstractLCMPreorder
 
 The preorder in which all the lcms are tied: the construction keeps the order of the
 root everywhere. With the order `p` of the atoms at the root,
@@ -64,22 +64,22 @@ Lafont for `p`, Gauss_d of the preliminary implementation (`filter = false,
 lex = false`). It is compatible with divisibility only where no two lcms `ω ∨ a`, `ω ∨ b`
 are strictly comparable.
 """
-struct TrivialPreorder <: AbstractLcmPreorder end
+struct TrivialPreorder <: AbstractLCMPreorder end
 
 precedes(::TrivialPreorder, G::AbstractGerm, ω::Integer, x, y) = false
 
 """
-    FunctionPreorder(lt) <: AbstractLcmPreorder
+    FunctionPreorder(lt) <: AbstractLCMPreorder
 
 The preorder given by a function: `x` precedes `y` when `lt(G, ω, x, y)`, which must
-return a `Bool` and be a strict weak order (see [`AbstractLcmPreorder`](@ref)). For the
+return a `Bool` and be a strict weak order (see [`AbstractLCMPreorder`](@ref)). For the
 exploration of other preorders; the lexicographic order of the complements, for
 instance, is `FunctionPreorder((G, ω, x, y) -> Gauss.isless_lex(G, x.complement,
 y.complement))`. A preorder that is not compatible with divisibility gives a resolution
 that is not reduced; the result is to be checked (∂² = 0, Euler characteristic of each
 weight).
 """
-struct FunctionPreorder{F} <: AbstractLcmPreorder
+struct FunctionPreorder{F} <: AbstractLCMPreorder
     lt::F
 end
 
@@ -92,7 +92,7 @@ precedes(P::FunctionPreorder, G::AbstractGerm, ω::Integer, x, y) = P.lt(G, ω, 
     CellScheme(preorder = ComplementDeglex(); root_order = nothing)
 
 The data that fix the cells of the resolution of a germ and their matching: a preorder
-on the lcms ([`AbstractLcmPreorder`](@ref)) and the order of the atoms at the root, a
+on the lcms ([`AbstractLCMPreorder`](@ref)) and the order of the atoms at the root, a
 permutation given as the list of the atoms in increasing order (`nothing`: the order of
 the germ, `1:N`).
 
@@ -112,15 +112,15 @@ The order of the root acts only through the ties of the preorder. With
 `ComplementDeglex`, ties join atoms with the same lcm, and the order of the root only
 changes which atom represents it.
 """
-struct CellScheme{P <: AbstractLcmPreorder}
+struct CellScheme{P <: AbstractLCMPreorder}
     preorder::P
     root_order::Union{Nothing, Vector{Int32}}
-    function CellScheme{P}(preorder::P, root_order) where {P <: AbstractLcmPreorder}
+    function CellScheme{P}(preorder::P, root_order) where {P <: AbstractLCMPreorder}
         return new{P}(preorder, root_order === nothing ? nothing : _permutation(root_order))
     end
 end
 
-CellScheme(preorder::P = ComplementDeglex(); root_order = nothing) where {P <: AbstractLcmPreorder} =
+CellScheme(preorder::P = ComplementDeglex(); root_order = nothing) where {P <: AbstractLCMPreorder} =
     CellScheme{P}(preorder, root_order)
 
 # A permutation of 1:n given as a list, checked and copied as Int32.
@@ -158,7 +158,7 @@ end
 # Compatibility with divisibility (a tool of the developer)
 
 """
-    extends_divisibility(P::AbstractLcmPreorder, G::AbstractGerm, ωs = simples(G)) -> Bool
+    extends_divisibility(P::AbstractLCMPreorder, G::AbstractGerm, ωs = simples(G)) -> Bool
 
 Whether the preorder `P` is compatible with divisibility at each simple of `ωs`: for all
 atoms `a` and `b` that do not divide `ω`, if `ω ∨ a` strictly divides `ω ∨ b`, then
@@ -170,7 +170,7 @@ condition never meet in the same list.
 By brute force, in `N²` comparisons for each simple (`N` atoms): a tool of the developer.
 For a lazy germ, which does not list its simples, give them as `ωs`.
 """
-function extends_divisibility(P::AbstractLcmPreorder, G::AbstractGerm, ωs = simples(G))
+function extends_divisibility(P::AbstractLCMPreorder, G::AbstractGerm, ωs = simples(G))
     N = natoms(G)
     for ω in ωs
         D = left_descents(G, ω)

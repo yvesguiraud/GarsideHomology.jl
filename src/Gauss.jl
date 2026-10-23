@@ -12,7 +12,8 @@ projection, resolution and certificates, modules, complexes) are added step by s
 Present so far: the generic layer of complexes, `Gauss.Complexes`, whose public names
 are re-exported, the interface of germs ([`AbstractGerm`](@ref)), tabulated and lazy
 germs ([`TableGerm`](@ref), [`CoxeterGerm`](@ref)), the cell schemes
-([`CellScheme`](@ref)) and the tree of the cells ([`CellTree`](@ref)).
+([`CellScheme`](@ref)), the tree of the cells ([`CellTree`](@ref)) and the projection
+onto the cells ([`LCMProjectionData`](@ref)).
 """
 module Gauss
 
@@ -34,6 +35,8 @@ include("germs/verify.jl")
 # the tree of the cells.
 include("cells/schemes.jl")
 include("cells/tree.jl")
+include("cells/chains.jl")
+include("cells/projection.jl")
 
 # Lines of the snapshots (format version 1).
 include("snapshots.jl")
@@ -59,11 +62,14 @@ public TableGerm, tabulate, hurwitz_orbit, CoxeterGerm, nnumbered, verify, count
 # Cell schemes. Exported: what a user types to choose a resolution. Public only: the
 # vocabulary for writing a new preorder, and the tools of the developer.
 export CellScheme, ComplementDeglex, TrivialPreorder, FunctionPreorder
-public AbstractLcmPreorder, precedes, extends_divisibility
+public AbstractLCMPreorder, precedes, extends_divisibility
 
 # Tree of the cells: a tool of the construction, public but not exported. Accessors with
 # the prefix cell_, since weight and degree are exported by Oscar, AbstractAlgebra, Chevie.
 public CellTree, ncells, cell_range, cell_weight, cell_letter, cell_atom, cell_degree
 public cell_children, admissible_atoms, bar_form, atom_sequence
+
+# Projection onto the cells (provisional names, before the theory of the article).
+public ChainTree, BimoduleTerm, LCMProjectionData, lcm_splitting, lcm_projection!, lcm_boundary
 
 end # module Gauss
