@@ -1,10 +1,11 @@
-# Cell schemes: the preorders on the lcms that fix the cells of the resolution and their
-# matching, read by the construction of the cell tree (J1.d, task d2).
+# Orderings of the lcm resolutions: the preorders on the lcms that fix the cells of the
+# resolution and their matching, with the order of the atoms at the root; read by the
+# construction of the cell tree (J1.d, task d2).
 
 """
     AbstractLCMPreorder
 
-Supertype of the preorders of a [`CellScheme`](@ref): for each simple `ω`, a total
+Supertype of the preorders of a [`LCMOrdering`](@ref): for each simple `ω`, a total
 preorder on the right lcms `ω ∨ a` of `ω` with the atoms, read in the interval `[ω, Δ]`,
 that is through their complements `ω \\ (ω ∨ a)`.
 
@@ -39,7 +40,7 @@ function precedes end
 The degree-lexicographic order of the complements: `x` precedes `y` when
 [`isless_deglex`](@ref)`(G, x.complement, y.complement)`, the shorter complement first,
 then the smallest word of the complement in the lexicographic order. The default
-preorder of a [`CellScheme`](@ref).
+preorder of a [`LCMOrdering`](@ref).
 
 Lengths add, `ℓ(ω ∨ a) = ℓ(ω) + ℓ(ω \\ (ω ∨ a))`, so that the preorder is compatible with
 divisibility; two atoms are tied only if they have the same lcm, so that the inherited
@@ -59,7 +60,7 @@ precedes(::ComplementDeglex, G::AbstractGerm, ω::Integer, x, y) =
 
 The preorder in which all the lcms are tied: the construction keeps the order of the
 root everywhere. With the order `p` of the atoms at the root,
-`CellScheme(TrivialPreorder(); root_order = p)` is the order resolution of Dehornoy and
+`LCMOrdering(TrivialPreorder(); root_order = p)` is the order resolution of Dehornoy and
 Lafont for `p`, Gauss_d of the preliminary implementation (`filter = false,
 lex = false`). It is compatible with divisibility only where no two lcms `ω ∨ a`, `ω ∨ b`
 are strictly comparable.
@@ -86,12 +87,13 @@ end
 precedes(P::FunctionPreorder, G::AbstractGerm, ω::Integer, x, y) = P.lt(G, ω, x, y)::Bool
 
 # ------------------------------------------------------------------------------------
-# Cell schemes
+# Orderings
 
 """
-    CellScheme(preorder = ComplementDeglex(); root_order = nothing)
+    LCMOrdering(preorder = ComplementDeglex(); root_order = nothing)
 
-The data that fix the cells of the resolution of a germ and their matching: a preorder
+The ordering of the lcm resolution of a germ, the data that fix its cells and their
+matching: a preorder
 on the lcms ([`AbstractLCMPreorder`](@ref)) and the order of the atoms at the root, a
 permutation given as the list of the atoms in increasing order (`nothing`: the order of
 the germ, `1:N`).
@@ -104,51 +106,51 @@ of weight `ω ∨ a` whose last letter is the complement `ω \\ (ω ∨ a)` and 
 formed of the `k − 1` atoms kept before it, in that order. The same order serves the
 matching of the cells.
 
-- `CellScheme()`: the reduced resolution ([`ComplementDeglex`](@ref)), the default.
-- `CellScheme(TrivialPreorder(); root_order = p)`: the order resolution of Dehornoy and
+- `LCMOrdering()`: the reduced resolution ([`ComplementDeglex`](@ref)), the default.
+- `LCMOrdering(TrivialPreorder(); root_order = p)`: the order resolution of Dehornoy and
   Lafont for the order `p` of the atoms ([`TrivialPreorder`](@ref)).
 
 The order of the root acts only through the ties of the preorder. With
 `ComplementDeglex`, ties join atoms with the same lcm, and the order of the root only
 changes which atom represents it.
 """
-struct CellScheme{P <: AbstractLCMPreorder}
+struct LCMOrdering{P <: AbstractLCMPreorder}
     preorder::P
     root_order::Union{Nothing, Vector{Int32}}
-    function CellScheme{P}(preorder::P, root_order) where {P <: AbstractLCMPreorder}
+    function LCMOrdering{P}(preorder::P, root_order) where {P <: AbstractLCMPreorder}
         return new{P}(preorder, root_order === nothing ? nothing : _permutation(root_order))
     end
 end
 
-CellScheme(preorder::P = ComplementDeglex(); root_order = nothing) where {P <: AbstractLCMPreorder} =
-    CellScheme{P}(preorder, root_order)
+LCMOrdering(preorder::P = ComplementDeglex(); root_order = nothing) where {P <: AbstractLCMPreorder} =
+    LCMOrdering{P}(preorder, root_order)
 
 # A permutation of 1:n given as a list, checked and copied as Int32.
 function _permutation(p)
     q = Int32[]
     for x in p
-        x isa Integer || throw(ArgumentError("CellScheme: root_order contains $x, not an integer"))
+        x isa Integer || throw(ArgumentError("LCMOrdering: root_order contains $x, not an integer"))
         push!(q, Int32(x))
     end
     sort(q) == 1:length(q) ||
-        throw(ArgumentError("CellScheme: root_order = $(Int.(q)) is not a permutation of 1:$(length(q))"))
+        throw(ArgumentError("LCMOrdering: root_order = $(Int.(q)) is not a permutation of 1:$(length(q))"))
     return q
 end
 
-# The atoms of G in the order of the root of the scheme S.
-function _root_order(S::CellScheme, G::AbstractGerm)
+# The atoms of G in the order of the root of the ordering S.
+function _root_order(S::LCMOrdering, G::AbstractGerm)
     N = natoms(G)
     S.root_order === nothing && return collect(Int32(1):Int32(N))
     length(S.root_order) == N ||
-        throw(ArgumentError("CellScheme: root_order has $(length(S.root_order)) atoms, the germ $N"))
+        throw(ArgumentError("LCMOrdering: root_order has $(length(S.root_order)) atoms, the germ $N"))
     return copy(S.root_order)
 end
 
-Base.:(==)(S::CellScheme, T::CellScheme) = S.preorder == T.preorder && S.root_order == T.root_order
-Base.hash(S::CellScheme, h::UInt) = hash(S.root_order, hash(S.preorder, hash(:CellScheme, h)))
+Base.:(==)(S::LCMOrdering, T::LCMOrdering) = S.preorder == T.preorder && S.root_order == T.root_order
+Base.hash(S::LCMOrdering, h::UInt) = hash(S.root_order, hash(S.preorder, hash(:LCMOrdering, h)))
 
-function Base.show(io::IO, S::CellScheme)
-    print(io, "CellScheme(")
+function Base.show(io::IO, S::LCMOrdering)
+    print(io, "LCMOrdering(")
     show(io, S.preorder)
     S.root_order === nothing || print(io, "; root_order = ", Int.(S.root_order))
     print(io, ")")
@@ -162,7 +164,7 @@ end
 
 Whether the preorder `P` is compatible with divisibility at each simple of `ωs`: for all
 atoms `a` and `b` that do not divide `ω`, if `ω ∨ a` strictly divides `ω ∨ b`, then
-`ω ∨ a` precedes `ω ∨ b`. A scheme whose preorder is compatible keeps exactly one atom
+`ω ∨ a` precedes `ω ∨ b`. An ordering whose preorder is compatible keeps exactly one atom
 for each minimal lcm. The test does not depend on the tree of the construction: an
 incompatible preorder may still give a reduced resolution, when the pairs that break the
 condition never meet in the same list.

@@ -53,7 +53,7 @@ end
 
 The splitting of the last letter of the chain `h|σ`, for a cell `h` of weight `ω` and a
 simple `σ ≠ 1` with `ωσ` simple: `σ = y·z`, where `y` is the letter of the first child of
-`h`, in the order of the scheme, whose atom divides `ωσ` (so that `ωy = ω ∨ a`), and
+`h`, in the order given by the ordering, whose atom divides `ωσ` (so that `ωy = ω ∨ a`), and
 `(0, σ)` (the identity for `y`) if no child of `h` has an atom dividing `ωσ`.
 
 It classifies the chain `x = h|σ`: if `y = σ`, `x` is the corresponding child of `h`, a
@@ -93,8 +93,8 @@ matched with `ϕx = h|y|z` of degree `n + 1`, `p(x) = (−1)ⁿ⁺¹ Σᵢ (−1
 sum over the faces of `ϕx` but the `n`-th, which is `x`; for `x = h|σ` with `h` not a
 cell, `p(x) = Σ λ s p(c | t·σ)` over the terms `λ s [c] t` of `p(h)`.
 """
-struct LCMProjectionData{G <: AbstractGerm, S <: CellScheme}
-    tree::CellTree{G, S}
+struct LCMProjectionData{G <: AbstractGerm, O <: LCMOrdering}
+    tree::CellTree{G, O}
     chains::ChainTree
     memo_start::Vector{Int64}           # first term of p(x) in the arena
     memo_length::Vector{Int32}          # number of terms of p(x); -1 not computed, -2 in progress

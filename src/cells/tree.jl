@@ -1,16 +1,16 @@
-# The tree of the cells: the cells of the resolution of a germ for a cell scheme, as a
+# The tree of the cells: the cells of the lcm resolution of a germ for an ordering, as a
 # prefix tree in integers (J1.d, task d2).
 
 """
-    CellTree(G::AbstractGerm, scheme::CellScheme = CellScheme())
+    CellTree(G::AbstractGerm, ordering::LCMOrdering = LCMOrdering())
 
-The cells of the resolution of the germ `G` for the cell scheme `scheme`, as a tree whose
+The cells of the lcm resolution of the germ `G` for the ordering `ordering`, as a tree whose
 nodes are the cells. The node of a cell `x = [τ₁|…|τₙ]` has for parent the cell
 `[τ₁|…|τₙ₋₁]`, for letter its last letter `τₙ`, for atom the atom `a` that created it
 (`τₙ = ω \\ (ω ∨ a)`, `ω` being the weight of the parent), for weight `τ₁⋯τₙ` and for
 degree `n`. The node `1` is the cell of degree 0, of weight the identity.
 
-The tree is built breadth first, by the rule of [`CellScheme`](@ref): at a node of
+The tree is built breadth first, by the rule of [`LCMOrdering`](@ref): at a node of
 weight `ω` whose list `I` of admissible atoms is in the inherited order (the order of the
 root at the root), `I` is sorted by the preorder at `ω`, ties keeping the inherited
 order; an atom `j` is kept if no atom placed before it divides `ω ∨ aⱼ`; the atoms kept
@@ -18,7 +18,7 @@ give the children, in that order, and the list of a child is formed of the atoms
 elder siblings. No list is copied: it is read in the tree itself.
 
 The cells are numbered `1:ncells(T)` in the order of the construction: by degree, then by
-parent, then in the order of the scheme. The children of a node are contiguous, and the
+parent, then in the order given by the ordering. The children of a node are contiguous, and the
 cells of degree `n` form [`cell_range`](@ref)`(T, n)`, which fixes the order of the basis
 of the free module of degree `n`.
 
@@ -27,9 +27,9 @@ Accessors (public, not exported): [`ncells`](@ref), [`cell_range`](@ref),
 [`cell_degree`](@ref), [`cell_children`](@ref), [`admissible_atoms`](@ref),
 [`bar_form`](@ref), [`atom_sequence`](@ref).
 """
-struct CellTree{G <: AbstractGerm, S <: CellScheme}
+struct CellTree{G <: AbstractGerm, O <: LCMOrdering}
     germ::G
-    scheme::S
+    ordering::O
     root_order::Vector{Int32}    # the list of the root
     parent::Vector{Int32}        # parent[x], 0 for the root
     atom::Vector{Int32}          # atom[x], 0 for the root
@@ -46,8 +46,8 @@ const _Candidate = NamedTuple{(:atom, :lcm, :complement), NTuple{3, Int32}}
 # The candidate in the form of a result of lcm_atom, as precedes expects it.
 _lcm_pair(c::_Candidate) = (lcm = c.lcm, complement = c.complement)
 
-function CellTree(G::AbstractGerm, scheme::CellScheme = CellScheme())
-    root = _root_order(scheme, G)
+function CellTree(G::AbstractGerm, ordering::LCMOrdering = LCMOrdering())
+    root = _root_order(ordering, G)
     parent = Int32[0]
     atom = Int32[0]
     letter = Int32[0]
@@ -63,11 +63,11 @@ function CellTree(G::AbstractGerm, scheme::CellScheme = CellScheme())
         # The list of x: the order of the root, or the atoms of the elder siblings of x.
         lo = x == 1 ? 1 : Int(child_start[parent[x]])
         list = x == 1 ? view(root, 1:length(root)) : view(atom, lo:(x - 1))
-        _expand!(parent, atom, letter, weight, degree, buffer, G, scheme.preorder, B, x, list)
+        _expand!(parent, atom, letter, weight, degree, buffer, G, ordering.preorder, B, x, list)
         x += 1
     end
     push!(child_start, Int32(length(parent) + 1))
-    return CellTree(G, scheme, root, parent, atom, letter, weight, degree, child_start,
+    return CellTree(G, ordering, root, parent, atom, letter, weight, degree, child_start,
                     _degree_starts(degree))
 end
 
@@ -199,7 +199,7 @@ cell_degree(T::CellTree, x::Integer) = Int(T.degree[x])
 """
     cell_children(T::CellTree, x) -> UnitRange{Int}
 
-The children of the cell `x`, contiguous, in the order of the scheme.
+The children of the cell `x`, contiguous, in the order given by the ordering.
 """
 cell_children(T::CellTree, x::Integer) = Int(T.child_start[x]):Int(T.child_start[x + 1] - 1)
 
@@ -241,5 +241,5 @@ end
 
 function Base.show(io::IO, T::CellTree)
     print(io, "CellTree: ", ncells(T), " cells, by degree ", _degree_counts(T), ", ")
-    show(io, T.scheme)
+    show(io, T.ordering)
 end

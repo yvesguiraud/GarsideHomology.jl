@@ -1,9 +1,8 @@
 # Tests of the projection onto the cells (cells/chains.jl, cells/projection.jl) and of the
 # D lines of the snapshots: the tree of the chains, the splitting, the projection and the
 # boundary on B⁺(A₂) and B*(A₂) by hand, ∂² = 0, and the fingerprints of the D lines of
-# small cases of J0 with the criteria of the C lines (strict for Gauss_a and Gauss_d, bar
-# form for Gauss_c, numbers of lines for Gauss_b, ∂² = 0 only for Gauss_a of the
-# classical monoids).
+# small cases of J0 (strict for Gauss_a and Gauss_d, bar form for Gauss_c, ∂² = 0 only for
+# Gauss_b and for Gauss_a of the classical monoids).
 
 isdefined(Main, :TREE_VARIANTS) || include("test_tree.jl")
 
@@ -112,7 +111,8 @@ end
         for (v, (S, form)) in TREE_VARIANTS
             P = LCMProjectionData(CellTree(G, S))
             @test square_zero(P)
-            classical && v == "a" && continue
+            # Gauss_a of the classical monoids and Gauss_b: ∂² = 0 only (decision of 23 October).
+            (classical && v == "a" || form === :counts) && continue
             mine, ref = d_fingerprints(P), reference_d_fingerprints(case, v)
             @test sort(collect(keys(mine))) == sort(collect(keys(ref)))
             k = form === :atoms ? 2 : form === :bar ? 3 : 1

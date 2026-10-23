@@ -1,4 +1,4 @@
-# Tests of the cell schemes (cells/schemes.jl): CellScheme and its order of the root, the
+# Tests of the orderings (cells/orderings.jl): LCMOrdering and its order of the root, the
 # preorders on the lcms, compatibility with divisibility, isless_deglex of the germs (also
 # checked for every pair of simples by check_germ, explicit_germ.jl).
 
@@ -8,33 +8,33 @@ using Gauss
 using Test
 import Chevie
 
-@testset "Cell schemes" begin
+@testset "Orderings" begin
     lex = FunctionPreorder((G, ω, x, y) -> Gauss.isless_lex(G, x.complement, y.complement))
 
-    @testset "CellScheme" begin
-        S = CellScheme()
+    @testset "LCMOrdering" begin
+        S = LCMOrdering()
         @test S.preorder === ComplementDeglex() && S.root_order === nothing
-        @test S == CellScheme(ComplementDeglex()) && hash(S) == hash(CellScheme(ComplementDeglex()))
-        @test sprint(show, S) == "CellScheme(ComplementDeglex())"
-        D = CellScheme(TrivialPreorder(); root_order = [2, 3, 1])
+        @test S == LCMOrdering(ComplementDeglex()) && hash(S) == hash(LCMOrdering(ComplementDeglex()))
+        @test sprint(show, S) == "LCMOrdering(ComplementDeglex())"
+        D = LCMOrdering(TrivialPreorder(); root_order = [2, 3, 1])
         @test D.root_order == Int32[2, 3, 1] && D.root_order isa Vector{Int32}
-        @test sprint(show, D) == "CellScheme(TrivialPreorder(); root_order = [2, 3, 1])"
-        @test D == CellScheme(TrivialPreorder(); root_order = Int32[2, 3, 1])
-        @test hash(D) == hash(CellScheme(TrivialPreorder(); root_order = (2, 3, 1)))
-        @test D != CellScheme(TrivialPreorder()) && D != CellScheme(TrivialPreorder(); root_order = 1:3)
-        @test CellScheme(lex) == CellScheme(lex) && CellScheme(lex) != S
+        @test sprint(show, D) == "LCMOrdering(TrivialPreorder(); root_order = [2, 3, 1])"
+        @test D == LCMOrdering(TrivialPreorder(); root_order = Int32[2, 3, 1])
+        @test hash(D) == hash(LCMOrdering(TrivialPreorder(); root_order = (2, 3, 1)))
+        @test D != LCMOrdering(TrivialPreorder()) && D != LCMOrdering(TrivialPreorder(); root_order = 1:3)
+        @test LCMOrdering(lex) == LCMOrdering(lex) && LCMOrdering(lex) != S
         p = [2, 3, 1]
-        E = CellScheme(TrivialPreorder(); root_order = p)
+        E = LCMOrdering(TrivialPreorder(); root_order = p)
         p[1] = 7
         @test E.root_order == Int32[2, 3, 1]                  # the order is copied
-        @test_throws ArgumentError CellScheme(; root_order = [1, 1, 3])
-        @test_throws ArgumentError CellScheme(; root_order = [0, 1])
-        @test_throws ArgumentError CellScheme(; root_order = [1.5, 2])
-        @test_throws MethodError CellScheme(:lex)
+        @test_throws ArgumentError LCMOrdering(; root_order = [1, 1, 3])
+        @test_throws ArgumentError LCMOrdering(; root_order = [0, 1])
+        @test_throws ArgumentError LCMOrdering(; root_order = [1.5, 2])
+        @test_throws MethodError LCMOrdering(:lex)
         G = dual_dihedral_germ(3)
         @test Gauss._root_order(S, G) == Int32[1, 2, 3]
         @test Gauss._root_order(D, G) == Int32[2, 3, 1]
-        @test_throws ArgumentError Gauss._root_order(CellScheme(; root_order = [2, 1]), G)
+        @test_throws ArgumentError Gauss._root_order(LCMOrdering(; root_order = [2, 1]), G)
     end
 
     @testset "Preorders on B⁺(A₃)" begin
@@ -99,7 +99,7 @@ import Chevie
     end
 
     @testset "Exports" begin
-        for s in (:CellScheme, :ComplementDeglex, :TrivialPreorder, :FunctionPreorder)
+        for s in (:LCMOrdering, :ComplementDeglex, :TrivialPreorder, :FunctionPreorder)
             @test Base.isexported(Gauss, s)
         end
         for s in (:AbstractLCMPreorder, :precedes, :extends_divisibility)

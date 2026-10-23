@@ -13,7 +13,7 @@ import Chevie
 
 const TREE_REFERENCE = joinpath(@__DIR__, "data", "reference")
 
-# The four variants of J0 as cell schemes: Gauss_a and Gauss_d by the public preorders,
+# The four variants of J0 as orderings: Gauss_a and Gauss_d by the public preorders,
 # Gauss_b and Gauss_c by preorders of the tests (length, then lexicographic order of the
 # complements), with the form of the comparison (decisions of 22 October 2026): strict for
 # a and d, in bar form for c, numbers of cells by degree for b, whose variant of J0 combines
@@ -21,10 +21,10 @@ const TREE_REFERENCE = joinpath(@__DIR__, "data", "reference")
 # minimality instead (check_classical): its children are ordered by deglex, those of J0 by
 # lex, which differ from E₆ on.
 const TREE_VARIANTS = [
-    "a" => (CellScheme(ComplementDeglex()), :atoms),
-    "b" => (CellScheme(FunctionPreorder((G, ω, x, y) -> length(G, x.complement) < length(G, y.complement))), :counts),
-    "c" => (CellScheme(FunctionPreorder((G, ω, x, y) -> Gauss.isless_lex(G, x.complement, y.complement))), :bar),
-    "d" => (CellScheme(TrivialPreorder()), :atoms),
+    "a" => (LCMOrdering(ComplementDeglex()), :atoms),
+    "b" => (LCMOrdering(FunctionPreorder((G, ω, x, y) -> length(G, x.complement) < length(G, y.complement))), :counts),
+    "c" => (LCMOrdering(FunctionPreorder((G, ω, x, y) -> Gauss.isless_lex(G, x.complement, y.complement))), :bar),
+    "d" => (LCMOrdering(TrivialPreorder()), :atoms),
 ]
 
 # The fingerprints of the C lines of T, degree => (lines, atoms, bar).
@@ -96,7 +96,7 @@ end
         @test sort!(vcat([Gauss._cell_lines(D, n) for n in 0:2]...)) ==
               ["C 0 - [] e", "C 1 1 [1] 1", "C 1 2 [2] 2", "C 1 3 [3] 3", "C 2 2.1 [2|3] 1.2", "C 2 3.1 [3|1] 1.2"]
         @test Gauss._cell_lines(D, 2; bar = true) == ["C 2 [2|3] 1.2", "C 2 [3|1] 1.2"]
-        @test sprint(show, D) == "CellTree: 6 cells, by degree [1, 3, 2], CellScheme(ComplementDeglex())"
+        @test sprint(show, D) == "CellTree: 6 cells, by degree [1, 3, 2], LCMOrdering(ComplementDeglex())"
         @test ncells(D) == 6 && ncells(D, 1) == 3 && ncells(D, 3) == 0 && ncells(D, -1) == 0
         @test Gauss.cell_range(D, 2) == 5:6 && Gauss.cell_children(D, 1) == 2:4
         # The cell [3|1]: created by the atom 1 from [3], whose list is (1, 2) (both lcms Δ,
@@ -108,7 +108,7 @@ end
         @test collect(Gauss.admissible_atoms(D, 1)) == [1, 2, 3]
         @test check_tree(T) == 0 && check_tree(D) == 0
         # The order of the root acts on the atom sequences of the trivial preorder.
-        R = CellTree(dual_dihedral_germ(3), CellScheme(TrivialPreorder(); root_order = [3, 2, 1]))
+        R = CellTree(dual_dihedral_germ(3), LCMOrdering(TrivialPreorder(); root_order = [3, 2, 1]))
         @test [Gauss.cell_atom(R, y) for y in Gauss.cell_children(R, 1)] == [3, 2, 1]
         @test check_tree(R) == 0 && Gauss._degree_counts(R) == [1, 3, 2]
     end
