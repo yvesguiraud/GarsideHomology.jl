@@ -48,7 +48,9 @@ SignModule() = SignModule(AbstractAlgebra.ZZ)
 const _RankOneModule = Union{TrivialModule, SignModule}
 
 AbstractAlgebra.base_ring(M::_RankOneModule) = M.ring
-AbstractAlgebra.rank(::_RankOneModule) = 1
+# The tests call this method, but the compiler replaces each call by the constant 1, so
+# that the coverage never sees the line (as for precedes and _thread_safe).
+AbstractAlgebra.rank(::_RankOneModule) = 1  # COV_EXCL_LINE
 
 Base.show(io::IO, M::TrivialModule) = print(io, "TrivialModule over ", M.ring)
 Base.show(io::IO, M::SignModule) = print(io, "SignModule over ", M.ring)
