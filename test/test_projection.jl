@@ -74,6 +74,7 @@ end
             "D 1 3.1 +1 3 1 e", "D 1 3.1 +1 e 3 1", "D 1 3.1 -1 1 2 e", "D 1 3.1 -1 e 1 2"]
         @test square_zero(P)
         @test startswith(sprint(show, P), "LCMProjectionData: 6 cells, ")
+        @test startswith(sprint(show, P.chains), "ChainTree: ") && endswith(sprint(show, P.chains), " chains, of which 6 cells")
     end
 
     @testset "B⁺(A₂) by hand" begin

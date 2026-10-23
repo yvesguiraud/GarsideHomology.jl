@@ -14,7 +14,8 @@ are re-exported, the interface of germs ([`AbstractGerm`](@ref)), tabulated and 
 germs ([`TableGerm`](@ref), [`CoxeterGerm`](@ref)), the orderings
 ([`LCMOrdering`](@ref)), the tree of the cells ([`CellTree`](@ref)), the projection
 onto the cells ([`LCMProjectionData`](@ref)) and the lcm resolution
-([`lcm_resolution`](@ref)), with its snapshots ([`write_snapshot`](@ref)).
+([`lcm_resolution`](@ref), [`LCMResolution`](@ref)), with its snapshots
+([`write_snapshot`](@ref)).
 """
 module Gauss
 
@@ -22,7 +23,9 @@ module Gauss
 # else in Gauss, so that it can later become a package of its own.
 include("complexes/Complexes.jl")
 using .Complexes
-using .Complexes: rank, AbstractMonoid
+using .Complexes: rank, AbstractMonoid, AbstractModule, AbstractChainComplex
+using SparseArrays: nnz
+import AbstractAlgebra
 import SHA
 import CodecZlib
 using CodecZlib: GzipCompressorStream
@@ -81,6 +84,6 @@ public ChainTree, BimoduleTerm, LCMProjectionData, lcm_splitting, lcm_projection
 
 # The lcm resolution and its snapshots.
 export lcm_resolution
-public CellBasis, cell_tree, write_snapshot
+public LCMResolution, CellBasis, cell_tree, write_snapshot
 
 end # module Gauss

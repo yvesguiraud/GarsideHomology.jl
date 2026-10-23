@@ -20,6 +20,17 @@ struct NamedMonoid <: Gauss.Complexes.AbstractMonoid
     simples::Vector{String}
 end
 
+# A chain complex of another type, known to the layer only through the interface of
+# AbstractChainComplex.
+struct WrappedComplex{R, D, C} <: Gauss.Complexes.AbstractChainComplex{R, D}
+    inner::C
+end
+WrappedComplex(C::ChainComplex{R, M, D}) where {R, M, D} = WrappedComplex{R, D, typeof(C)}(C)
+Base.range(W::WrappedComplex) = range(W.inner)
+Base.getindex(W::WrappedComplex, n::Integer) = W.inner[n]
+Gauss.Complexes.differential(W::WrappedComplex, n::Integer) = differential(W.inner, n)
+AA.base_ring(W::WrappedComplex) = base_ring(W.inner)
+
 @testset "Complexes" begin
 
     @testset "MonoidAlgebra" begin
@@ -232,6 +243,37 @@ end
         @test is_square_zero(SE)
     end
 
+    @testset "AbstractChainComplex" begin
+        # Over ℤ: real projective plane and 2-simplex, wrapped.
+        rp2 = ChainComplex([SA.spzeros(Int, Int, 1, 1), SA.sparse([1], [1], [2], 1, 1)])
+        W = WrappedComplex(rp2)
+        @test firstindex(W) == 0 && lastindex(W) == 2 && rank(W[end]) == 1
+        @test homology(W) == homology(rp2) && homology(W, 1) == homology(rp2, 1)
+        @test is_square_zero(W) && collapsible_pairs(W) == collapsible_pairs(rp2)
+        d0 = SA.sparse([1, 2, 1, 3, 2, 3], [1, 1, 2, 2, 3, 3], [-1, 1, -1, 1, -1, 1], 3, 3)
+        @test !is_square_zero(WrappedComplex(ChainComplex([d0, SA.sparse([1, 2, 3], [1, 1, 1], [1, 1, 1], 3, 1)])))
+        # Over a monoid algebra: the Koszul resolution of the free commutative monoid on a, b.
+        B = MonoidAlgebra(ZZ, NamedMonoid(["e", "a", "b", "ab"]))
+        e0 = labelled_sparse([1, 1, 1, 1], [1, 1, 2, 2],
+                             L2[(1, 0), (0, 1), (2, 0), (0, 2)], [1, -1, 1, -1], 1, 2)
+        e1 = labelled_sparse([1, 1, 2, 2], [1, 1, 1, 1],
+                             L2[(2, 0), (0, 2), (1, 0), (0, 1)], [-1, 1, 1, -1], 2, 1)
+        T = ChainComplex([BasedFreeModule(B, ["[]"]), BasedFreeModule(B, ["[a]", "[b]"]),
+                          BasedFreeModule(B, ["[a|b]"])], [e0, e1])
+        V = WrappedComplex(T)
+        @test V isa Gauss.Complexes.AbstractChainComplex{typeof(B), LabelledSparseMatrix{L2, Int}}
+        sign_right(l) = isodd([0, 1, 1, 2][l[2] + 1]) ? -1 : 1
+        for χ in (nothing, sign_right)
+            S, ST = specialise(V, χ), specialise(T, χ)
+            @test S isa ChainComplex && range(S) == range(ST)
+            @test all(differential(S, n) == differential(ST, n) for n in -1:2)
+            @test all(cells(S[n]) === cells(T[n]) for n in 0:2)
+        end
+        @test collapsible_pairs(V) == collapsible_pairs(T)
+        @test_throws ArgumentError is_square_zero(V)
+        @test_throws ArgumentError homology(V)
+    end
+
     @testset "FinitelyGeneratedModule" begin
         G = FinitelyGeneratedAbelianGroup
         @test G === FinitelyGeneratedModule{BigInt}
@@ -286,7 +328,8 @@ end
         # rank is public but not exported, because Chevie exports its own rank.
         @test !Base.isexported(Gauss, :rank) && Base.ispublic(Gauss, :rank)
         @test Gauss.rank === Gauss.Complexes.rank
-        @test Base.ispublic(Gauss.Complexes, :AbstractMonoid)
-        @test !Base.isexported(Gauss.Complexes, :AbstractMonoid)
+        for s in (:AbstractMonoid, :AbstractModule, :AbstractChainComplex)
+            @test Base.ispublic(Gauss.Complexes, s) && !Base.isexported(Gauss.Complexes, s)
+        end
     end
 end

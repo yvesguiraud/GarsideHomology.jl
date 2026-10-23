@@ -31,7 +31,7 @@ export labelled_sparse, cells, labels, differential, specialise, torsion, is_squ
 export homology, collapsible_pairs
 export base_ring, nrows, ncols
 
-public rank, AbstractMonoid, AbstractModule, label_type, identity_label, check_invariants
+public rank, AbstractMonoid, AbstractModule, AbstractChainComplex, label_type, identity_label, check_invariants
 
 include("arithmetic.jl")
 include("rings.jl")

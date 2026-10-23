@@ -67,7 +67,9 @@ are strictly comparable.
 """
 struct TrivialPreorder <: AbstractLCMPreorder end
 
-precedes(::TrivialPreorder, G::AbstractGerm, ω::Integer, x, y) = false
+# The tests call this method, but the compiler replaces each call by the constant false,
+# so that the coverage never sees the line.
+precedes(::TrivialPreorder, G::AbstractGerm, ω::Integer, x, y) = false  # COV_EXCL_LINE
 
 """
     FunctionPreorder(lt) <: AbstractLCMPreorder
