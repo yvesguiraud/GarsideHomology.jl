@@ -116,3 +116,31 @@ line `fichier` giving the SHA-256 of the `.txt.gz` file.
   the choice of the atom representing an lcm has changed. This is the case, for instance,
   between the tie-breaking rules of Gauss_a (first in the inherited order) and Gauss_c
   (smallest index).
+
+## 7. Header of the snapshots written by Gauss.jl
+
+Since J1.d (task d4, 23 October 2026), Gauss.jl writes snapshots itself
+(`Gauss.write_snapshot`, for a resolution given by `lcm_resolution`). The data lines and
+the fingerprints follow sections 4 and 5; the header, which does not enter the
+fingerprints, differs from that of J0, which came from Chevie and from the experiment
+repository. Keys, in this order:
+
+```
+# format: cliche-gauss 1
+# cas: dual_B3                          (optional, given by the caller)
+# ordre: LCMOrdering(ComplementDeglex())
+# cote: ppcm à droite ; terme coef·σ·y·τ, σ à gauche, τ à droite ; d_n : C_{n+1} -> C_n
+# n_atomes: 9
+# empreinte_germe: GermFingerprint(9 atoms, ℓ(Δ) = 3, …)   ("non calculée (germe paresseux)" for a lazy germ)
+# …                                     (the pairs given by the caller: libelle, construction, machine, commits, …)
+# gauss: 0.1.0-DEV
+# julia: 1.13.2
+# date: 2026-10-23T15:00:00
+# cellules: 38
+# termes: 162
+```
+
+The orderings that correspond to the variants of J0: Gauss_a is
+`LCMOrdering(ComplementDeglex())` (identical to J0 except for the classical monoids from
+E�� on, whose children are ordered by deglex instead of lex), Gauss_d is
+`LCMOrdering(TrivialPreorder())`; Gauss_b and Gauss_c exist only as orderings of the tests.

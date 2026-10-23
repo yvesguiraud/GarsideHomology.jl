@@ -1,0 +1,10 @@
+[deps]
+Chevie = "367f69f0-ca63-11e8-2372-438b29340c1b"
+Gauss = "8020c2ec-8931-47b1-870e-dab20b57e67e"
+
+[sources]
+Gauss = {path = ".."}
+
+[compat]
+Chevie = "0.1.15"
+julia = "1.11"

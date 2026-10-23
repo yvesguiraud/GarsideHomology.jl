@@ -40,7 +40,7 @@ numbered (tabulated germ), optional otherwise: [`nsimples`](@ref) (the number of
 simples, a constant, also defined by a lazy germ that knows it without enumerating) and
 [`simples`](@ref). Derived, with a generic method that a germ may replace: `one(G)`,
 `isone(G, s)`, [`atoms`](@ref), [`is_left_divisor`](@ref), [`word`](@ref),
-[`isless_lex`](@ref).
+[`isless_lex`](@ref), [`isless_deglex`](@ref).
 
 Arguments that are simples accept any integer; simples are returned as `Int32`, lengths
 and counts as `Int`.
@@ -197,6 +197,20 @@ function isless_lex(G::AbstractGerm, s::Integer, t::Integer)
         x = ldiv(G, a, x)::Int32
         y = ldiv(G, b, y)::Int32
     end
+end
+
+"""
+    isless_deglex(G::AbstractGerm, s, t) -> Bool
+
+Whether `s` comes strictly before `t` in the degree-lexicographic order: the shorter
+first, then by smallest words in the lexicographic order ([`isless_lex`](@ref)). It is
+the canonical order of the simples of a tabulated germ, whose method compares their
+numbers.
+"""
+function isless_deglex(G::AbstractGerm, s::Integer, t::Integer)
+    ℓs, ℓt = length(G, s), length(G, t)
+    ℓs == ℓt || return ℓs < ℓt
+    return isless_lex(G, s, t)
 end
 
 # ------------------------------------------------------------------------------------
