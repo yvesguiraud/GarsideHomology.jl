@@ -178,7 +178,7 @@ _sum_elements(s) = (c = 0; for i in s; c += i; end; c)
         # are checked by hand for each new name). Exported on purpose despite a collision:
         # homology (Oscar) and differential (Hecke, and Oscar, which reexports Hecke).
         for s in (:MonoidAlgebra, :tensor, :tensor_product, :⊗, :verify, :product, :atoms, :word,
-                  :rank, :trivial_module)
+                  :rank, :trivial_module, :ZZ)
             @test !Base.isexported(Gauss, s)
         end
     end

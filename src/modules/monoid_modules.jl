@@ -16,28 +16,34 @@ one is given by a character χ of the monoid, and serves on both sides, `s·m = 
 abstract type AbstractMonoidModule{R <: AbstractAlgebra.Ring} end
 
 """
-    TrivialModule(R)
+    TrivialModule(R = Gauss.ZZ)
 
 The ring `R`, every element of the monoid acting by 1: the trivial module. The homology
-with coefficients in `TrivialModule(ZZ)` is the homology of the group of fractions with
-trivial integer coefficients.
+with coefficients in `TrivialModule()` is the homology of the group of fractions with
+trivial integer coefficients. By default, `R` is the ring of integers of AbstractAlgebra
+(`Gauss.ZZ`), that of the coefficients of the resolutions.
 """
 struct TrivialModule{R} <: AbstractMonoidModule{R}
     ring::R
     TrivialModule(R::AbstractAlgebra.Ring) = new{typeof(R)}(R)
 end
 
+TrivialModule() = TrivialModule(AbstractAlgebra.ZZ)
+
 """
-    SignModule(R)
+    SignModule(R = Gauss.ZZ)
 
 The ring `R`, every atom acting by −1, so that a simple `s` acts by `(−1)^ℓ(s)`: for a braid
-group and `R = ZZ`, the module ℤε in which the braid reflections act by −1 (Garnier,
-table 4). Well defined on every homogeneous germ.
+group and the integers, the module ℤε in which the braid reflections act by −1 (Garnier,
+table 4). Well defined on every homogeneous germ. By default, `R` is the ring of integers
+of AbstractAlgebra (`Gauss.ZZ`).
 """
 struct SignModule{R} <: AbstractMonoidModule{R}
     ring::R
     SignModule(R::AbstractAlgebra.Ring) = new{typeof(R)}(R)
 end
+
+SignModule() = SignModule(AbstractAlgebra.ZZ)
 
 const _RankOneModule = Union{TrivialModule, SignModule}
 

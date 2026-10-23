@@ -28,6 +28,7 @@ using .Complexes
 using .Complexes: rank, MonoidAlgebra, AbstractMonoid, AbstractModule, AbstractChainComplex
 using SparseArrays: nnz, nzrange, rowvals, nonzeros
 import AbstractAlgebra
+using AbstractAlgebra: ZZ
 import SHA
 import CodecZlib
 using CodecZlib: GzipCompressorStream
@@ -102,5 +103,8 @@ public ResolutionCertificate, is_correct, is_minimal, is_linear
 # write `using Gauss: ⊗` for the notation, which wins over the exports of those packages.
 export TrivialModule, SignModule
 public AbstractMonoidModule, tensor_product, ⊗
+# The ring of integers of AbstractAlgebra, that of the coefficients of the resolutions:
+# public, not exported, since Nemo, Hecke and Oscar export a ZZ of their own, another object.
+public ZZ
 
 end # module Gauss

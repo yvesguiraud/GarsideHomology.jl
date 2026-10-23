@@ -32,6 +32,12 @@ Early development, not registered. In place:
   computed in the bimodules, Euler characteristic of each weight against the Möbius
   function, minimality and linearity. The 344 reference resolutions are certified
   correct, and the reduced one is minimal in all their 86 cases.
+- The modules of coefficients `TrivialModule()` and `SignModule()` (ℤε, the braid
+  reflections acting by −1), the homology `homology(R, M)` and the tensor products
+  `Gauss.tensor_product` (or `⊗`, with `using Gauss: ⊗`). With ℤε, the homology of the
+  braid groups of the well-generated exceptional groups agrees with table 4 of
+  [O. Garnier](https://arxiv.org/abs/2302.10033) up to B(G₃₆); for B(G₃₇), the
+  coefficients outgrow the integer types of the solver for now.
 
 ```julia
 using Gauss, SparseArrays
@@ -43,10 +49,12 @@ homology(C)    # ℤ, ℤ/2ℤ, 0 in degrees 0 to 2
 using Chevie
 
 # Reduced lcm resolution of the dual braid monoid of G₄, its certificate, then the homology
-# of its group, the braid group on three strands.
+# of its group, the braid group on three strands, with trivial coefficients and with the
+# sign module ℤε (the braid reflections acting by −1).
 R = lcm_resolution(dual_germ(crg(4)))
-certify(R)                 # ResolutionCertificate: correct, minimal, linear
-homology(specialise(R))    # ℤ, ℤ, 0 in degrees 0 to 2
+certify(R)                      # ResolutionCertificate: correct, minimal, linear
+homology(R, TrivialModule())    # ℤ, ℤ, 0 in degrees 0 to 2
+homology(R, SignModule())       # ℤ/2ℤ, ℤ/3ℤ, 0
 ```
 
 ## Requirements

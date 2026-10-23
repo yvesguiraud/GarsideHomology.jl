@@ -107,7 +107,8 @@ import Chevie
     @testset "Example of the README" begin
         R = lcm_resolution(dual_germ(Chevie.crg(4)))
         @test sprint(show, certify(R)) == "ResolutionCertificate: correct, minimal, linear"
-        @test homology(specialise(R)) == braid3
+        @test homology(specialise(R)) == braid3 == homology(R, TrivialModule())
+        @test homology(R, SignModule()) == FinitelyGeneratedGradedAbelianGroup([G(0, [2]), G(0, [3]), G(0)])
     end
 
     @testset "Lazy germ" begin

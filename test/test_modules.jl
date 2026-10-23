@@ -19,6 +19,7 @@ const _M_SA = Gauss.Complexes.SparseArrays
     trivial3 = GG([G(1), G(1), G(0)])                 # H_*(B₃; ℤ)
     sign3 = GG([G(0, [2]), G(0, [3]), G(0)])          # H_*(B₃; ℤε)
     T, S = TrivialModule(_M_ZZ), SignModule(_M_ZZ)
+    R0 = lcm_resolution(dual_dihedral_germ(3))
 
     @testset "TrivialModule and SignModule" begin
         @test T isa AbstractMonoidModule{typeof(_M_ZZ)} && S isa AbstractMonoidModule{typeof(_M_ZZ)}
@@ -27,6 +28,10 @@ const _M_SA = Gauss.Complexes.SparseArrays
         @test sprint(show, T) == "TrivialModule over $(_M_ZZ)" && sprint(show, S) == "SignModule over $(_M_ZZ)"
         @test base_ring(SignModule(_M_AA.QQ)) === _M_AA.QQ      # any ring, tensors over ℤ only
         @test_throws MethodError TrivialModule(2)
+        # The integers by default: those of AbstractAlgebra, Gauss.ZZ (public, not exported).
+        @test TrivialModule() == T && SignModule() == S && Gauss.ZZ === _M_ZZ
+        @test Base.ispublic(Gauss, :ZZ) && !Base.isexported(Gauss, :ZZ)
+        @test homology(R0, SignModule()) == sign3
     end
 
     R = lcm_resolution(dual_dihedral_germ(3))        # B*(A₂): cells [], [1], [2], [3], 2.1, 3.1
