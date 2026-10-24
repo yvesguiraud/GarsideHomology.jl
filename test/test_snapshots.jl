@@ -54,7 +54,9 @@ end
 _read_text(text) = read_snapshot(_write_gzip(tempname() * ".txt.gz", text))
 
 # Sign on both sides, (σ, τ) ↦ (-1)^(ℓ(σ) + ℓ(τ)), for the simples of a snapshot.
-_sign(m::SnapshotMonoid) = l -> iseven(simple_length(m, l[1]) + simple_length(m, l[2])) ? 1 : -1
+# The sign on both sides: not the module ℤε (sign on one side), only a change of the signs
+# of the cells, which keeps ∂² = 0 and the trivial homology.
+_sign_both_sides(m::SnapshotMonoid) = l -> iseven(simple_length(m, l[1]) + simple_length(m, l[2])) ? 1 : -1
 
 @testset "Snapshots" begin
     workdir = mktempdir()
@@ -131,7 +133,7 @@ _sign(m::SnapshotMonoid) = l -> iseven(simple_length(m, l[1]) + simple_length(m,
         @test gunzip_text(target) == gunzip_text(path)
         @test snapshots_equal(read_snapshot(target), s)
         @test is_square_zero(specialise(s.complex))
-        @test is_square_zero(specialise(s.complex, _sign(s.monoid)))
+        @test is_square_zero(specialise(s.complex, _sign_both_sides(s.monoid)))
     end
 
     if isempty(SNAP_DIR)

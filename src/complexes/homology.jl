@@ -72,8 +72,8 @@ function _divisor_summary(A::SparseMatrixCSC{<:Integer}; kwargs...)
 end
 
 """
-    homology(C::ChainComplex)
-    homology(C::ChainComplex, n)
+    homology(C::AbstractChainComplex)
+    homology(C::AbstractChainComplex, n)
 
 Homology of a complex over ℤ: a [`FinitelyGeneratedGradedAbelianGroup`](@ref) over the
 degrees of `C`, or the [`FinitelyGeneratedAbelianGroup`](@ref) `H_n` alone. With
@@ -84,8 +84,8 @@ passed (`value_type`, `nworkers`, `core_format`, `verbose`, ...). `homology(C)` 
 each differential once. A complex over a monoid algebra must be specialised first, e.g.
 `homology(specialise(C))`.
 """
-function homology(C::ChainComplex{R, M, D}; kwargs...) where
-        {R <: AbstractAlgebra.Integers, M, D <: SparseMatrixCSC{<:Integer}}
+function homology(C::AbstractChainComplex{R, D}; kwargs...) where
+        {R <: AbstractAlgebra.Integers, D <: SparseMatrixCSC{<:Integer}}
     degrees = range(C)
     summaries = Dict(n => _divisor_summary(differential(C, n); kwargs...)
                      for n in (first(degrees) - 1):last(degrees))
@@ -94,14 +94,14 @@ function homology(C::ChainComplex{R, M, D}; kwargs...) where
     return FinitelyGeneratedGradedAbelianGroup(groups; lo = first(degrees))
 end
 
-function homology(C::ChainComplex{R, M, D}, n::Integer; kwargs...) where
-        {R <: AbstractAlgebra.Integers, M, D <: SparseMatrixCSC{<:Integer}}
+function homology(C::AbstractChainComplex{R, D}, n::Integer; kwargs...) where
+        {R <: AbstractAlgebra.Integers, D <: SparseMatrixCSC{<:Integer}}
     n in range(C) || throw(BoundsError(C, n))
     a = _divisor_summary(differential(C, n); kwargs...)
     b = _divisor_summary(differential(C, n - 1); kwargs...)
     return FinitelyGeneratedAbelianGroup(rank(C[n]) - a.rank - b.rank, a.torsion)
 end
 
-homology(::ChainComplex{<:MonoidAlgebra}, args...; kwargs...) =
+homology(::AbstractChainComplex{<:MonoidAlgebra}, args...; kwargs...) =
     throw(ArgumentError("homology needs a complex over ℤ: specialise the complex first, " *
-                        "e.g. homology(specialise(C))"))
+                        "e.g. homology(specialise(C)), or give a module of coefficients"))

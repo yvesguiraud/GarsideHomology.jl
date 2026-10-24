@@ -5,6 +5,7 @@
 isdefined(Main, :ExplicitGerm) || include("explicit_germ.jl")
 
 using Gauss
+using Gauss: MonoidAlgebra    # public, not exported (Oscar exports a MonoidAlgebra)
 using Test
 
 const CARTAN_A2 = [2 -1; -1 2]

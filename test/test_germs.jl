@@ -5,6 +5,7 @@
 isdefined(Main, :ExplicitGerm) || include("explicit_germ.jl")
 
 using Gauss
+using Gauss: MonoidAlgebra    # public, not exported (Oscar exports a MonoidAlgebra)
 using Test
 import Chevie
 
@@ -172,5 +173,13 @@ _sum_elements(s) = (c = 0; for i in s; c += i; end; c)
             getglobal(Chevie, s) === getglobal(Gauss, s) || push!(collisions, s)
         end
         @test isempty(collisions)
+        # Names exported by Oscar, Hecke or Chevie for other objects, which Gauss keeps public
+        # without exporting them (decisions of J1.b to J1.e; the sources of those packages
+        # are checked by hand for each new name). Exported on purpose despite a collision:
+        # homology (Oscar) and differential (Hecke, and Oscar, which reexports Hecke).
+        for s in (:MonoidAlgebra, :tensor, :tensor_product, :⊗, :verify, :product, :atoms, :word,
+                  :rank, :trivial_module, :ZZ)
+            @test !Base.isexported(Gauss, s)
+        end
     end
 end

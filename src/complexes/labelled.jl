@@ -209,8 +209,12 @@ Integer matrix obtained by sending each label `γ` to the integer `χ(γ)`, or t
 `χ` is omitted: the monomials of a given row and column are then summed, whatever
 their labels (trivial module on both sides). One pass over the stored entries; the
 result is a `SparseMatrixCSC{Tv, Int}` without stored zeros, computed with checked
-arithmetic for machine integers. `χ` is any callable, for instance the sign character
-`(σ, τ) ↦ (-1)^(ℓ(σ) + ℓ(τ))` of a bimodule complex, with lengths given by the germ.
+arithmetic for machine integers. `χ` is any callable, for instance `(σ, τ) ↦ (−1)^ℓ(τ)`,
+the sign module on the right (ℤε), with lengths given by the germ. The sign on both sides,
+`(σ, τ) ↦ (−1)^(ℓ(σ) + ℓ(τ))`, only changes the signs of the cells of a homogeneous
+resolution (`ℓ(σ) + ℓ(τ)` is the difference of the lengths of the weights of the source and
+of the target), hence gives the trivial homology. For a resolution, the typed interface is
+`homology(R, M)` and `Gauss.tensor_product`, with a module of coefficients `M`.
 """
 specialise(d::LabelledSparseMatrix) = _specialise(d, nothing)
 specialise(d::LabelledSparseMatrix, χ) = _specialise(d, χ)

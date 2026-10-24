@@ -66,7 +66,7 @@ _coefficient_string(c::Integer) = c > 0 ? "+$c" : "-$(-c)"
 
 # The groups of lines of the snapshot of the lcm resolution C, in the order of the file:
 # (section, n, lines in atom sequences, lines in bar forms), each sorted by bytes.
-function _snapshot_groups(C::ChainComplex, T::CellTree)
+function _snapshot_groups(C::LCMResolution, T::CellTree)
     G = T.germ
     words = Dict{Int32, String}()
     simple(s) = get!(() -> _simple_string(G, s), words, Int32(s))
@@ -140,15 +140,15 @@ function _sha_lines(lines::Vector{String})
 end
 
 """
-    write_snapshot(path, C::ChainComplex; case = "", extra = Pair{String, String}[],
+    write_snapshot(path, R::LCMResolution; case = "", extra = Pair{String, String}[],
                    fingerprints = true, germ_fingerprint = :compute)
 
-Write the lcm resolution `C` (over a monoid algebra of bimodules, with bases of cells:
-see [`lcm_resolution`](@ref)) as a snapshot of format version 1, gzip-compressed, at
-`path`, which must end with `.txt.gz`: the header, then the lines of the cells by
-increasing degree and those of the differential by increasing `n`, sorted by bytes within
-each group (test/data/reference/FORMAT.md). With `fingerprints = true`, also write the
-fingerprints at the same place, with the extension `.sha.csv` (FORMAT.md, section 5).
+Write the lcm resolution `R` ([`lcm_resolution`](@ref)) as a snapshot of format version
+1, gzip-compressed, at `path`, which must end with `.txt.gz`: the header, then the lines
+of the cells by increasing degree and those of the differential by increasing `n`, sorted
+by bytes within each group (test/data/reference/FORMAT.md). With `fingerprints = true`,
+also write the fingerprints at the same place, with the extension `.sha.csv` (FORMAT.md,
+section 5). For another complex, an `ArgumentError`.
 
 The header gives the format, `case` (if not empty), the ordering, the side convention,
 the number of atoms and the fingerprint of the germ ([`fingerprint`](@ref)), then the
@@ -162,14 +162,12 @@ already computed (a `GermFingerprint` or a string), for instance once for the sn
 of several orderings of the same germ, or `nothing` to omit it; by default (`:compute`),
 it is computed if the germ lists its simples, and omitted for a lazy germ.
 """
-function write_snapshot(path::AbstractString, C::ChainComplex; case::AbstractString = "",
+function write_snapshot(path::AbstractString, R::LCMResolution; case::AbstractString = "",
                         extra = Pair{String, String}[], fingerprints::Bool = true,
                         germ_fingerprint = :compute)
     endswith(path, ".txt.gz") || throw(ArgumentError("write_snapshot: the path $path does not end with .txt.gz"))
-    C.ring isa MonoidAlgebra && C.ring.side === :both ||
-        throw(ArgumentError("write_snapshot: the complex is not over a monoid algebra of bimodules"))
-    T = cell_tree(C)
-    groups = _snapshot_groups(C, T)
+    T = cell_tree(R)
+    groups = _snapshot_groups(R, T)
     header = _snapshot_header(T, case, extra, groups, germ_fingerprint)
     stream = GzipCompressorStream(open(path, "w"))
     try
@@ -185,6 +183,9 @@ function write_snapshot(path::AbstractString, C::ChainComplex; case::AbstractStr
     fingerprints && _write_fingerprints(string(chop(path; tail = length(".txt.gz")), ".sha.csv"), path, groups)
     return path
 end
+
+write_snapshot(path::AbstractString, C::AbstractChainComplex; kwargs...) =
+    throw(ArgumentError("write_snapshot: the complex is not an lcm resolution (see lcm_resolution)"))
 
 function _write_fingerprints(csv::AbstractString, gz::AbstractString, groups)
     rows = [(g.section, string(g.n), length(g.atoms), _sha_lines(g.atoms), _sha_lines(g.bar)) for g in groups]

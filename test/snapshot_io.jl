@@ -8,6 +8,7 @@
 # line from these types, so that equal fingerprints show that nothing was lost.
 
 using Gauss
+using Gauss: MonoidAlgebra    # public, not exported (Oscar exports a MonoidAlgebra)
 using CodecZlib: GzipCompressorStream, GzipDecompressorStream
 import SHA
 

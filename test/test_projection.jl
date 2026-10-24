@@ -74,6 +74,7 @@ end
             "D 1 3.1 +1 3 1 e", "D 1 3.1 +1 e 3 1", "D 1 3.1 -1 1 2 e", "D 1 3.1 -1 e 1 2"]
         @test square_zero(P)
         @test startswith(sprint(show, P), "LCMProjectionData: 6 cells, ")
+        @test startswith(sprint(show, P.chains), "ChainTree: ") && endswith(sprint(show, P.chains), " chains, of which 6 cells")
     end
 
     @testset "B⁺(A₂) by hand" begin
@@ -90,6 +91,7 @@ end
         for G in (classical_dihedral_germ(5), dual_dihedral_germ(6), signed_interval_germ(4, :D, (2, -4, -3, 1)))
             for (v, (S, _)) in TREE_VARIANTS
                 @test square_zero(LCMProjectionData(CellTree(G, S)))
+                @test is_square_zero(lcm_resolution(G, S))
             end
         end
     end
@@ -111,6 +113,8 @@ end
         for (v, (S, form)) in TREE_VARIANTS
             P = LCMProjectionData(CellTree(G, S))
             @test square_zero(P)
+            # The witness of the check of the certificates, which reads the matrices.
+            @test is_square_zero(lcm_resolution(P))
             # Gauss_a of the classical monoids and Gauss_b: ∂² = 0 only (decision of 23 October).
             (classical && v == "a" || form === :counts) && continue
             mine, ref = d_fingerprints(P), reference_d_fingerprints(case, v)

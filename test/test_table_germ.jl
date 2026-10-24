@@ -5,6 +5,7 @@
 isdefined(Main, :ExplicitGerm) || include("explicit_germ.jl")
 
 using Gauss
+using Gauss: MonoidAlgebra    # public, not exported (Oscar exports a MonoidAlgebra)
 using Test
 
 # Every answer of the interface of T is that of E, types included, for all simples.

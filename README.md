@@ -11,13 +11,33 @@ groups with various coefficients. The first target is the homology of real and w
 
 ## Status
 
-Early development, not registered. The first layer is in place: `Gauss.Complexes`, with
-based free modules over monoid algebras, labelled sparse matrices, chain complexes, their
-specialisation to integer coefficients and their homology over ℤ, computed by
-[SparseElementaryDivisors.jl](https://github.com/yvesguiraud/SparseElementaryDivisors.jl). It has been validated on the 344 reference resolutions of
-the preliminary implementation, among which those of the dual braid monoids of the 26
-well-generated exceptional complex reflection groups: the integral homology of the corresponding complex braid groups is reproduced. The construction of the resolutions themselves is being
-ported, with integer-coded simples and precomputed lcm tables.
+Early development, not registered. In place:
+
+- `Gauss.Complexes`, with based free modules over monoid algebras, labelled sparse
+  matrices, chain complexes, their specialisation to integer coefficients and their
+  homology over ℤ, computed by
+  [SparseElementaryDivisors.jl](https://github.com/yvesguiraud/SparseElementaryDivisors.jl).
+  It has been validated on the 344 reference resolutions of the preliminary
+  implementation, among which those of the dual braid monoids of the 26 well-generated
+  exceptional complex reflection groups: the integral homology of the corresponding
+  complex braid groups is reproduced.
+- The construction of the lcm resolutions, `lcm_resolution`, with integer-coded simples
+  and precomputed lcm tables (lazy tables for the large Coxeter groups): it reproduces the
+  reference resolutions of the preliminary implementation, B*(G₃₇) in a few seconds
+  instead of several minutes. An
+  ordering of the lcms chooses the resolution: the reduced one by default, that of
+  Dehornoy and Lafont with `LCMOrdering(TrivialPreorder())`. `Gauss.write_snapshot`
+  writes a resolution in the text format of the reference snapshots.
+- The certificates of the resolutions, `certify`: homogeneity of the boundaries, ∂² = 0
+  computed in the bimodules, Euler characteristic of each weight against the Möbius
+  function, minimality and linearity. The 344 reference resolutions are certified
+  correct, and the reduced one is minimal in all their 86 cases.
+- The modules of coefficients `TrivialModule()` and `SignModule()` (ℤε, the braid
+  reflections acting by −1), the homology `homology(R, M)` and the tensor products
+  `Gauss.tensor_product` (or `⊗`, with `using Gauss: ⊗`). With ℤε, the homology of the
+  braid groups of the well-generated exceptional groups agrees with table 4 of
+  [O. Garnier](https://arxiv.org/abs/2302.10033) up to B(G₃₆); for B(G₃₇), the
+  coefficients outgrow the integer types of the solver for now.
 
 ```julia
 using Gauss, SparseArrays
@@ -25,6 +45,16 @@ using Gauss, SparseArrays
 # Cellular chain complex of the real projective plane: d₀ = 0, d₁ = 2.
 C = ChainComplex([spzeros(Int, 1, 1), sparse([1], [1], [2], 1, 1)])
 homology(C)    # ℤ, ℤ/2ℤ, 0 in degrees 0 to 2
+
+using Chevie
+
+# Reduced lcm resolution of the dual braid monoid of G₄, its certificate, then the homology
+# of its group, the braid group on three strands, with trivial coefficients and with the
+# sign module ℤε (the braid reflections acting by −1).
+R = lcm_resolution(dual_germ(crg(4)))
+certify(R)                      # ResolutionCertificate: correct, minimal, linear
+homology(R, TrivialModule())    # ℤ, ℤ, 0 in degrees 0 to 2
+homology(R, SignModule())       # ℤ/2ℤ, ℤ/3ℤ, 0
 ```
 
 ## Requirements

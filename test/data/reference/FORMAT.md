@@ -142,5 +142,5 @@ repository. Keys, in this order:
 
 The orderings that correspond to the variants of J0: Gauss_a is
 `LCMOrdering(ComplementDeglex())` (identical to J0 except for the classical monoids from
-E‚† on, whose children are ordered by deglex instead of lex), Gauss_d is
+Eâ‚† on, whose children are ordered by deglex instead of lex), Gauss_d is
 `LCMOrdering(TrivialPreorder())`; Gauss_b and Gauss_c exist only as orderings of the tests.

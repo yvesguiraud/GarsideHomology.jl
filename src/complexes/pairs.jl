@@ -5,7 +5,7 @@ const _Pair = NamedTuple{(:n, :source, :target), NTuple{3, Int}}
 _is_integer_unit(c::Integer) = c == 1 || c == -1
 
 """
-    collapsible_pairs(C::ChainComplex)
+    collapsible_pairs(C::AbstractChainComplex)
 
 The collapsible pairs of `C`: the triples `(n, source, target)` such that the coefficient
 of the `target`-th cell of `C_n` in the image of the `source`-th cell of `C_{n+1}` by
@@ -22,9 +22,9 @@ distinct pairs `(n, source)` and `(n, target)`.
   the resolution itself: it is a different notion, useful for the reduction of integer
   matrices rather than of resolutions.
 """
-function collapsible_pairs(C::ChainComplex{A, M, LabelledSparseMatrix{L, Tv}}) where
-        {A <: MonoidAlgebra, M, L, Tv <: Integer}
-    base_ring(C.ring) isa AbstractAlgebra.Integers ||
+function collapsible_pairs(C::AbstractChainComplex{A, LabelledSparseMatrix{L, Tv}}) where
+        {A <: MonoidAlgebra, L, Tv <: Integer}
+    base_ring(base_ring(C)) isa AbstractAlgebra.Integers ||
         throw(ArgumentError("collapsible pairs need integer coefficients for now"))
     one_label = identity_label(L)
     pairs = _Pair[]
@@ -47,8 +47,8 @@ function collapsible_pairs(C::ChainComplex{A, M, LabelledSparseMatrix{L, Tv}}) w
     return pairs
 end
 
-function collapsible_pairs(C::ChainComplex{R, M, D}) where
-        {R <: AbstractAlgebra.Integers, M, D <: SparseMatrixCSC{<:Integer}}
+function collapsible_pairs(C::AbstractChainComplex{R, D}) where
+        {R <: AbstractAlgebra.Integers, D <: SparseMatrixCSC{<:Integer}}
     pairs = _Pair[]
     for n in first(range(C)):(last(range(C)) - 1)
         d = differential(C, n)

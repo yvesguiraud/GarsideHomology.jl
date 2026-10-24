@@ -4,6 +4,7 @@
 # integers.
 
 using Gauss
+using Gauss: MonoidAlgebra    # public, not exported (Oscar exports a MonoidAlgebra)
 using Gauss: rank     # public, not exported (Chevie exports its own `rank`)
 using Test
 
@@ -19,6 +20,17 @@ const L2 = NTuple{2, Int32}
 struct NamedMonoid <: Gauss.Complexes.AbstractMonoid
     simples::Vector{String}
 end
+
+# A chain complex of another type, known to the layer only through the interface of
+# AbstractChainComplex.
+struct WrappedComplex{R, D, C} <: Gauss.Complexes.AbstractChainComplex{R, D}
+    inner::C
+end
+WrappedComplex(C::ChainComplex{R, M, D}) where {R, M, D} = WrappedComplex{R, D, typeof(C)}(C)
+Base.range(W::WrappedComplex) = range(W.inner)
+Base.getindex(W::WrappedComplex, n::Integer) = W.inner[n]
+Gauss.Complexes.differential(W::WrappedComplex, n::Integer) = differential(W.inner, n)
+AA.base_ring(W::WrappedComplex) = base_ring(W.inner)
 
 @testset "Complexes" begin
 
@@ -122,6 +134,9 @@ end
                                                    [typemax(Int), 1], 1, 1)
         bd = labelled_sparse([1, 1], [1, 1], Int32[1, 1], BigInt[typemax(Int), 1], 1, 1)
         @test SA.nonzeros(bd) == [BigInt(typemax(Int)) + 1]
+        # Coefficients other than machine integers: the arithmetic of their type.
+        @test specialise(bd, l -> -1) == SA.sparse([1], [1], [-(BigInt(typemax(Int)) + 1)], 1, 1)
+        @test !is_square_zero(ChainComplex([SA.sparse([1], [1], [BigInt(2)], 1, 1), SA.sparse([1], [1], [BigInt(3)], 1, 1)]))
     end
 
     @testset "Specialisation of a matrix" begin
@@ -232,6 +247,37 @@ end
         @test is_square_zero(SE)
     end
 
+    @testset "AbstractChainComplex" begin
+        # Over ℤ: real projective plane and 2-simplex, wrapped.
+        rp2 = ChainComplex([SA.spzeros(Int, Int, 1, 1), SA.sparse([1], [1], [2], 1, 1)])
+        W = WrappedComplex(rp2)
+        @test firstindex(W) == 0 && lastindex(W) == 2 && rank(W[end]) == 1
+        @test homology(W) == homology(rp2) && homology(W, 1) == homology(rp2, 1)
+        @test is_square_zero(W) && collapsible_pairs(W) == collapsible_pairs(rp2)
+        d0 = SA.sparse([1, 2, 1, 3, 2, 3], [1, 1, 2, 2, 3, 3], [-1, 1, -1, 1, -1, 1], 3, 3)
+        @test !is_square_zero(WrappedComplex(ChainComplex([d0, SA.sparse([1, 2, 3], [1, 1, 1], [1, 1, 1], 3, 1)])))
+        # Over a monoid algebra: the Koszul resolution of the free commutative monoid on a, b.
+        B = MonoidAlgebra(ZZ, NamedMonoid(["e", "a", "b", "ab"]))
+        e0 = labelled_sparse([1, 1, 1, 1], [1, 1, 2, 2],
+                             L2[(1, 0), (0, 1), (2, 0), (0, 2)], [1, -1, 1, -1], 1, 2)
+        e1 = labelled_sparse([1, 1, 2, 2], [1, 1, 1, 1],
+                             L2[(2, 0), (0, 2), (1, 0), (0, 1)], [-1, 1, 1, -1], 2, 1)
+        T = ChainComplex([BasedFreeModule(B, ["[]"]), BasedFreeModule(B, ["[a]", "[b]"]),
+                          BasedFreeModule(B, ["[a|b]"])], [e0, e1])
+        V = WrappedComplex(T)
+        @test V isa Gauss.Complexes.AbstractChainComplex{typeof(B), LabelledSparseMatrix{L2, Int}}
+        sign_right(l) = isodd([0, 1, 1, 2][l[2] + 1]) ? -1 : 1
+        for χ in (nothing, sign_right)
+            S, ST = specialise(V, χ), specialise(T, χ)
+            @test S isa ChainComplex && range(S) == range(ST)
+            @test all(differential(S, n) == differential(ST, n) for n in -1:2)
+            @test all(cells(S[n]) === cells(T[n]) for n in 0:2)
+        end
+        @test collapsible_pairs(V) == collapsible_pairs(T)
+        @test_throws ArgumentError is_square_zero(V)
+        @test_throws ArgumentError homology(V)
+    end
+
     @testset "FinitelyGeneratedModule" begin
         G = FinitelyGeneratedAbelianGroup
         @test G === FinitelyGeneratedModule{BigInt}
@@ -286,7 +332,10 @@ end
         # rank is public but not exported, because Chevie exports its own rank.
         @test !Base.isexported(Gauss, :rank) && Base.ispublic(Gauss, :rank)
         @test Gauss.rank === Gauss.Complexes.rank
-        @test Base.ispublic(Gauss.Complexes, :AbstractMonoid)
-        @test !Base.isexported(Gauss.Complexes, :AbstractMonoid)
+        for s in (:MonoidAlgebra, :AbstractMonoid, :AbstractModule, :AbstractChainComplex)
+            @test Base.ispublic(Gauss.Complexes, s) && !Base.isexported(Gauss.Complexes, s)
+        end
+        @test Base.ispublic(Gauss, :MonoidAlgebra) && !Base.isexported(Gauss, :MonoidAlgebra)
+        @test Gauss.MonoidAlgebra === Gauss.Complexes.MonoidAlgebra
     end
 end
