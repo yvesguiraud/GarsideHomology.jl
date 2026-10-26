@@ -47,11 +47,15 @@ function _dual_count(W)
 end
 
 # The Fuss–Catalan number Π (dᵢ + m·h)/dᵢ of an irreducible well-generated group: the
-# number of m-multichains of simples of its dual braid monoid (Armstrong).
+# number of m-multichains of simples of its dual braid monoid (Armstrong). The degrees are
+# those of its reflection type: those of W also count a degree 1 for each dimension fixed
+# pointwise, as for the root datum of GL_n, which is crg(1, 1, n).
 function _fuss_catalan(W, m::Integer)
-    d = Chevie.degrees(W)
+    d = Chevie.degrees(only(Chevie.refltype(W)))
     h = maximum(d)
-    return prod(BigInt, d .+ m * h) ÷ prod(BigInt, d)
+    q, r = divrem(prod(BigInt, d .+ m * h), prod(BigInt, d))
+    r == 0 || error("_fuss_catalan: Π (dᵢ + m·h) not divisible by Π dᵢ for $W, m = $m")
+    return q
 end
 
 function _check_threshold(n, what)

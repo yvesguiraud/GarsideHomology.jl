@@ -162,7 +162,8 @@ _sum_elements(s) = (c = 0; for i in s; c += i; end; c)
         end
         for s in (:AbstractGerm, :StaticBitSet, :product, :ldiv, :left_descents, :lcm_atom,
                   :atoms, :is_left_divisor, :word, :isless_lex, :isless_deglex, :TableGerm, :tabulate,
-                  :hurwitz_orbit, :CoxeterGerm, :nnumbered, :verify, :count_multichains, :GermFingerprint, :fingerprint)
+                  :hurwitz_orbit, :CoxeterGerm, :nnumbered, :verify, :count_multichains, :GermFingerprint, :fingerprint,
+                  :germ_isomorphism)
             @test Base.ispublic(Gauss, s) && !Base.isexported(Gauss, s)
         end
         # No name exported by Gauss is exported by Chevie for another object.

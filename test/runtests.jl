@@ -12,6 +12,7 @@ import Chevie  # loads the package extension GaussChevieExt
     include("test_table_germ.jl")
     include("test_coxeter_germ.jl")
     include("test_verify.jl")
+    include("test_germ_isomorphism.jl")
     include("test_chevie_germs.jl")
     include("test_orderings.jl")
     include("test_snapshots.jl")
