@@ -1,23 +1,28 @@
 # Homology of the braid groups of the 34 exceptional complex reflection groups W: with
 # trivial coefficients (`trivial`) and with coefficients in the sign representation ℤε,
 # where the braid reflections act by −1 (`sign`), H₀ to Hₙ for W of rank n; sizes of the
-# Dehornoy–Lafont complexes of five well-generated groups.
+# Dehornoy–Lafont complexes of five well-generated groups; numbers of cells of the minimal
+# resolution of the dual braid monoid of the 26 well-generated groups.
 #
 # Provenance: tables 1, 3 and 4 of the article of [source] (section 3), transcribed from
 # arXiv v2. Table 3 agrees with the values computed in J0 (homologie.jl, dual monoids,
 # Gauss_a) and in J1 by Gauss, except for H₄ of G32. Each key holds the value expected by
 # the tests; where it differs from the printed value, `errata` keeps the printed value,
 # with the key and degree concerned, whether the author's erratum lists it (`listed`) and
-# the reason.
+# the reason. The key `cells_minimal` is computed ([[provenance]]): the numbers of cells
+# of the resolution Gauss_a of the dual braid monoid in degrees 0 to n; this resolution is
+# minimal, so that they are the ranks of the Tor groups and do not depend on the numbering
+# of the atoms.
 #
 # One table per group, in the order of the rows of tables 3 and 4, named as the snapshots
 # (G4, …, G37). Groups are read by parse(FinitelyGeneratedAbelianGroup, s) and written in
 # the form it displays. `well_generated = false` marks the 8 groups without a dual braid
 # monoid (Garside monoids given by a presentation in J4, Garside category of G31 in J7).
-# `real` names the Coxeter type of a real group; `isodiscriminantal` names the
-# representative of its isodiscriminantality class in the tables: the braid groups of a
-# class are isomorphic by an isomorphism sending braid reflections to braid reflections,
-# hence have the same homology for both modules.
+# `real` names the Coxeter type of a real group, a table of spherical_artin_groups.toml;
+# `isodiscriminantal` names the representative of its isodiscriminantality class, a table
+# of this file or of spherical_artin_groups.toml: the braid groups of a class are
+# isomorphic by an isomorphism sending braid reflections to braid reflections, hence have
+# the same homology for both modules.
 #
 # Table 1: `cells_mar17` (row [Mar17], Dehornoy–Lafont complex of Marin, reproduced by the
 # variant Gauss_d of J0) and `cells_optimised` (row "Optimized", order of section 2.2),
@@ -32,59 +37,84 @@ tables = [1, 3, 4]
 erratum = "https://ogarnier.github.io/pub/erratum.pdf"
 erratum_version = "2026-08-25"  # date of the last update printed in the erratum (section 1)
 
+[[provenance]]
+run = "f2"
+description = "Gauss_a for the 26 well-generated exceptional groups and the representatives of their isodiscriminantality classes, in the numbering of J0 and in that by default: cells, certificates, homology in ℤ and ℤε compared with tables 3 and 4 (ℤε of G37 from Magma, J1.e)"
+script = "CatLab j1/f2_exceptional.jl"
+data = ["CatLab j1/out/f2_homologie_N9.csv", "CatLab j1/out/f2_tailles_N9.csv"]
+catlab = "e81b959"
+date = 2026-10-24
+machine = "N9"
+threads = 16
+julia = "1.13.2"
+gauss = "65e950d"
+solver = "SparseElementaryDivisors 0.1.0"
+chevie = "0.1.15"
+numbering = ["j0", "default"]
+value_types = ["Int64", "Int128"]
+
 [G4]
 well_generated = true
 isodiscriminantal = "A2"
 trivial = ["ℤ", "ℤ", "0"]
 sign = ["ℤ/2ℤ", "ℤ/3ℤ", "0"]
+cells_minimal = [1, 3, 2]
 
 [G8]
 well_generated = true
 isodiscriminantal = "A2"
 trivial = ["ℤ", "ℤ", "0"]
 sign = ["ℤ/2ℤ", "ℤ/3ℤ", "0"]
+cells_minimal = [1, 3, 2]
 
 [G16]
 well_generated = true
 isodiscriminantal = "A2"
 trivial = ["ℤ", "ℤ", "0"]
 sign = ["ℤ/2ℤ", "ℤ/3ℤ", "0"]
+cells_minimal = [1, 3, 2]
 
 [G5]
 well_generated = true
-isodiscriminantal = "I2(4)"
+isodiscriminantal = "B2"
 trivial = ["ℤ", "ℤ²", "ℤ"]
 sign = ["ℤ/2ℤ", "ℤ/4ℤ", "0"]
+cells_minimal = [1, 4, 3]
 
 [G10]
 well_generated = true
-isodiscriminantal = "I2(4)"
+isodiscriminantal = "B2"
 trivial = ["ℤ", "ℤ²", "ℤ"]
 sign = ["ℤ/2ℤ", "ℤ/4ℤ", "0"]
+cells_minimal = [1, 4, 3]
 
 [G18]
 well_generated = true
-isodiscriminantal = "I2(4)"
+isodiscriminantal = "B2"
 trivial = ["ℤ", "ℤ²", "ℤ"]
 sign = ["ℤ/2ℤ", "ℤ/4ℤ", "0"]
+cells_minimal = [1, 4, 3]
 
 [G6]
 well_generated = true
 isodiscriminantal = "I2(6)"
 trivial = ["ℤ", "ℤ²", "ℤ"]
 sign = ["ℤ/2ℤ", "ℤ/6ℤ", "0"]
+cells_minimal = [1, 6, 5]
 
 [G9]
 well_generated = true
 isodiscriminantal = "I2(6)"
 trivial = ["ℤ", "ℤ²", "ℤ"]
 sign = ["ℤ/2ℤ", "ℤ/6ℤ", "0"]
+cells_minimal = [1, 6, 5]
 
 [G17]
 well_generated = true
 isodiscriminantal = "I2(6)"
 trivial = ["ℤ", "ℤ²", "ℤ"]
 sign = ["ℤ/2ℤ", "ℤ/6ℤ", "0"]
+cells_minimal = [1, 6, 5]
 
 [G7]
 well_generated = false
@@ -119,6 +149,7 @@ well_generated = true
 isodiscriminantal = "I2(8)"
 trivial = ["ℤ", "ℤ²", "ℤ"]
 sign = ["ℤ/2ℤ", "ℤ/8ℤ", "0"]
+cells_minimal = [1, 8, 7]
 
 [G15]
 well_generated = false
@@ -130,12 +161,14 @@ well_generated = true
 isodiscriminantal = "I2(5)"
 trivial = ["ℤ", "ℤ", "0"]
 sign = ["ℤ/2ℤ", "ℤ/5ℤ", "0"]
+cells_minimal = [1, 5, 4]
 
 [G21]
 well_generated = true
 isodiscriminantal = "I2(10)"
 trivial = ["ℤ", "ℤ²", "ℤ"]
 sign = ["ℤ/2ℤ", "ℤ/10ℤ", "0"]
+cells_minimal = [1, 10, 9]
 
 [G22]
 well_generated = false
@@ -147,11 +180,13 @@ well_generated = true
 real = "H3"
 trivial = ["ℤ", "ℤ", "ℤ", "ℤ"]
 sign = ["ℤ/2ℤ", "0", "ℤ/2ℤ", "0"]
+cells_minimal = [1, 15, 35, 21]
 
 [G24]
 well_generated = true
 trivial = ["ℤ", "ℤ", "ℤ", "ℤ"]
 sign = ["ℤ/2ℤ", "0", "ℤ/2ℤ", "0"]
+cells_minimal = [1, 14, 35, 22]
 cells_mar17 = [1, 14, 38, 25]
 cells_optimised = [1, 14, 38, 25]
 two_cell_bounds = [38, 40]
@@ -161,17 +196,20 @@ well_generated = true
 isodiscriminantal = "A3"
 trivial = ["ℤ", "ℤ", "ℤ/2ℤ", "0"]
 sign = ["ℤ/2ℤ", "ℤ/3ℤ", "ℤ/2ℤ", "0"]
+cells_minimal = [1, 6, 10, 5]
 
 [G26]
 well_generated = true
 isodiscriminantal = "B3"
 trivial = ["ℤ", "ℤ²", "ℤ²", "ℤ"]
 sign = ["ℤ/2ℤ", "ℤ/2ℤ", "ℤ/2ℤ", "0"]
+cells_minimal = [1, 9, 18, 10]
 
 [G27]
 well_generated = true
 trivial = ["ℤ", "ℤ", "ℤ/3ℤ ⊕ ℤ", "ℤ"]
 sign = ["ℤ/2ℤ", "0", "ℤ/2ℤ", "0"]
+cells_minimal = [1, 20, 55, 36]
 cells_mar17 = [1, 20, 62, 43]
 cells_optimised = [1, 20, 60, 41]
 two_cell_bounds = [60, 65]
@@ -181,11 +219,13 @@ well_generated = true
 real = "F4"
 trivial = ["ℤ", "ℤ²", "ℤ²", "ℤ²", "ℤ"]
 sign = ["ℤ/2ℤ", "ℤ/2ℤ", "ℤ/6ℤ", "ℤ/24ℤ", "0"]
+cells_minimal = [1, 24, 101, 144, 66]
 
 [G29]
 well_generated = true
 trivial = ["ℤ", "ℤ", "ℤ/2ℤ ⊕ ℤ/4ℤ", "ℤ/2ℤ ⊕ ℤ", "ℤ"]
 sign = ["ℤ/2ℤ", "0", "ℤ/2ℤ ⊕ ℤ/4ℤ", "ℤ/2ℤ ⊕ ℤ/40ℤ", "0"]
+cells_minimal = [1, 25, 115, 175, 84]
 cells_mar17 = [1, 25, 127, 207, 104]
 cells_optimised = [1, 25, 125, 209, 108]
 two_cell_bounds = [120, 158]
@@ -198,6 +238,7 @@ well_generated = true
 real = "H4"
 trivial = ["ℤ", "ℤ", "ℤ/2ℤ", "ℤ", "ℤ"]
 sign = ["ℤ/2ℤ", "0", "ℤ/2ℤ", "ℤ/120ℤ", "0"]
+cells_minimal = [1, 60, 307, 480, 232]
 
 [G31]
 well_generated = false
@@ -209,6 +250,7 @@ well_generated = true
 isodiscriminantal = "A4"
 trivial = ["ℤ", "ℤ", "ℤ/2ℤ", "0", "0"]
 sign = ["ℤ/2ℤ", "0", "ℤ/2ℤ", "ℤ/5ℤ", "0"]
+cells_minimal = [1, 10, 30, 35, 14]
 errata = [
     { key = "trivial", degree = 4, printed = "ℤ", listed = true, reason = "listed in the erratum, section 1; Euler characteristic; J0 and Gauss" },
 ]
@@ -217,6 +259,7 @@ errata = [
 well_generated = true
 trivial = ["ℤ", "ℤ", "ℤ/6ℤ", "ℤ/6ℤ", "ℤ", "ℤ"]
 sign = ["ℤ/2ℤ", "0", "ℤ/2ℤ", "ℤ/2ℤ", "ℤ/2ℤ", "0"]
+cells_minimal = [1, 30, 201, 510, 546, 208]
 cells_mar17 = [1, 30, 226, 638, 740, 299]
 cells_optimised = [1, 30, 223, 616, 705, 283]
 two_cell_bounds = [213, 302]
@@ -225,6 +268,7 @@ two_cell_bounds = [213, 302]
 well_generated = true
 trivial = ["ℤ", "ℤ", "ℤ/6ℤ", "ℤ/6ℤ", "(ℤ/3ℤ)² ⊕ ℤ/6ℤ", "(ℤ/3ℤ)² ⊕ ℤ", "ℤ"]
 sign = ["ℤ/2ℤ", "0", "ℤ/6ℤ", "ℤ/2ℤ", "ℤ/6ℤ", "ℤ/252ℤ", "0"]
+cells_minimal = [1, 56, 595, 2415, 4515, 3927, 1287]
 cells_mar17 = [1, 56, 711, 3448, 7520, 7414, 2686]
 cells_optimised = [1, 56, 646, 2839, 5691, 5255, 1812]
 two_cell_bounds = [630, 1071]
@@ -234,12 +278,14 @@ well_generated = true
 real = "E6"
 trivial = ["ℤ", "ℤ", "ℤ/2ℤ", "ℤ/2ℤ", "ℤ/6ℤ", "ℤ/3ℤ", "0"]
 sign = ["ℤ/2ℤ", "0", "ℤ/2ℤ", "ℤ/2ℤ", "ℤ/2ℤ", "ℤ/9ℤ", "0"]
+cells_minimal = [1, 36, 300, 1035, 1720, 1368, 418]
 
 [G36]
 well_generated = true
 real = "E7"
 trivial = ["ℤ", "ℤ", "ℤ/2ℤ", "(ℤ/2ℤ)²", "(ℤ/6ℤ)²", "ℤ/3ℤ ⊕ ℤ/6ℤ", "ℤ", "ℤ"]
 sign = ["ℤ/2ℤ", "0", "ℤ/2ℤ", "(ℤ/2ℤ)²", "(ℤ/2ℤ)²", "ℤ/2ℤ", "ℤ/2ℤ", "0"]
+cells_minimal = [1, 63, 777, 3927, 9933, 13299, 9009, 2431]
 errata = [
     { key = "sign", degree = 7, printed = "ℤ", listed = false, reason = "not in the erratum of 2026-08-25, to be reported to the author; Euler characteristic; Gauss in J1.e, both numberings" },
 ]
@@ -249,3 +295,4 @@ well_generated = true
 real = "E8"
 trivial = ["ℤ", "ℤ", "ℤ/2ℤ", "ℤ/2ℤ", "ℤ/2ℤ ⊕ ℤ/6ℤ", "ℤ/3ℤ ⊕ ℤ/6ℤ", "ℤ/2ℤ ⊕ ℤ/6ℤ", "ℤ", "ℤ"]
 sign = ["ℤ/2ℤ", "0", "ℤ/2ℤ", "ℤ/2ℤ", "(ℤ/2ℤ)²", "ℤ/2ℤ", "(ℤ/2ℤ)²", "ℤ/240ℤ", "0"]
+cells_minimal = [1, 120, 2135, 15120, 54327, 108360, 121555, 71760, 17342]

@@ -22,6 +22,7 @@ import Chevie  # loads the package extension GaussChevieExt
     include("test_certificates.jl")
     include("test_modules.jl")
     include("test_homology.jl")
+    include("test_expected_values.jl")
     include("test_pairs.jl")
     include("test_solver_matrices.jl")
     @testset "Chevie extension" begin

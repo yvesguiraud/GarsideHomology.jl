@@ -1,0 +1,360 @@
+# Homology of the Artin groups of spherical type, the braid groups of the finite Coxeter
+# groups W: with trivial coefficients (`trivial`) and with coefficients in the sign
+# representation ℤε, where the braid reflections act by −1 (`sign`), H₀ to Hₙ for W of
+# rank n; numbers of cells of the minimal resolution of the dual braid monoid
+# (`cells_minimal`).
+#
+# Provenance: computed in J1 by Gauss ([[provenance]]), from the classical braid monoid
+# B⁺(W) and from the dual braid monoid B*(W) wherever both were computed, with equal
+# results; ℤε of B*(A₉) and of B*(E₈) not computed, their `sign` coming from B⁺(W); I2(p)
+# from B*(W) only. `cells_minimal`: the numbers of cells of the resolution Gauss_a of
+# B*(W) in degrees 0 to n, which is minimal (ranks of the Tor groups, independent of the
+# numbering of the atoms); absent where B*(W) was not computed (A10 to A12, B9, B10, D9,
+# D10). The minimal resolution of B⁺(W) has binomial(n, k) cells in degree k and is not
+# recorded. The tables H3, F4, H4, E6, E7 and E8 agree with G23, G28, G30, G35, G36 and
+# G37 of exceptional_braid_groups.toml.
+#
+# One table per type: A1 to A12, B2 to B10, D4 to D10, E6 to E8, F4, H3, H4, then I2(p)
+# for 5 ≤ p ≤ 30 (I2(3) and I2(4) are A2 and B2, and G₂ is written I2(6)). Groups are
+# written in the form displayed by FinitelyGeneratedAbelianGroup.
+
+[[provenance]]
+run = "f3"
+description = "B⁺(W) for the 34 types of J0 and B*(W) for 26 of them (up to rank 8), in the numbering of J0: cells, certificates, homology in ℤ and ℤε (ℤε of B*(E₈) not computed)"
+script = "CatLab j1/f3_real.jl"
+data = ["CatLab j1/out/f3_reels_N9.csv"]
+catlab = "98bb1aa"
+date = 2026-10-24
+machine = "N9"
+threads = 16
+julia = "1.13.2"
+gauss = "65e950d"
+solver = "SparseElementaryDivisors 0.1.0"
+chevie = "0.1.15"
+numbering = ["j0"]
+value_types = ["Int64", "Int128"]
+ceiling = "Int128"
+
+[[provenance]]
+run = "f4, phase S"
+description = "dual germs of the range of J1.f, of the I2(p) for 3 ≤ p ≤ 30 and of G(1, 1, n), G(2, 1, n), G(2, 2, n), numbering by default: sizes against the formulas, cells and certificates of Gauss_a, isomorphisms of germs with Bₙ and with the real partners"
+script = "CatLab j1/f4_grids.jl"
+data = ["CatLab j1/out/f4_tailles_N9.csv"]
+catlab = "ed069fc"
+date = 2026-10-26
+machine = "N9"
+threads = 16
+julia = "1.13.3"
+gauss = "e23bf50"
+chevie = "0.1.15"
+numbering = ["default"]
+
+[[provenance]]
+run = "f4, phase H"
+description = "homology in ℤ and ℤε of the cases of phase S with at most 6 071 842 terms (G(m, 1, 8) for m = 3 only)"
+script = "CatLab j1/f4_grids.jl"
+data = ["CatLab j1/out/f4_homologie_ouragan.csv"]
+catlab = "7fdccb5"
+date = 2026-10-26
+machine = "ouragan"
+threads = 32
+julia = "1.13.3"
+gauss = "e23bf50"
+solver = "SparseElementaryDivisors dev-0.1.1 (2159d9f)"
+chevie = "0.1.15"
+numbering = ["default"]
+value_types = ["Int64", "Int128"]
+ceiling = "Int128"
+
+[A1]
+trivial = ["ℤ", "ℤ"]
+sign = ["ℤ/2ℤ", "0"]
+cells_minimal = [1, 1]
+
+[A2]
+trivial = ["ℤ", "ℤ", "0"]
+sign = ["ℤ/2ℤ", "ℤ/3ℤ", "0"]
+cells_minimal = [1, 3, 2]
+
+[A3]
+trivial = ["ℤ", "ℤ", "ℤ/2ℤ", "0"]
+sign = ["ℤ/2ℤ", "ℤ/3ℤ", "ℤ/2ℤ", "0"]
+cells_minimal = [1, 6, 10, 5]
+
+[A4]
+trivial = ["ℤ", "ℤ", "ℤ/2ℤ", "0", "0"]
+sign = ["ℤ/2ℤ", "0", "ℤ/2ℤ", "ℤ/5ℤ", "0"]
+cells_minimal = [1, 10, 30, 35, 14]
+
+[A5]
+trivial = ["ℤ", "ℤ", "ℤ/2ℤ", "ℤ/2ℤ", "ℤ/3ℤ", "0"]
+sign = ["ℤ/2ℤ", "0", "ℤ/6ℤ", "ℤ/10ℤ", "0", "0"]
+cells_minimal = [1, 15, 70, 140, 126, 42]
+
+[A6]
+trivial = ["ℤ", "ℤ", "ℤ/2ℤ", "ℤ/2ℤ", "ℤ/3ℤ", "0", "0"]
+sign = ["ℤ/2ℤ", "0", "ℤ/6ℤ", "ℤ/2ℤ", "0", "ℤ/7ℤ", "0"]
+cells_minimal = [1, 21, 140, 420, 630, 462, 132]
+
+[A7]
+trivial = ["ℤ", "ℤ", "ℤ/2ℤ", "ℤ/2ℤ", "ℤ/6ℤ", "ℤ/3ℤ", "ℤ/2ℤ", "0"]
+sign = ["ℤ/2ℤ", "0", "ℤ/2ℤ", "ℤ/2ℤ", "ℤ/2ℤ", "ℤ/7ℤ", "ℤ/2ℤ", "0"]
+cells_minimal = [1, 28, 252, 1050, 2310, 2772, 1716, 429]
+
+[A8]
+trivial = ["ℤ", "ℤ", "ℤ/2ℤ", "ℤ/2ℤ", "ℤ/6ℤ", "ℤ/3ℤ", "ℤ/2ℤ", "0", "0"]
+sign = ["ℤ/2ℤ", "0", "ℤ/2ℤ", "ℤ/6ℤ", "ℤ/2ℤ", "0", "ℤ/2ℤ", "ℤ/3ℤ", "0"]
+cells_minimal = [1, 36, 420, 2310, 6930, 12012, 12012, 6435, 1430]
+
+[A9]
+trivial = ["ℤ", "ℤ", "ℤ/2ℤ", "ℤ/2ℤ", "ℤ/6ℤ", "ℤ/6ℤ", "ℤ/2ℤ", "ℤ/2ℤ", "ℤ/5ℤ", "0"]
+sign = ["ℤ/2ℤ", "0", "ℤ/2ℤ", "ℤ/6ℤ", "ℤ/2ℤ", "ℤ/2ℤ", "ℤ/10ℤ", "ℤ/6ℤ", "0", "0"]
+cells_minimal = [1, 45, 660, 4620, 18018, 42042, 60060, 51480, 24310, 4862]
+
+[A10]
+trivial = ["ℤ", "ℤ", "ℤ/2ℤ", "ℤ/2ℤ", "ℤ/6ℤ", "ℤ/6ℤ", "ℤ/2ℤ", "ℤ/2ℤ", "ℤ/5ℤ", "0", "0"]
+sign = ["ℤ/2ℤ", "0", "ℤ/2ℤ", "ℤ/2ℤ", "ℤ/2ℤ", "ℤ/2ℤ", "ℤ/10ℤ", "ℤ/2ℤ", "0", "ℤ/11ℤ", "0"]
+
+[A11]
+trivial = ["ℤ", "ℤ", "ℤ/2ℤ", "ℤ/2ℤ", "ℤ/6ℤ", "ℤ/6ℤ", "(ℤ/2ℤ)²", "ℤ/2ℤ", "ℤ/30ℤ", "ℤ/10ℤ", "0", "0"]
+sign = ["ℤ/2ℤ", "0", "ℤ/2ℤ", "ℤ/2ℤ", "ℤ/6ℤ", "ℤ/2ℤ", "(ℤ/2ℤ)²", "ℤ/2ℤ", "ℤ/6ℤ", "ℤ/66ℤ", "0", "0"]
+
+[A12]
+trivial = ["ℤ", "ℤ", "ℤ/2ℤ", "ℤ/2ℤ", "ℤ/6ℤ", "ℤ/6ℤ", "(ℤ/2ℤ)²", "ℤ/2ℤ", "ℤ/30ℤ", "ℤ/10ℤ", "0", "0", "0"]
+sign = ["ℤ/2ℤ", "0", "ℤ/2ℤ", "ℤ/2ℤ", "ℤ/6ℤ", "ℤ/2ℤ", "(ℤ/2ℤ)²", "ℤ/2ℤ", "ℤ/6ℤ", "ℤ/6ℤ", "0", "ℤ/13ℤ", "0"]
+
+[B2]
+trivial = ["ℤ", "ℤ²", "ℤ"]
+sign = ["ℤ/2ℤ", "ℤ/4ℤ", "0"]
+cells_minimal = [1, 4, 3]
+
+[B3]
+trivial = ["ℤ", "ℤ²", "ℤ²", "ℤ"]
+sign = ["ℤ/2ℤ", "ℤ/2ℤ", "ℤ/2ℤ", "0"]
+cells_minimal = [1, 9, 18, 10]
+
+[B4]
+trivial = ["ℤ", "ℤ²", "ℤ/2ℤ ⊕ ℤ²", "ℤ²", "ℤ"]
+sign = ["ℤ/2ℤ", "ℤ/2ℤ", "(ℤ/2ℤ)²", "ℤ/8ℤ", "0"]
+cells_minimal = [1, 16, 60, 80, 35]
+
+[B5]
+trivial = ["ℤ", "ℤ²", "ℤ/2ℤ ⊕ ℤ²", "ℤ/2ℤ ⊕ ℤ²", "ℤ²", "ℤ"]
+sign = ["ℤ/2ℤ", "ℤ/2ℤ", "(ℤ/2ℤ)²", "(ℤ/2ℤ)²", "ℤ/2ℤ", "0"]
+cells_minimal = [1, 25, 150, 350, 350, 126]
+
+[B6]
+trivial = ["ℤ", "ℤ²", "ℤ/2ℤ ⊕ ℤ²", "(ℤ/2ℤ)² ⊕ ℤ²", "ℤ/6ℤ ⊕ ℤ²", "ℤ²", "ℤ"]
+sign = ["ℤ/2ℤ", "ℤ/2ℤ", "(ℤ/2ℤ)²", "(ℤ/2ℤ)³", "(ℤ/2ℤ)²", "ℤ/4ℤ", "0"]
+cells_minimal = [1, 36, 315, 1120, 1890, 1512, 462]
+
+[B7]
+trivial = ["ℤ", "ℤ²", "ℤ/2ℤ ⊕ ℤ²", "(ℤ/2ℤ)² ⊕ ℤ²", "ℤ/2ℤ ⊕ ℤ/6ℤ ⊕ ℤ²", "ℤ/6ℤ ⊕ ℤ²", "ℤ²", "ℤ"]
+sign = ["ℤ/2ℤ", "ℤ/2ℤ", "(ℤ/2ℤ)²", "(ℤ/2ℤ)³", "(ℤ/2ℤ)³", "(ℤ/2ℤ)²", "ℤ/2ℤ", "0"]
+cells_minimal = [1, 49, 588, 2940, 7350, 9702, 6468, 1716]
+
+[B8]
+trivial = ["ℤ", "ℤ²", "ℤ/2ℤ ⊕ ℤ²", "(ℤ/2ℤ)² ⊕ ℤ²", "(ℤ/2ℤ)² ⊕ ℤ/6ℤ ⊕ ℤ²", "(ℤ/6ℤ)² ⊕ ℤ²", "ℤ/2ℤ ⊕ ℤ/6ℤ ⊕ ℤ²", "ℤ²", "ℤ"]
+sign = ["ℤ/2ℤ", "ℤ/2ℤ", "(ℤ/2ℤ)²", "(ℤ/2ℤ)³", "(ℤ/2ℤ)⁴", "(ℤ/2ℤ)³", "(ℤ/2ℤ)³", "ℤ/16ℤ", "0"]
+cells_minimal = [1, 64, 1008, 6720, 23100, 44352, 48048, 27456, 6435]
+
+[B9]
+trivial = ["ℤ", "ℤ²", "ℤ/2ℤ ⊕ ℤ²", "(ℤ/2ℤ)² ⊕ ℤ²", "(ℤ/2ℤ)² ⊕ ℤ/6ℤ ⊕ ℤ²", "ℤ/2ℤ ⊕ (ℤ/6ℤ)² ⊕ ℤ²", "ℤ/2ℤ ⊕ (ℤ/6ℤ)² ⊕ ℤ²", "ℤ/2ℤ ⊕ ℤ/6ℤ ⊕ ℤ²", "ℤ²", "ℤ"]
+sign = ["ℤ/2ℤ", "ℤ/2ℤ", "(ℤ/2ℤ)²", "(ℤ/2ℤ)³", "(ℤ/2ℤ)⁴", "(ℤ/2ℤ)⁴", "(ℤ/2ℤ)⁴", "(ℤ/2ℤ)³", "ℤ/2ℤ", "0"]
+
+[B10]
+trivial = ["ℤ", "ℤ²", "ℤ/2ℤ ⊕ ℤ²", "(ℤ/2ℤ)² ⊕ ℤ²", "(ℤ/2ℤ)² ⊕ ℤ/6ℤ ⊕ ℤ²", "(ℤ/2ℤ)² ⊕ (ℤ/6ℤ)² ⊕ ℤ²", "(ℤ/2ℤ)² ⊕ (ℤ/6ℤ)² ⊕ ℤ²", "(ℤ/2ℤ)² ⊕ (ℤ/6ℤ)² ⊕ ℤ²", "ℤ/2ℤ ⊕ ℤ/30ℤ ⊕ ℤ²", "ℤ²", "ℤ"]
+sign = ["ℤ/2ℤ", "ℤ/2ℤ", "(ℤ/2ℤ)²", "(ℤ/2ℤ)³", "(ℤ/2ℤ)⁴", "(ℤ/2ℤ)⁵", "(ℤ/2ℤ)⁵", "(ℤ/2ℤ)⁵", "(ℤ/2ℤ)³", "ℤ/4ℤ", "0"]
+
+[D4]
+trivial = ["ℤ", "ℤ", "(ℤ/2ℤ)³", "ℤ", "ℤ"]
+sign = ["ℤ/2ℤ", "ℤ/3ℤ", "(ℤ/2ℤ)³", "ℤ/8ℤ", "0"]
+cells_minimal = [1, 12, 39, 48, 20]
+
+[D5]
+trivial = ["ℤ", "ℤ", "(ℤ/2ℤ)²", "ℤ/2ℤ", "ℤ/2ℤ", "0"]
+sign = ["ℤ/2ℤ", "0", "(ℤ/2ℤ)²", "ℤ/10ℤ", "ℤ/2ℤ", "0"]
+cells_minimal = [1, 20, 106, 230, 220, 77]
+
+[D6]
+trivial = ["ℤ", "ℤ", "(ℤ/2ℤ)²", "(ℤ/2ℤ)³", "(ℤ/6ℤ)²", "ℤ", "ℤ"]
+sign = ["ℤ/2ℤ", "0", "ℤ/2ℤ ⊕ ℤ/6ℤ", "(ℤ/2ℤ)² ⊕ ℤ/10ℤ", "(ℤ/2ℤ)²", "ℤ/4ℤ", "0"]
+cells_minimal = [1, 30, 235, 780, 1260, 980, 294]
+
+[D7]
+trivial = ["ℤ", "ℤ", "(ℤ/2ℤ)²", "(ℤ/2ℤ)²", "ℤ/2ℤ ⊕ ℤ/6ℤ", "(ℤ/2ℤ)²", "ℤ/2ℤ", "0"]
+sign = ["ℤ/2ℤ", "0", "ℤ/2ℤ ⊕ ℤ/6ℤ", "(ℤ/2ℤ)²", "(ℤ/2ℤ)²", "ℤ/2ℤ ⊕ ℤ/14ℤ", "ℤ/2ℤ", "0"]
+cells_minimal = [1, 42, 456, 2135, 5110, 6552, 4284, 1122]
+
+[D8]
+trivial = ["ℤ", "ℤ", "(ℤ/2ℤ)²", "(ℤ/2ℤ)²", "(ℤ/2ℤ)³ ⊕ ℤ/6ℤ", "ℤ/2ℤ ⊕ (ℤ/6ℤ)²", "(ℤ/2ℤ)³ ⊕ ℤ/6ℤ", "ℤ", "ℤ"]
+sign = ["ℤ/2ℤ", "0", "(ℤ/2ℤ)²", "(ℤ/2ℤ)²", "(ℤ/2ℤ)⁴", "(ℤ/2ℤ)² ⊕ ℤ/14ℤ", "(ℤ/2ℤ)⁴", "ℤ/16ℤ", "0"]
+cells_minimal = [1, 56, 805, 5040, 16590, 30912, 32802, 18480, 4290]
+
+[D9]
+trivial = ["ℤ", "ℤ", "(ℤ/2ℤ)²", "(ℤ/2ℤ)²", "(ℤ/2ℤ)² ⊕ ℤ/6ℤ", "(ℤ/2ℤ)² ⊕ ℤ/6ℤ", "(ℤ/2ℤ)⁴", "(ℤ/2ℤ)²", "ℤ/2ℤ", "0"]
+sign = ["ℤ/2ℤ", "0", "(ℤ/2ℤ)²", "ℤ/2ℤ ⊕ ℤ/6ℤ", "(ℤ/2ℤ)³", "(ℤ/2ℤ)³", "(ℤ/2ℤ)⁴", "ℤ/2ℤ ⊕ ℤ/6ℤ", "ℤ/2ℤ", "0"]
+
+[D10]
+trivial = ["ℤ", "ℤ", "(ℤ/2ℤ)²", "(ℤ/2ℤ)²", "(ℤ/2ℤ)² ⊕ ℤ/6ℤ", "(ℤ/2ℤ)⁴ ⊕ ℤ/6ℤ", "(ℤ/2ℤ)⁵", "(ℤ/2ℤ)⁴ ⊕ ℤ/6ℤ", "ℤ/2ℤ ⊕ ℤ/10ℤ ⊕ ℤ/30ℤ", "ℤ", "ℤ"]
+sign = ["ℤ/2ℤ", "0", "(ℤ/2ℤ)²", "ℤ/2ℤ ⊕ ℤ/6ℤ", "(ℤ/2ℤ)³", "(ℤ/2ℤ)⁵", "(ℤ/2ℤ)⁴ ⊕ ℤ/10ℤ", "(ℤ/2ℤ)⁴ ⊕ ℤ/6ℤ", "(ℤ/2ℤ)³", "ℤ/4ℤ", "0"]
+
+[E6]
+trivial = ["ℤ", "ℤ", "ℤ/2ℤ", "ℤ/2ℤ", "ℤ/6ℤ", "ℤ/3ℤ", "0"]
+sign = ["ℤ/2ℤ", "0", "ℤ/2ℤ", "ℤ/2ℤ", "ℤ/2ℤ", "ℤ/9ℤ", "0"]
+cells_minimal = [1, 36, 300, 1035, 1720, 1368, 418]
+
+[E7]
+trivial = ["ℤ", "ℤ", "ℤ/2ℤ", "(ℤ/2ℤ)²", "(ℤ/6ℤ)²", "ℤ/3ℤ ⊕ ℤ/6ℤ", "ℤ", "ℤ"]
+sign = ["ℤ/2ℤ", "0", "ℤ/2ℤ", "(ℤ/2ℤ)²", "(ℤ/2ℤ)²", "ℤ/2ℤ", "ℤ/2ℤ", "0"]
+cells_minimal = [1, 63, 777, 3927, 9933, 13299, 9009, 2431]
+
+[E8]
+trivial = ["ℤ", "ℤ", "ℤ/2ℤ", "ℤ/2ℤ", "ℤ/2ℤ ⊕ ℤ/6ℤ", "ℤ/3ℤ ⊕ ℤ/6ℤ", "ℤ/2ℤ ⊕ ℤ/6ℤ", "ℤ", "ℤ"]
+sign = ["ℤ/2ℤ", "0", "ℤ/2ℤ", "ℤ/2ℤ", "(ℤ/2ℤ)²", "ℤ/2ℤ", "(ℤ/2ℤ)²", "ℤ/240ℤ", "0"]
+cells_minimal = [1, 120, 2135, 15120, 54327, 108360, 121555, 71760, 17342]
+
+[F4]
+trivial = ["ℤ", "ℤ²", "ℤ²", "ℤ²", "ℤ"]
+sign = ["ℤ/2ℤ", "ℤ/2ℤ", "ℤ/6ℤ", "ℤ/24ℤ", "0"]
+cells_minimal = [1, 24, 101, 144, 66]
+
+[H3]
+trivial = ["ℤ", "ℤ", "ℤ", "ℤ"]
+sign = ["ℤ/2ℤ", "0", "ℤ/2ℤ", "0"]
+cells_minimal = [1, 15, 35, 21]
+
+[H4]
+trivial = ["ℤ", "ℤ", "ℤ/2ℤ", "ℤ", "ℤ"]
+sign = ["ℤ/2ℤ", "0", "ℤ/2ℤ", "ℤ/120ℤ", "0"]
+cells_minimal = [1, 60, 307, 480, 232]
+
+["I2(5)"]
+trivial = ["ℤ", "ℤ", "0"]
+sign = ["ℤ/2ℤ", "ℤ/5ℤ", "0"]
+cells_minimal = [1, 5, 4]
+
+["I2(6)"]
+trivial = ["ℤ", "ℤ²", "ℤ"]
+sign = ["ℤ/2ℤ", "ℤ/6ℤ", "0"]
+cells_minimal = [1, 6, 5]
+
+["I2(7)"]
+trivial = ["ℤ", "ℤ", "0"]
+sign = ["ℤ/2ℤ", "ℤ/7ℤ", "0"]
+cells_minimal = [1, 7, 6]
+
+["I2(8)"]
+trivial = ["ℤ", "ℤ²", "ℤ"]
+sign = ["ℤ/2ℤ", "ℤ/8ℤ", "0"]
+cells_minimal = [1, 8, 7]
+
+["I2(9)"]
+trivial = ["ℤ", "ℤ", "0"]
+sign = ["ℤ/2ℤ", "ℤ/9ℤ", "0"]
+cells_minimal = [1, 9, 8]
+
+["I2(10)"]
+trivial = ["ℤ", "ℤ²", "ℤ"]
+sign = ["ℤ/2ℤ", "ℤ/10ℤ", "0"]
+cells_minimal = [1, 10, 9]
+
+["I2(11)"]
+trivial = ["ℤ", "ℤ", "0"]
+sign = ["ℤ/2ℤ", "ℤ/11ℤ", "0"]
+cells_minimal = [1, 11, 10]
+
+["I2(12)"]
+trivial = ["ℤ", "ℤ²", "ℤ"]
+sign = ["ℤ/2ℤ", "ℤ/12ℤ", "0"]
+cells_minimal = [1, 12, 11]
+
+["I2(13)"]
+trivial = ["ℤ", "ℤ", "0"]
+sign = ["ℤ/2ℤ", "ℤ/13ℤ", "0"]
+cells_minimal = [1, 13, 12]
+
+["I2(14)"]
+trivial = ["ℤ", "ℤ²", "ℤ"]
+sign = ["ℤ/2ℤ", "ℤ/14ℤ", "0"]
+cells_minimal = [1, 14, 13]
+
+["I2(15)"]
+trivial = ["ℤ", "ℤ", "0"]
+sign = ["ℤ/2ℤ", "ℤ/15ℤ", "0"]
+cells_minimal = [1, 15, 14]
+
+["I2(16)"]
+trivial = ["ℤ", "ℤ²", "ℤ"]
+sign = ["ℤ/2ℤ", "ℤ/16ℤ", "0"]
+cells_minimal = [1, 16, 15]
+
+["I2(17)"]
+trivial = ["ℤ", "ℤ", "0"]
+sign = ["ℤ/2ℤ", "ℤ/17ℤ", "0"]
+cells_minimal = [1, 17, 16]
+
+["I2(18)"]
+trivial = ["ℤ", "ℤ²", "ℤ"]
+sign = ["ℤ/2ℤ", "ℤ/18ℤ", "0"]
+cells_minimal = [1, 18, 17]
+
+["I2(19)"]
+trivial = ["ℤ", "ℤ", "0"]
+sign = ["ℤ/2ℤ", "ℤ/19ℤ", "0"]
+cells_minimal = [1, 19, 18]
+
+["I2(20)"]
+trivial = ["ℤ", "ℤ²", "ℤ"]
+sign = ["ℤ/2ℤ", "ℤ/20ℤ", "0"]
+cells_minimal = [1, 20, 19]
+
+["I2(21)"]
+trivial = ["ℤ", "ℤ", "0"]
+sign = ["ℤ/2ℤ", "ℤ/21ℤ", "0"]
+cells_minimal = [1, 21, 20]
+
+["I2(22)"]
+trivial = ["ℤ", "ℤ²", "ℤ"]
+sign = ["ℤ/2ℤ", "ℤ/22ℤ", "0"]
+cells_minimal = [1, 22, 21]
+
+["I2(23)"]
+trivial = ["ℤ", "ℤ", "0"]
+sign = ["ℤ/2ℤ", "ℤ/23ℤ", "0"]
+cells_minimal = [1, 23, 22]
+
+["I2(24)"]
+trivial = ["ℤ", "ℤ²", "ℤ"]
+sign = ["ℤ/2ℤ", "ℤ/24ℤ", "0"]
+cells_minimal = [1, 24, 23]
+
+["I2(25)"]
+trivial = ["ℤ", "ℤ", "0"]
+sign = ["ℤ/2ℤ", "ℤ/25ℤ", "0"]
+cells_minimal = [1, 25, 24]
+
+["I2(26)"]
+trivial = ["ℤ", "ℤ²", "ℤ"]
+sign = ["ℤ/2ℤ", "ℤ/26ℤ", "0"]
+cells_minimal = [1, 26, 25]
+
+["I2(27)"]
+trivial = ["ℤ", "ℤ", "0"]
+sign = ["ℤ/2ℤ", "ℤ/27ℤ", "0"]
+cells_minimal = [1, 27, 26]
+
+["I2(28)"]
+trivial = ["ℤ", "ℤ²", "ℤ"]
+sign = ["ℤ/2ℤ", "ℤ/28ℤ", "0"]
+cells_minimal = [1, 28, 27]
+
+["I2(29)"]
+trivial = ["ℤ", "ℤ", "0"]
+sign = ["ℤ/2ℤ", "ℤ/29ℤ", "0"]
+cells_minimal = [1, 29, 28]
+
+["I2(30)"]
+trivial = ["ℤ", "ℤ²", "ℤ"]
+sign = ["ℤ/2ℤ", "ℤ/30ℤ", "0"]
+cells_minimal = [1, 30, 29]
