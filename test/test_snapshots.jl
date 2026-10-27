@@ -141,15 +141,21 @@ _sign_both_sides(m::SnapshotMonoid) = l -> iseven(simple_length(m, l[1]) + simpl
               "of snapshots (.txt.gz) to check them against data/reference."
     else
         @testset "Snapshots of GAUSS_SNAPSHOT_DIR" begin
-            expected = TOML.parsefile(joinpath(@__DIR__, "data", "expected", "complex_braid_groups.toml"))
-            group_of_real = Dict(entry["real"] => group for (group, entry) in expected if haskey(entry, "real"))
-            # Expected homology of a case (G34, classic_E8, dual_H3, ...), or nothing.
+            expected_dir = joinpath(@__DIR__, "data", "expected")
+            exceptional = TOML.parsefile(joinpath(expected_dir, "exceptional_braid_groups.toml"))
+            spherical = TOML.parsefile(joinpath(expected_dir, "spherical_artin_groups.toml"))
+            # Expected homology of a case (G34, classic_E8, dual_H3, dual_I2_5, ...), or nothing.
             function expected_homology(case)
                 m = match(r"^(classic|dual)_(.+)$", case)
-                group = m === nothing ? case : get(group_of_real, m[2], "")
-                haskey(expected, group) || return nothing
+                if m === nothing
+                    entry = get(exceptional, case, nothing)
+                else
+                    d = match(r"^I2_(\d+)$", m[2])
+                    entry = get(spherical, d === nothing ? m[2] : "I2($(d[1]))", nothing)
+                end
+                entry isa AbstractDict && haskey(entry, "trivial") || return nothing
                 return FinitelyGeneratedGradedAbelianGroup(
-                    [parse(FinitelyGeneratedAbelianGroup, h) for h in expected[group]["trivial"]])
+                    [parse(FinitelyGeneratedAbelianGroup, h) for h in entry["trivial"]])
             end
 
             files = sort!(filter(f -> endswith(f, ".txt.gz"), readdir(SNAP_DIR)))

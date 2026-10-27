@@ -1,6 +1,7 @@
-# Tests of the homology over ℤ (homology.jl): small complexes written by hand, the three
-# tiny reference snapshots, and the file of expected values. The homology of all the
-# snapshots of GAUSS_SNAPSHOT_DIR is checked in test_snapshots.jl.
+# Tests of the homology over ℤ (homology.jl): small complexes written by hand and the three
+# tiny reference snapshots. The files of expected values are checked in
+# test_expected_values.jl, the homology of all the snapshots of GAUSS_SNAPSHOT_DIR in
+# test_snapshots.jl.
 
 isdefined(Main, :read_snapshot) || include("snapshot_io.jl")
 
@@ -8,10 +9,8 @@ using Gauss
 using Gauss: MonoidAlgebra    # public, not exported (Oscar exports a MonoidAlgebra)
 using Gauss: rank
 using Test
-import TOML
 
 const _H_SA = Gauss.Complexes.SparseArrays
-const EXPECTED_HOMOLOGY = joinpath(@__DIR__, "data", "expected", "complex_braid_groups.toml")
 
 struct HomologyTestMonoid <: Gauss.Complexes.AbstractMonoid
     simples::Vector{String}
@@ -92,17 +91,5 @@ end
             s = read_snapshot(joinpath(tiny, name * ".txt.gz"))
             @test homology(specialise(s.complex)) == expected
         end
-    end
-
-    @testset "Expected values" begin
-        expected = TOML.parsefile(EXPECTED_HOMOLOGY)
-        @test length(expected) == 26
-        for (group, entry) in expected
-            H = GG([parse(G, s) for s in entry["trivial"]])
-            @test H[0] == G(1)
-            # These braid groups have an infinite cyclic centre: Euler characteristic 0.
-            @test sum((-1)^n * rank(H[n]) for n in range(H)) == 0
-        end
-        @test expected["G37"]["real"] == "E8"
     end
 end

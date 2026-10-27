@@ -114,6 +114,31 @@ import Chevie
         @test fB3.mobius == -10 && fB3.natoms == 9 && sum(fB3.simples_by_length) == 20
     end
 
+    @testset "Isomorphisms of dual germs (f4)" begin
+        iso = Gauss.germ_isomorphism
+        B3 = dual_germ(B(3))
+        # G(m, 1, n): the dual germ of Bₙ, through the path of Hurwitz (2 is not a degree).
+        @test iso(dual_germ(Chevie.crg(3, 1, 3)), B3) !== nothing
+        @test iso(dual_germ(Chevie.crg(4, 1, 3)), B3) !== nothing
+        @test iso(dual_germ(Chevie.crg(3, 1, 2)), dual_germ(B(2))) !== nothing
+        # crg(2, 1, n) is the root datum of SO(2n + 1), crg(2, 2, n) that of SO(2n).
+        @test iso(dual_germ(Chevie.crg(2, 1, 3)), B3) !== nothing
+        @test iso(dual_germ(Chevie.crg(2, 2, 4)), dual_germ(Chevie.coxgroup(:D, 4))) !== nothing
+        @test iso(dual_germ(Chevie.crg(2, 2, 3)), dual_germ(A(3))) !== nothing
+        # G(3, 3, 3): 18 simples and 8 atoms, against 20 and 9 for B₃.
+        @test iso(dual_germ(Chevie.crg(3, 3, 3)), B3) === nothing
+    end
+
+    @testset "Root datum of GL_n: crg(1, 1, n)" begin
+        # Degrees 1, 2, …, n: the Fuss–Catalan numbers are those of the type Aₙ₋₁.
+        G = dual_germ(Chevie.crg(1, 1, 3))
+        @test nsimples(G) == 5 && natoms(G) == 3
+        @test Gauss.germ_isomorphism(G, dual_germ(A(2))) !== nothing
+        @test nsimples(dual_germ(Chevie.crg(1, 1, 4))) == 14
+        ext = Base.get_extension(Gauss, :GaussChevieExt)
+        @test [ext._fuss_catalan(Chevie.crg(1, 1, 4), k) for k in 1:3] == [14, 55, 140]
+    end
+
     @testset "Orders of the Weyl groups from the Cartan matrices" begin
         for (T, n) in [(:A, 12), (:B, 10), (:D, 10), (:E, 6), (:E, 7), (:E, 8), (:F, 4), (:G, 2)]
             W = Chevie.coxgroup(T, n)

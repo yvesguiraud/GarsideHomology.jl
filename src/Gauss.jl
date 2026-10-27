@@ -40,6 +40,7 @@ include("germs/table.jl")
 include("germs/hurwitz.jl")
 include("germs/coxeter.jl")
 include("germs/verify.jl")
+include("germs/isomorphism.jl")
 
 # Orderings (the preorders on the lcms that fix the cells and their matching) and
 # the tree of the cells.
@@ -79,6 +80,9 @@ export natoms, nsimples, simples, opposite, germ, dual_germ
 public AbstractGerm, StaticBitSet
 public product, ldiv, left_descents, lcm_atom, atoms, is_left_divisor, word, isless_lex, isless_deglex
 public TableGerm, tabulate, hurwitz_orbit, CoxeterGerm, nnumbered, verify, count_multichains, GermFingerprint, fingerprint
+# Tool of the developer, public only (is_isomorphic and isomorphism are exported by
+# AbstractAlgebra, Hecke and Oscar).
+public germ_isomorphism
 
 # Orderings. Exported: what a user types to choose a resolution. Public only: the
 # vocabulary for writing a new preorder, and the tools of the developer.
