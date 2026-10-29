@@ -1,7 +1,7 @@
 # Comparison of a germ built from Chevie with Chevie itself (J1.c, c3): a tool of the
-# tests of Gauss, also included by the scripts of CatLab (j1/c3_chevie.jl).
+# tests of GarsideHomology, also included by the scripts of CatLab (j1/c3_chevie.jl).
 
-using Gauss
+using GarsideHomology
 import Chevie
 
 """
@@ -11,7 +11,7 @@ The element of Chevie of each simple of `G`, built from `M`: the product of the 
 `M` along `word(G, s)`, at the position `s + 1`.
 """
 chevie_elements(G, M) =
-    [foldl(*, (M.atoms[a] for a in Gauss.word(G, s)); init = one(M)) for s in Gauss.simples(G)]
+    [foldl(*, (M.atoms[a] for a in GarsideHomology.word(G, s)); init = one(M)) for s in GarsideHomology.simples(G)]
 
 # The pairs (s, a) whose lcm is compared: all of them if there are at most `max_pairs`,
 # otherwise a reproducible sample of `sample` pairs and all the pairs where s is an atom
@@ -43,7 +43,7 @@ Returns `(failures, pairs, complete)`; the first failures are reported by warnin
 function compare_with_chevie(G, M; max_pairs = 20_000, sample = 2_000, seed = 1)
     failures = 0
     fail(msg) = (failures += 1; failures <= 20 && @warn msg; nothing)
-    S = Gauss.simples(G)
+    S = GarsideHomology.simples(G)
     n, N = length(S), natoms(G)
     N == length(M.atoms) || fail("$N atoms, Chevie has $(length(M.atoms))")
     elt = chevie_elements(G, M)
@@ -54,16 +54,16 @@ function compare_with_chevie(G, M; max_pairs = 20_000, sample = 2_000, seed = 1)
     for s in S
         e = elt[s + 1]
         w = Chevie.word(M, e)
-        w == Gauss.word(G, s) || fail("word of $s: $(Gauss.word(G, s)), Chevie: $w")
+        w == GarsideHomology.word(G, s) || fail("word of $s: $(GarsideHomology.word(G, s)), Chevie: $w")
         length(G, s) == length(w) || fail("length of $s: $(length(G, s)), Chevie: $(length(w))")
-        Chevie.leftdescents(M, e) == collect(Gauss.left_descents(G, s)) ||
-            fail("left descents of $s: $(collect(Gauss.left_descents(G, s))), " *
+        Chevie.leftdescents(M, e) == collect(GarsideHomology.left_descents(G, s)) ||
+            fail("left descents of $s: $(collect(GarsideHomology.left_descents(G, s))), " *
                  "Chevie: $(Chevie.leftdescents(M, e))")
     end
     pairs, complete = _lcm_pairs(n, N; max_pairs, sample, seed)
     for (s, a) in pairs
         m, (τ, _) = Chevie.rightlcmc(M, elt[s + 1], M.atoms[a])
-        r = Gauss.lcm_atom(G, s, a)
+        r = GarsideHomology.lcm_atom(G, s, a)
         elt[r.lcm + 1] == m && elt[r.complement + 1] == τ ||
             fail("lcm of $s and atom $a: $r, which is not the lcm of Chevie")
     end

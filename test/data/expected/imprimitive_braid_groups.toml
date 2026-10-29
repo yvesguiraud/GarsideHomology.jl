@@ -5,7 +5,7 @@
 # B*(E₈)) and at most 32 767 roots (G(29, 29, 7) excluded), and G(m, 1, n) for 2 ≤ n ≤ 8
 # and 3 ≤ m ≤ 8.
 #
-# Provenance: computed in J1 by Gauss ([[provenance]]), dual germ dual_germ(crg(m, p, n))
+# Provenance: computed in J1 by GarsideHomology ([[provenance]]), dual germ dual_germ(crg(m, p, n))
 # for the Coxeter element by default. `cells_minimal`: the numbers of cells of the
 # resolution Gauss_a in degrees 0 to n, which is minimal. "?" marks a degree not computed:
 # in ℤε, the elimination exceeded Int128, the ceiling of these computations, for
@@ -31,7 +31,7 @@ date = 2026-10-26
 machine = "N9"
 threads = 16
 julia = "1.13.3"
-gauss = "e23bf50"
+garside_homology = "e23bf50"
 chevie = "0.1.15"
 numbering = ["default"]
 
@@ -45,7 +45,7 @@ date = 2026-10-26
 machine = "ouragan"
 threads = 32
 julia = "1.13.3"
-gauss = "e23bf50"
+garside_homology = "e23bf50"
 solver = "SparseElementaryDivisors dev-0.1.1 (2159d9f)"
 chevie = "0.1.15"
 numbering = ["default"]

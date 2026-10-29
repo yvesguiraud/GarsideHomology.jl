@@ -3,19 +3,19 @@
 # from matrices/G<p>.jld2 of the experiment repository), up to permutation of the bases.
 # The bases of these matrices are given by their bar forms, written by the script
 # j1/b5_bases.jl of the experiment repository. Runs when three environment variables are set:
-#   GAUSS_SOLVER_MATRICES  the folder test/data of SparseElementaryDivisors
-#   GAUSS_SOLVER_BASES     the folder j1/out/bases of the experiment repository
-#   GAUSS_SNAPSHOT_DIR     a folder with the snapshots G34_a, G35_a, G36_a (.txt.gz)
+#   GARSIDE_HOMOLOGY_SOLVER_MATRICES  the folder test/data of SparseElementaryDivisors
+#   GARSIDE_HOMOLOGY_SOLVER_BASES     the folder j1/out/bases of the experiment repository
+#   GARSIDE_HOMOLOGY_SNAPSHOT_DIR     a folder with the snapshots G34_a, G35_a, G36_a (.txt.gz)
 
 isdefined(Main, :read_snapshot) || include("snapshot_io.jl")
 
-using Gauss
+using GarsideHomology
 using Test
 
-const SOLVER_MATRICES = get(ENV, "GAUSS_SOLVER_MATRICES", "")
-const SOLVER_BASES = get(ENV, "GAUSS_SOLVER_BASES", "")
-const SOLVER_SNAPSHOTS = get(ENV, "GAUSS_SNAPSHOT_DIR", "")
-const _read_matrix_market = Gauss.Complexes.SparseElementaryDivisors.read_matrix_market
+const SOLVER_MATRICES = get(ENV, "GARSIDE_HOMOLOGY_SOLVER_MATRICES", "")
+const SOLVER_BASES = get(ENV, "GARSIDE_HOMOLOGY_SOLVER_BASES", "")
+const SOLVER_SNAPSHOTS = get(ENV, "GARSIDE_HOMOLOGY_SNAPSHOT_DIR", "")
+const _read_matrix_market = GarsideHomology.Complexes.SparseElementaryDivisors.read_matrix_market
 
 "The bar forms of a file of bases, by degree: lines `C <degree> <bar form>`."
 function read_bases(path::AbstractString)
@@ -30,8 +30,8 @@ function read_bases(path::AbstractString)
 end
 
 if isempty(SOLVER_MATRICES) || isempty(SOLVER_BASES) || isempty(SOLVER_SNAPSHOTS)
-    @info "Matrices of the solver not compared: set GAUSS_SOLVER_MATRICES, GAUSS_SOLVER_BASES " *
-          "and GAUSS_SNAPSHOT_DIR (see test_solver_matrices.jl)."
+    @info "Matrices of the solver not compared: set GARSIDE_HOMOLOGY_SOLVER_MATRICES, GARSIDE_HOMOLOGY_SOLVER_BASES " *
+          "and GARSIDE_HOMOLOGY_SNAPSHOT_DIR (see test_solver_matrices.jl)."
 else
     @testset "Matrices of the solver, B*(G$p)" for p in (34, 35, 36)
         snapshot = joinpath(SOLVER_SNAPSHOTS, "G$(p)_a.txt.gz")

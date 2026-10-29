@@ -6,18 +6,18 @@
 
 isdefined(Main, :TREE_VARIANTS) || include("test_tree.jl")
 
-using Gauss
-using Gauss: CellTree, ncells, ChainTree, BimoduleTerm, LCMProjectionData,
+using GarsideHomology
+using GarsideHomology: CellTree, ncells, ChainTree, BimoduleTerm, LCMProjectionData,
              lcm_splitting, lcm_projection!, lcm_boundary
 using Test
 import Chevie
 
 function d_fingerprints(P)
     out = Dict{Int, Tuple{Int, String, String}}()
-    for n in 0:(Gauss._top_degree(P.tree) - 1)
-        a = sort!(Gauss._differential_lines(P, n))
+    for n in 0:(GarsideHomology._top_degree(P.tree) - 1)
+        a = sort!(GarsideHomology._differential_lines(P, n))
         isempty(a) && continue
-        b = sort!(Gauss._differential_lines(P, n; bar = true))
+        b = sort!(GarsideHomology._differential_lines(P, n; bar = true))
         out[n] = (length(a), _sha_lines(a), _sha_lines(b))
     end
     return out
@@ -36,9 +36,9 @@ function square_zero(P)
     for x in 1:ncells(T)
         acc = BimoduleTerm[]
         for t in bd[x], s in bd[t.cell]
-            push!(acc, BimoduleTerm(s.cell, Gauss._mul(G, t.left, s.left), Gauss._mul(G, s.right, t.right), t.coef * s.coef))
+            push!(acc, BimoduleTerm(s.cell, GarsideHomology._mul(G, t.left, s.left), GarsideHomology._mul(G, s.right, t.right), t.coef * s.coef))
         end
-        isempty(Gauss._normalise!(acc)) || return false
+        isempty(GarsideHomology._normalise!(acc)) || return false
     end
     return true
 end
@@ -49,12 +49,12 @@ end
         # 2 = [1], 3 = [2], 4 = [3], 5 = [2|3], 6 = [3|1].
         T = CellTree(dual_dihedral_germ(3))
         C = ChainTree(T)
-        @test C.ncells == 6 && Gauss._nchains(C) == 6
-        @test Gauss._child(C, 1, 1) == 2 && Gauss._child(C, 3, 3) == 5 && Gauss._child(C, 4, 1) == 6
-        @test Gauss._child(C, 1, 4) == 0
-        @test Gauss._child!(C, 1, 4) == 7 && Gauss._child!(C, 1, 4) == 7 && C.degree[7] == 1
-        @test Gauss._letters(C, 5) == [2, 3] && Gauss._prefixes(C, 5) == [1, 3]
-        @test_throws ArgumentError Gauss._child!(C, 1, 0)
+        @test C.ncells == 6 && GarsideHomology._nchains(C) == 6
+        @test GarsideHomology._child(C, 1, 1) == 2 && GarsideHomology._child(C, 3, 3) == 5 && GarsideHomology._child(C, 4, 1) == 6
+        @test GarsideHomology._child(C, 1, 4) == 0
+        @test GarsideHomology._child!(C, 1, 4) == 7 && GarsideHomology._child!(C, 1, 4) == 7 && C.degree[7] == 1
+        @test GarsideHomology._letters(C, 5) == [2, 3] && GarsideHomology._prefixes(C, 5) == [1, 3]
+        @test_throws ArgumentError GarsideHomology._child!(C, 1, 0)
         @test lcm_splitting(T, 1, 4) == (1, 2)          # [Δ]: redundant, matched with [1|2]
         @test lcm_splitting(T, 4, 1) == (1, 0)          # [3|1]: the cell
         @test lcm_splitting(T, 2, 2) == (0, 2)          # [1|2]: collapsible
@@ -67,7 +67,7 @@ end
         @test isempty(lcm_boundary(P, 1))
         @test_throws ArgumentError lcm_boundary(P, 7)
         # The D lines of the tiny reference snapshot dual_A2_a.
-        @test sort!(vcat(Gauss._differential_lines(P, 0), Gauss._differential_lines(P, 1))) == [
+        @test sort!(vcat(GarsideHomology._differential_lines(P, 0), GarsideHomology._differential_lines(P, 1))) == [
             "D 0 1 +1 1 - e", "D 0 1 -1 e - 1", "D 0 2 +1 2 - e", "D 0 2 -1 e - 2",
             "D 0 3 +1 3 - e", "D 0 3 -1 e - 3",
             "D 1 2.1 +1 2 3 e", "D 1 2.1 +1 e 2 3", "D 1 2.1 -1 1 2 e", "D 1 2.1 -1 e 1 2",
@@ -80,7 +80,7 @@ end
     @testset "B⁺(A₂) by hand" begin
         P = LCMProjectionData(CellTree(classical_dihedral_germ(3)))
         # The D lines of the tiny reference snapshot classic_A2_a.
-        @test sort!(vcat(Gauss._differential_lines(P, 0), Gauss._differential_lines(P, 1))) == [
+        @test sort!(vcat(GarsideHomology._differential_lines(P, 0), GarsideHomology._differential_lines(P, 1))) == [
             "D 0 1 +1 1 - e", "D 0 1 -1 e - 1", "D 0 2 +1 2 - e", "D 0 2 -1 e - 2",
             "D 1 2.1 +1 2 1 2", "D 1 2.1 +1 2.1 2 e", "D 1 2.1 +1 e 2 1.2",
             "D 1 2.1 -1 1 2 1", "D 1 2.1 -1 1.2 1 e", "D 1 2.1 -1 e 1 2.1"]
@@ -126,15 +126,15 @@ end
 
     @testset "Lazy germ" begin
         # B⁺(A₃) from the lazy germ: the same D lines as from the tabulated germ.
-        L = LCMProjectionData(CellTree(Gauss.CoxeterGerm(Chevie.cartan(A(3)))))
+        L = LCMProjectionData(CellTree(GarsideHomology.CoxeterGerm(Chevie.cartan(A(3)))))
         P = LCMProjectionData(CellTree(germ(Chevie.BraidMonoid(A(3)))))
-        @test all(sort(Gauss._differential_lines(L, n)) == sort(Gauss._differential_lines(P, n)) for n in 0:2)
+        @test all(sort(GarsideHomology._differential_lines(L, n)) == sort(GarsideHomology._differential_lines(P, n)) for n in 0:2)
         @test square_zero(L)
     end
 
     @testset "Exports" begin
         for s in (:ChainTree, :BimoduleTerm, :LCMProjectionData, :lcm_splitting, :lcm_projection!, :lcm_boundary)
-            @test Base.ispublic(Gauss, s) && !Base.isexported(Gauss, s)
+            @test Base.ispublic(GarsideHomology, s) && !Base.isexported(GarsideHomology, s)
         end
     end
 end

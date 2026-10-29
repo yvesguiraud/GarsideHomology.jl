@@ -28,7 +28,7 @@ Base.show(io::IO, ::MIME"text/plain", B::CellBasis) = show(io, B)
 const _LCMMatrix = LabelledSparseMatrix{NTuple{2, Int32}, Int}
 
 """
-    LCMResolution <: Gauss.Complexes.AbstractChainComplex
+    LCMResolution <: GarsideHomology.Complexes.AbstractChainComplex
 
 The lcm resolution of a germ for an ordering, as returned by [`lcm_resolution`](@ref): a
 chain complex of free bimodules over `MonoidAlgebra(ZZ, G, :both)`, which keeps the tree

@@ -1,15 +1,15 @@
 """
-    Gauss
+    GarsideHomology
 
 Small free resolutions of Garside monoids and their homology.
 
-Gauss computes the reduced lcm resolution of a Garside monoid, a variant of the
+GarsideHomology computes the reduced lcm resolution of a Garside monoid, a variant of the
 Dehornoy–Lafont resolution with far fewer cells, and the homology of the
 corresponding groups with various coefficients.
 
 This version is a package skeleton: the layers (germs, orderings, cell tree,
 projection, resolution and certificates, modules, complexes) are added step by step.
-Present so far: the generic layer of complexes, `Gauss.Complexes`, whose public names
+Present so far: the generic layer of complexes, `GarsideHomology.Complexes`, whose public names
 are re-exported, the interface of germs ([`AbstractGerm`](@ref)), tabulated and lazy
 germs ([`TableGerm`](@ref), [`CoxeterGerm`](@ref)), the orderings
 ([`LCMOrdering`](@ref)), the tree of the cells ([`CellTree`](@ref)), the projection
@@ -19,10 +19,10 @@ onto the cells ([`LCMProjectionData`](@ref)) and the lcm resolution
 coefficients ([`TrivialModule`](@ref), [`SignModule`](@ref)) and the tensor products by
 them ([`tensor_product`](@ref), `homology(R, M)`).
 """
-module Gauss
+module GarsideHomology
 
 # Generic layer of free modules and chain complexes. It must not depend on anything
-# else in Gauss, so that it can later become a package of its own.
+# else in GarsideHomology, so that it can later become a package of its own.
 include("complexes/Complexes.jl")
 using .Complexes
 using .Complexes: rank, MonoidAlgebra, AbstractMonoid, AbstractModule, AbstractChainComplex
@@ -104,11 +104,11 @@ public ResolutionCertificate, is_correct, is_minimal, is_linear
 
 # Modules of coefficients. Exported: the modules a user types. Public only: the abstract
 # type, and the tensor products (tensor_product is exported by Hecke and Oscar, ⊗ by Hecke):
-# write `using Gauss: ⊗` for the notation, which wins over the exports of those packages.
+# write `using GarsideHomology: ⊗` for the notation, which wins over the exports of those packages.
 export TrivialModule, SignModule
 public AbstractMonoidModule, tensor_product, ⊗
 # The ring of integers of AbstractAlgebra, that of the coefficients of the resolutions:
 # public, not exported, since Nemo, Hecke and Oscar export a ZZ of their own, another object.
 public ZZ
 
-end # module Gauss
+end # module GarsideHomology

@@ -15,4 +15,4 @@ of `../reference/` were computed: their sizes and SHA-256 are those of the rows
 [`../reference/FORMAT.md`](../reference/FORMAT.md).
 
 The other snapshots are not in this repository. To check them, set the environment
-variable `GAUSS_SNAPSHOT_DIR` to a folder of `.txt.gz` snapshots before running the tests.
+variable `GARSIDE_HOMOLOGY_SNAPSHOT_DIR` to a folder of `.txt.gz` snapshots before running the tests.

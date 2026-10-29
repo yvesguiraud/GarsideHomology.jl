@@ -1,11 +1,11 @@
-using Gauss
+using GarsideHomology
 using Test
-import Chevie  # loads the package extension GaussChevieExt
+import Chevie  # loads the package extension GarsideHomologyChevieExt
 
-@testset "Gauss.jl" begin
+@testset "GarsideHomology.jl" begin
     @testset "Package skeleton" begin
-        @test isdefined(Gauss, :Complexes)
-        @test parentmodule(Gauss.Complexes) === Gauss
+        @test isdefined(GarsideHomology, :Complexes)
+        @test parentmodule(GarsideHomology.Complexes) === GarsideHomology
     end
     include("test_complexes.jl")
     include("test_germs.jl")
@@ -26,6 +26,6 @@ import Chevie  # loads the package extension GaussChevieExt
     include("test_pairs.jl")
     include("test_solver_matrices.jl")
     @testset "Chevie extension" begin
-        @test Base.get_extension(Gauss, :GaussChevieExt) isa Module
+        @test Base.get_extension(GarsideHomology, :GarsideHomologyChevieExt) isa Module
     end
 end

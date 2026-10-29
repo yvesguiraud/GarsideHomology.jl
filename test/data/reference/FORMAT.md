@@ -117,10 +117,10 @@ line `fichier` giving the SHA-256 of the `.txt.gz` file.
   between the tie-breaking rules of Gauss_a (first in the inherited order) and Gauss_c
   (smallest index).
 
-## 7. Header of the snapshots written by Gauss.jl
+## 7. Header of the snapshots written by GarsideHomology.jl
 
-Since J1.d (task d4, 23 October 2026), Gauss.jl writes snapshots itself
-(`Gauss.write_snapshot`, for a resolution given by `lcm_resolution`). The data lines and
+Since J1.d (task d4, 23 October 2026), GarsideHomology.jl writes snapshots itself
+(`GarsideHomology.write_snapshot`, for a resolution given by `lcm_resolution`). The data lines and
 the fingerprints follow sections 4 and 5; the header, which does not enter the
 fingerprints, differs from that of J0, which came from Chevie and from the experiment
 repository. Keys, in this order:
@@ -133,7 +133,7 @@ repository. Keys, in this order:
 # n_atomes: 9
 # empreinte_germe: GermFingerprint(9 atoms, ℓ(Δ) = 3, …)   ("non calculée (germe paresseux)" for a lazy germ)
 # …                                     (the pairs given by the caller: libelle, construction, machine, commits, …)
-# gauss: 0.1.0-DEV
+# garside_homology: 0.1.0-DEV
 # julia: 1.13.2
 # date: 2026-10-23T15:00:00
 # cellules: 38

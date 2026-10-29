@@ -5,15 +5,15 @@
 
 isdefined(Main, :check_germ) || include("explicit_germ.jl")
 
-using Gauss
-using Gauss: MonoidAlgebra    # public, not exported (Oscar exports a MonoidAlgebra)
-using Gauss: LCMResolution, ResolutionCertificate, is_correct, is_minimal, is_linear,
+using GarsideHomology
+using GarsideHomology: MonoidAlgebra    # public, not exported (Oscar exports a MonoidAlgebra)
+using GarsideHomology: LCMResolution, ResolutionCertificate, is_correct, is_minimal, is_linear,
              cell_tree, CellTree, CellBasis
 using Test
 import Chevie
 
-const _CT_ZZ = Gauss.Complexes.AbstractAlgebra.ZZ
-const _CT_SA = Gauss.Complexes.SparseArrays
+const _CT_ZZ = GarsideHomology.Complexes.AbstractAlgebra.ZZ
+const _CT_SA = GarsideHomology.Complexes.SparseArrays
 
 # The fields of a certificate but the times.
 _report(c::ResolutionCertificate) = [getfield(c, f) for f in fieldnames(ResolutionCertificate) if f !== :times]
@@ -39,8 +39,8 @@ _drop(ks) = (I, J, L, V) -> (keep = setdiff(eachindex(I), ks); (I[keep], J[keep]
 @testset "Certificates" begin
     @testset "B*(A₂) by hand" begin
         G = dual_dihedral_germ(3)              # simples e, a₁, a₂, a₃, Δ = 0:4
-        @test Gauss._mobius_values(G) == [1, -1, -1, -1, 2]
-        @test Gauss._mobius_crosscut(G) == Dict{Int32, Int}(0 => 1, 1 => -1, 2 => -1, 3 => -1, 4 => 2)
+        @test GarsideHomology._mobius_values(G) == [1, -1, -1, -1, 2]
+        @test GarsideHomology._mobius_crosscut(G) == Dict{Int32, Int}(0 => 1, 1 => -1, 2 => -1, 3 => -1, 4 => 2)
         R = lcm_resolution(G)
         c = certify(R)
         @test c isa ResolutionCertificate && is_correct(c) && is_minimal(c) && is_linear(c)
@@ -64,9 +64,9 @@ _drop(ks) = (I, J, L, V) -> (keep = setdiff(eachindex(I), ks); (I[keep], J[keep]
         G = classical_dihedral_germ(3)         # weak order of S₃
         expected = Dict(Int32[] => 1, Int32[1] => -1, Int32[2] => -1, Int32[1, 2] => 0, Int32[2, 1] => 0,
                         Int32[1, 2, 1] => 1)
-        μ = Gauss._mobius_values(G)
-        @test all(μ[s + 1] == expected[Gauss.word(G, s)] for s in simples(G))
-        @test sort!(collect(values(Gauss._mobius_crosscut(G)))) == [-1, -1, 1, 1]
+        μ = GarsideHomology._mobius_values(G)
+        @test all(μ[s + 1] == expected[GarsideHomology.word(G, s)] for s in simples(G))
+        @test sort!(collect(values(GarsideHomology._mobius_crosscut(G)))) == [-1, -1, 1, 1]
         c = certify(lcm_resolution(G))
         @test is_correct(c) && is_minimal(c) && !is_linear(c)
         @test c.cells == [1, 2, 1] && c.terms == [4, 6] && c.mobius_sum == 4 && c.split_weights == 0
@@ -94,7 +94,7 @@ _drop(ks) = (I, J, L, V) -> (keep = setdiff(eachindex(I), ks); (I[keep], J[keep]
         @test occursin("minimal: no (2 terms 1·y·1, by degree ", text)
         @test occursin("no, 1 weight in several degrees (Σ|μ| = 38, 40 cells)", text)
         @test !occursin("note:", text)
-        @test Gauss._mobius_values(GB)[end] == -10 == Gauss._mobius_crosscut(GB)[Int32(nsimples(GB) - 1)]
+        @test GarsideHomology._mobius_values(GB)[end] == -10 == GarsideHomology._mobius_crosscut(GB)[Int32(nsimples(GB) - 1)]
     end
 
     @testset "Altered resolutions" begin
@@ -115,7 +115,7 @@ _drop(ks) = (I, J, L, V) -> (keep = setdiff(eachindex(I), ks); (I[keep], J[keep]
         relabel = (I, J, L, V) -> (K = copy(L); k = findfirst(==((Int32(1), Int32(0))), K); K[k] = (2, 0); (I, J, K, V))
         h = certify(_altered(relabel, R, 0))
         @test h.homogeneity == 1 && !is_correct(h)
-        @test Gauss._failure(h, :homogeneity) == "d_0, cell 1: term +1 2 [-] e of another weight"
+        @test GarsideHomology._failure(h, :homogeneity) == "d_0, cell 1: term +1 2 [-] e of another weight"
         # The weight of a cell changed in a copy of the tree: the Euler characteristic fails on
         # its old and new weights.
         T = CellTree(G)
@@ -125,7 +125,7 @@ _drop(ks) = (I, J, L, V) -> (keep = setdiff(eachindex(I), ks); (I[keep], J[keep]
         e = certify(bad)
         @test e.euler == 2 && e.split_weights == 1 && e.homogeneity > 0 && !is_correct(e)
         @test occursin("inhomogeneous terms, Euler fails on 2 weights), minimal, linear", sprint(show, e))
-        @test Gauss._failure(e, :euler) == "weight 1: Σₙ (−1)ⁿ cₙ = 0, μ(1, ω) = -1"
+        @test GarsideHomology._failure(e, :euler) == "weight 1: Σₙ (−1)ⁿ cₙ = 0, μ(1, ω) = -1"
     end
 
     @testset "μ by layers and by crosscut" begin
@@ -133,13 +133,13 @@ _drop(ks) = (I, J, L, V) -> (keep = setdiff(eachindex(I), ks); (I[keep], J[keep]
                  germ(Chevie.DualBraidMonoid(Chevie.coxgroup(:A, 3); c = collect(1:3))), GB,
                  signed_interval_germ(4, :D, (2, -4, -3, 1)), germ(Chevie.DualBraidMonoid(Chevie.crg(4)))]
         for G in germs
-            v = Gauss._mobius_values(G)
-            d = Gauss._mobius_crosscut(G)
+            v = GarsideHomology._mobius_values(G)
+            d = GarsideHomology._mobius_crosscut(G)
             @test all(v[s + 1] == get(d, s, 0) for s in simples(G)) && all(!iszero, values(d))
         end
         D4 = signed_interval_germ(4, :D, (2, -4, -3, 1))       # B*(D₄): μ(1, Δ) = 20
         lengths = [length(D4, s) for s in simples(D4)]
-        @test Gauss._mobius_values(D4)[argmax(lengths)] == 20
+        @test GarsideHomology._mobius_values(D4)[argmax(lengths)] == 20
     end
 
     @testset "Keywords" begin
@@ -167,7 +167,7 @@ _drop(ks) = (I, J, L, V) -> (keep = setdiff(eachindex(I), ks); (I[keep], J[keep]
 
     @testset "Lazy germ" begin
         W = Chevie.coxgroup(:A, 3)
-        L = lcm_resolution(Gauss.CoxeterGerm(Chevie.cartan(W)))
+        L = lcm_resolution(GarsideHomology.CoxeterGerm(Chevie.cartan(W)))
         c = certify(L)
         @test c.mobius_method === :crosscut && is_correct(c) && is_minimal(c) && !is_linear(c)
         @test sum(c.cells) == 8 && c.mobius_sum == 8 && sum(c.terms) == 36 && c.max_label_length == [1, 2, 4]
@@ -190,9 +190,9 @@ _drop(ks) = (I, J, L, V) -> (keep = setdiff(eachindex(I), ks); (I[keep], J[keep]
     end
 
     @testset "Exports" begin
-        @test Base.isexported(Gauss, :certify)
+        @test Base.isexported(GarsideHomology, :certify)
         for s in (:ResolutionCertificate, :is_correct, :is_minimal, :is_linear)
-            @test Base.ispublic(Gauss, s) && !Base.isexported(Gauss, s)
+            @test Base.ispublic(GarsideHomology, s) && !Base.isexported(GarsideHomology, s)
         end
     end
 end

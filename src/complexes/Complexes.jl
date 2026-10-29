@@ -1,5 +1,5 @@
 """
-    Gauss.Complexes
+    GarsideHomology.Complexes
 
 Free modules with a basis, labelled sparse matrices, chain complexes and their homology.
 
@@ -9,7 +9,7 @@ has [`LabelledSparseMatrix`](@ref) maps; a complex over ℤ has `SparseMatrixCSC
 The homology of a complex over ℤ, computed by `SparseElementaryDivisors`, is a
 [`FinitelyGeneratedGradedAbelianGroup`](@ref) of [`FinitelyGeneratedAbelianGroup`](@ref)s.
 
-This submodule depends on nothing else in Gauss, and its tests build no monoid,
+This submodule depends on nothing else in GarsideHomology, and its tests build no monoid,
 so that it can later become a separate package.
 """
 module Complexes
@@ -21,7 +21,7 @@ using SparseElementaryDivisors: sparse_elementary_divisors
 # The same functions as AbstractAlgebra's: methods are added for our types, so that the
 # names do not clash with AbstractAlgebra, Nemo, Hecke or Oscar. `rank` is public but not
 # exported, because Chevie exports a function `rank` of its own (rank of a reflection
-# group): write `Gauss.rank`, or `using Gauss: rank` when Chevie is not loaded.
+# group): write `GarsideHomology.rank`, or `using GarsideHomology: rank` when Chevie is not loaded.
 using AbstractAlgebra: base_ring, rank, nrows, ncols
 
 export BasedFreeModule, LabelledSparseMatrix, ChainComplex

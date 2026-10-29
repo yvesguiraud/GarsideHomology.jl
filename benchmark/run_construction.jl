@@ -1,7 +1,7 @@
 # benchmark/run_construction.jl — campaign of timings of the construction of the lcm
 # resolution (J1.d, task d7), protocol of the task C1 of J0
 #
-# Usage, from the root of Gauss.jl, the machine free (nothing else running):
+# Usage, from the root of GarsideHomology.jl, the machine free (nothing else running):
 #     julia --project=benchmark -e "using Pkg; Pkg.instantiate()"      # once
 #     julia --project=benchmark benchmark/run_construction.jl N9           # 7 cases × P1, P2 × 3 rounds
 #     julia --project=benchmark benchmark/run_construction.jl N9 G37 G34   # chosen cases
@@ -10,7 +10,7 @@
 # the CSV), in random order, and skips the rounds already in benchmark/out/construction_<machine>.csv:
 # the campaign can be interrupted and run again. Log of each round in benchmark/out/logs/.
 # At the end, the minima by case and path, beside those of J0 (j0/out/temps_<machine>.csv
-# of CatLab, by default ../CatLab/j0/out/ beside Gauss.jl).
+# of CatLab, by default ../CatLab/j0/out/ beside GarsideHomology.jl).
 
 # Only Base: no Printf, no Random (Pkg did not take them as standard libraries on N9).
 

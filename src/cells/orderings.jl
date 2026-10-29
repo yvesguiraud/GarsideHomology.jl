@@ -20,7 +20,7 @@ strict divisibility `ω ∨ a ≺ ω ∨ b` implies that `ω ∨ a` precedes `ω
 compatible preorder, the construction keeps exactly one atom for each minimal lcm (the
 reduced construction); see [`extends_divisibility`](@ref).
 
-Methods of Gauss: [`ComplementDeglex`](@ref) (the default), [`TrivialPreorder`](@ref)
+Methods of GarsideHomology: [`ComplementDeglex`](@ref) (the default), [`TrivialPreorder`](@ref)
 and [`FunctionPreorder`](@ref). A new preorder is a subtype with a method of `precedes`.
 """
 abstract type AbstractLCMPreorder end
@@ -77,7 +77,7 @@ precedes(::TrivialPreorder, G::AbstractGerm, ω::Integer, x, y) = false  # COV_E
 The preorder given by a function: `x` precedes `y` when `lt(G, ω, x, y)`, which must
 return a `Bool` and be a strict weak order (see [`AbstractLCMPreorder`](@ref)). For the
 exploration of other preorders; the lexicographic order of the complements, for
-instance, is `FunctionPreorder((G, ω, x, y) -> Gauss.isless_lex(G, x.complement,
+instance, is `FunctionPreorder((G, ω, x, y) -> GarsideHomology.isless_lex(G, x.complement,
 y.complement))`. A preorder that is not compatible with divisibility gives a resolution
 that is not reduced; the result is to be checked (∂² = 0, Euler characteristic of each
 weight).
