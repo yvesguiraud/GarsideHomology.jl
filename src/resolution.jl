@@ -58,6 +58,8 @@ struct LCMResolution{G <: AbstractGerm, O <: LCMOrdering, R <: MonoidAlgebra, M 
 end
 
 Base.range(R::LCMResolution) = range(R.complex)
+ncells(R::LCMResolution) = ncells(R.tree)
+ncells(R::LCMResolution, n::Integer) = ncells(R.tree, n)
 Base.getindex(R::LCMResolution, n::Integer) = R.complex[n]
 Complexes.differential(R::LCMResolution, n::Integer) = differential(R.complex, n)
 AbstractAlgebra.base_ring(R::LCMResolution) = base_ring(R.complex)
@@ -89,6 +91,9 @@ of the monoid, that of its group of fractions.
 - `lcm_resolution(G)`: the reduced resolution ([`ComplementDeglex`](@ref)).
 - `lcm_resolution(G, LCMOrdering(TrivialPreorder(); root_order = p))`: the order
   resolution of Dehornoy and Lafont for the order `p` of the atoms.
+- With Chevie loaded, `lcm_resolution(M, ordering)` for a `BraidMonoid` or a
+  `DualBraidMonoid` `M` of Chevie is that of its germ, `lcm_resolution(germ(M), ordering)`
+  ([`germ`](@ref)).
 
 The first form drops the memo of the projection at the end. The second one reads the
 boundaries from data `P` built by the caller, who keeps its memo.

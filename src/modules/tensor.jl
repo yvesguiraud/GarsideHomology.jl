@@ -123,6 +123,33 @@ Complexes.homology(C::AbstractChainComplex{<:MonoidAlgebra}, M::AbstractMonoidMo
 Complexes.homology(C::AbstractChainComplex{<:MonoidAlgebra}, M::AbstractMonoidModule, n::Integer; kwargs...) =
     homology(_with_coefficients(C, M), n; kwargs...)
 
+"""
+    homology(G::AbstractGerm, M::AbstractMonoidModule = TrivialModule(); ordering = LCMOrdering(), kwargs...)
+    homology(G::AbstractGerm, M::AbstractMonoidModule, n; ordering = LCMOrdering(), kwargs...)
+    homology(G::AbstractGerm, n; ordering = LCMOrdering(), kwargs...)
+
+The homology of the monoid of the germ `G`, that of its group of fractions, with
+coefficients in the module `M` (trivial by default), in all degrees or in degree `n`: that
+of its lcm resolution for `ordering`, `homology(lcm_resolution(G, ordering), M)`. The
+resolution is built at each call: to compute several homologies of the same monoid, build
+it once with [`lcm_resolution`](@ref). The other keyword arguments go to the solver, as
+for `homology(C)`.
+
+With Chevie loaded, the same forms for a `BraidMonoid` or a `DualBraidMonoid` of Chevie,
+through its germ ([`germ`](@ref)): `homology(BraidMonoid(coxgroup(:A, 2)))` is the
+homology of the braid group on three strands.
+"""
+Complexes.homology(G::AbstractGerm, M::AbstractMonoidModule = TrivialModule();
+                   ordering::LCMOrdering = LCMOrdering(), kwargs...) =
+    homology(lcm_resolution(G, ordering), M; kwargs...)
+
+Complexes.homology(G::AbstractGerm, M::AbstractMonoidModule, n::Integer;
+                   ordering::LCMOrdering = LCMOrdering(), kwargs...) =
+    homology(lcm_resolution(G, ordering), M, n; kwargs...)
+
+Complexes.homology(G::AbstractGerm, n::Integer; ordering::LCMOrdering = LCMOrdering(), kwargs...) =
+    homology(lcm_resolution(G, ordering), TrivialModule(), n; kwargs...)
+
 function _with_coefficients(C::AbstractChainComplex{<:MonoidAlgebra}, M::AbstractMonoidModule)
     A = base_ring(C)
     A.side === :left &&

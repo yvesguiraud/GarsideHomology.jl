@@ -4,7 +4,9 @@
 Package extension loaded together with Chevie: the germs of the braid monoids
 (`BraidMonoid` of a finite Coxeter group) and of the dual braid monoids of Chevie,
 built by `GarsideHomology.germ(M)` and `GarsideHomology.TableGerm(M)`, and `GarsideHomology.dual_germ(W; c)`, which
-builds the germ of a dual braid monoid from the group without building the monoid.
+builds the germ of a dual braid monoid from the group without building the monoid. Also
+`germ(W)` for a finite Coxeter group (the germ of its classical braid monoid), and
+`lcm_resolution(M)` and `homology(M)` for a monoid of Chevie, through its germ.
 
 The right covers σ → σa given to `GarsideHomology.tabulate` come from the arithmetic of the group
 alone. An element is identified by the images of the roots of the generators, which
@@ -86,6 +88,33 @@ function GarsideHomology.dual_germ(W::ReflectionGroup; c = nothing)
     word = c === nothing ? _default_coxeter_word(W, Val(n)) : collect(Int, c)
     return GarsideHomology.TableGerm(_dual_covers(W, W(word...), word, nothing)...)
 end
+
+# ------------------------------------------------------------------------------------
+# Conveniences (J1.g, task g1): the germ of the classical braid monoid from the group, the
+# resolution and the homology of a monoid of Chevie through its germ.
+
+GarsideHomology.germ(W::Chevie.FiniteCoxeterGroup) = GarsideHomology.germ(Chevie.BraidMonoid(W))
+
+GarsideHomology.germ(W::Chevie.PermRootGroup) =
+    throw(ArgumentError("germ(W) is the germ of the classical braid monoid of a finite Coxeter " *
+                        "group of Chevie (coxgroup, coxsym), not of a $(nameof(typeof(W))); for the " *
+                        "dual braid monoid of a well-generated reflection group, see dual_germ(W)"))
+
+GarsideHomology.lcm_resolution(M::ChevieMonoid, ordering::GarsideHomology.LCMOrdering =
+                               GarsideHomology.LCMOrdering()) =
+    GarsideHomology.lcm_resolution(GarsideHomology.germ(M), ordering)
+
+GarsideHomology.Complexes.homology(M::ChevieMonoid,
+                                   N::GarsideHomology.AbstractMonoidModule = GarsideHomology.TrivialModule();
+                                   kwargs...) =
+    GarsideHomology.Complexes.homology(GarsideHomology.germ(M), N; kwargs...)
+
+GarsideHomology.Complexes.homology(M::ChevieMonoid, N::GarsideHomology.AbstractMonoidModule, n::Integer;
+                                   kwargs...) =
+    GarsideHomology.Complexes.homology(GarsideHomology.germ(M), N, n; kwargs...)
+
+GarsideHomology.Complexes.homology(M::ChevieMonoid, n::Integer; kwargs...) =
+    GarsideHomology.Complexes.homology(GarsideHomology.germ(M), n; kwargs...)
 
 # ------------------------------------------------------------------------------------
 # Keys
