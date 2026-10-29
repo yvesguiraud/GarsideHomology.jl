@@ -163,7 +163,10 @@ import Chevie
         @test E8 isa GarsideHomology.CoxeterGerm{8} && nsimples(E8) == 696729600 && GarsideHomology.nnumbered(E8) == 9
         @test germ(Chevie.BraidMonoid(Chevie.coxgroup(:B, 7))) isa GarsideHomology.CoxeterGerm    # 645 120 simples
         @test GarsideHomology._TABULATION_THRESHOLD == 5 * 10^5
-        @test_throws MethodError germ(A(2))
+        # A finite Coxeter group gets the germ of its classical braid monoid (J1.g, g1); an
+        # infinite one has no Garside germ.
+        @test germ(A(2)) == germ(Chevie.BraidMonoid(A(2)))
+        @test_throws MethodError germ(Chevie.affine(A(2)))
         ext = Base.get_extension(GarsideHomology, :GarsideHomologyChevieExt)
         # (B*(G₃₄) is not built here: Chevie takes minutes; j1/c3_chevie.jl of CatLab
         # compares the numbers of simples with Chevie on every case.)

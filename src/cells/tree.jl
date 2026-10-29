@@ -147,8 +147,12 @@ end
 """
     ncells(T::CellTree) -> Int
     ncells(T::CellTree, n) -> Int
+    ncells(R::LCMResolution) -> Int
+    ncells(R::LCMResolution, n) -> Int
 
-The number of cells of `T`, or of its cells of degree `n` (0 outside the degrees of `T`).
+The number of cells of `T`, or of its cells of degree `n` (0 outside the degrees of `T`);
+for an lcm resolution `R`, those of its tree ([`cell_tree`](@ref)). The numbers by degree:
+`[ncells(R, n) for n in range(R)]`.
 """
 ncells(T::CellTree) = length(T.parent)
 ncells(T::CellTree, n::Integer) = length(cell_range(T, n))
