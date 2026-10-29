@@ -2,10 +2,10 @@
 # or on both, and the homology with coefficients (J1.e, task e2).
 
 """
-    Gauss.tensor_product(N, C)
-    Gauss.tensor_product(C, M)
-    Gauss.tensor_product(N, C, M)
-    N ⊗ C,  C ⊗ M                  (with `using Gauss: ⊗`)
+    GarsideHomology.tensor_product(N, C)
+    GarsideHomology.tensor_product(C, M)
+    GarsideHomology.tensor_product(N, C, M)
+    N ⊗ C,  C ⊗ M                  (with `using GarsideHomology: ⊗`)
 
 The tensor products over the monoid algebra of a complex `C` of free modules over a
 [`MonoidAlgebra`](@ref) by a module of coefficients `N` on the left (as a right module) or
@@ -23,15 +23,15 @@ coefficients of `C` (ℤ for now).
 The results share the bases of `C`, which keep their cells. `homology(R, M)` is the homology
 of `TrivialModule ⊗ R ⊗ M`, that is `H₍*₎(B; M)` for the monoid `B` (the homology of its group
 of fractions).
-`tensor_product` is exported by Hecke and Oscar, `⊗` by Hecke: neither is exported by Gauss.
+`tensor_product` is exported by Hecke and Oscar, `⊗` by Hecke: neither is exported by GarsideHomology.
 """
 function tensor_product end
 
 """
     ⊗(N::AbstractMonoidModule, C), ⊗(C, M::AbstractMonoidModule)
 
-The tensor products `Gauss.tensor_product(N, C)` and `Gauss.tensor_product(C, M)`. Public, not
-exported: write `using Gauss: ⊗`, which wins over the export of `⊗` by Hecke.
+The tensor products `GarsideHomology.tensor_product(N, C)` and `GarsideHomology.tensor_product(C, M)`. Public, not
+exported: write `using GarsideHomology: ⊗`, which wins over the export of `⊗` by Hecke.
 """
 ⊗(N::AbstractMonoidModule, C::AbstractChainComplex) = tensor_product(N, C)
 ⊗(C::AbstractChainComplex, M::AbstractMonoidModule) = tensor_product(C, M)

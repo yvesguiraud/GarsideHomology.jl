@@ -8,7 +8,7 @@
     AbstractMonoid
 
 Supertype of the objects that describe a monoid for a [`MonoidAlgebra`](@ref): the germs
-of the Gauss layer, a table of simples read from a file, etc. Such an object fixes the
+of the GarsideHomology layer, a table of simples read from a file, etc. Such an object fixes the
 numbering of the elements used as labels (0 for the identity). No method is required
 by this layer.
 """

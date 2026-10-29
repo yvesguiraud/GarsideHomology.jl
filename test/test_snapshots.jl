@@ -1,6 +1,6 @@
 # Tests of the snapshot tool (snapshot_io.jl): a round trip on a snapshot written by hand,
 # the three tiny reference snapshots of data/snapshots/ against their fingerprints, and,
-# when the environment variable GAUSS_SNAPSHOT_DIR names a folder of snapshots (CatLab
+# when the environment variable GARSIDE_HOMOLOGY_SNAPSHOT_DIR names a folder of snapshots (CatLab
 # j0/ref, j0/out/gros), every snapshot of that folder: its fingerprints against the
 # reference, and its homology (trivial coefficients) against the expected values of
 # data/expected/, between the four variants of a case, and between the classical and
@@ -8,14 +8,14 @@
 
 include("snapshot_io.jl")
 
-using Gauss
-using Gauss: rank
+using GarsideHomology
+using GarsideHomology: rank
 using Test
 import TOML
 
 const SNAP_REFERENCE = joinpath(@__DIR__, "data", "reference")
 const SNAP_TINY = joinpath(@__DIR__, "data", "snapshots")
-const SNAP_DIR = get(ENV, "GAUSS_SNAPSHOT_DIR", "")
+const SNAP_DIR = get(ENV, "GARSIDE_HOMOLOGY_SNAPSHOT_DIR", "")
 const SNAP_PAIRS = joinpath(SNAP_REFERENCE, "collapsible_pairs.csv")
 
 # Free commutative monoid on two atoms a = 1, b = 2 (e = 0): Koszul resolution of bimodules,
@@ -96,7 +96,7 @@ _sign_both_sides(m::SnapshotMonoid) = l -> iseven(simple_length(m, l[1]) + simpl
         @test all(iszero(differential(specialise(C), n)) for n in 0:1)
         sign_right(l) = isodd(simple_length(s.monoid, l[2])) ? -1 : 1
         SE = specialise(C, sign_right)
-        @test differential(SE, 0) == Gauss.Complexes.SparseArrays.sparse([1, 1], [1, 2], [2, 2], 1, 2)
+        @test differential(SE, 0) == GarsideHomology.Complexes.SparseArrays.sparse([1, 1], [1, 2], [2, 2], 1, 2)
         @test is_square_zero(SE)
     end
 
@@ -137,10 +137,10 @@ _sign_both_sides(m::SnapshotMonoid) = l -> iseven(simple_length(m, l[1]) + simpl
     end
 
     if isempty(SNAP_DIR)
-        @info "Reference snapshots of J0 not checked: set GAUSS_SNAPSHOT_DIR to a folder " *
+        @info "Reference snapshots of J0 not checked: set GARSIDE_HOMOLOGY_SNAPSHOT_DIR to a folder " *
               "of snapshots (.txt.gz) to check them against data/reference."
     else
-        @testset "Snapshots of GAUSS_SNAPSHOT_DIR" begin
+        @testset "Snapshots of GARSIDE_HOMOLOGY_SNAPSHOT_DIR" begin
             expected_dir = joinpath(@__DIR__, "data", "expected")
             exceptional = TOML.parsefile(joinpath(expected_dir, "exceptional_braid_groups.toml"))
             spherical = TOML.parsefile(joinpath(expected_dir, "spherical_artin_groups.toml"))

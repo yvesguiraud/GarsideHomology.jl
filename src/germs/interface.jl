@@ -1,7 +1,7 @@
 # Germs: the interface between a Garside monoid and the construction of its resolution.
 
 """
-    AbstractGerm <: Gauss.Complexes.AbstractMonoid
+    AbstractGerm <: GarsideHomology.Complexes.AbstractMonoid
 
 Supertype of the germs of Garside monoids, in the sense of *Foundations of Garside
 Theory* (Dehornoy, Digne, Godelle, Krammer, Michel, ch. VI): the simples with their
@@ -26,7 +26,7 @@ atoms. The order of the atoms is part of the germ.
   and is simple; if `s ≼ t` are simples, then `s \\ t` is simple; the simples are the
   divisors of Δ.
 - *Side*: `≼` is left divisibility and lcms are right lcms (`ω ≼ ω ∨ a`), the convention
-  of the code of Gauss; that of Dehornoy–Lafont and Garnier is obtained by
+  of GarsideHomology; that of Dehornoy–Lafont and Garnier is obtained by
   [`opposite`](@ref).
 - *Mutability*: a query may update the memo of a lazy germ, so that concurrent queries
   are only safe for a germ documented as immutable.
@@ -95,7 +95,7 @@ function ldiv end
     left_descents(G::AbstractGerm, s) -> AbstractSet{Int}
 
 The atoms `a` such that `a ≼ s`, iterated in increasing order, with a fast `in`. The
-germs of Gauss return a [`StaticBitSet`](@ref).
+germs of GarsideHomology return a [`StaticBitSet`](@ref).
 """
 function left_descents end
 

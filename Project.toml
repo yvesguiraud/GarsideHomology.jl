@@ -1,4 +1,4 @@
-name = "Gauss"
+name = "GarsideHomology"
 uuid = "8020c2ec-8931-47b1-870e-dab20b57e67e"
 authors = ["Yves Guiraud"]
 version = "0.1.0-DEV"
@@ -14,7 +14,7 @@ SparseElementaryDivisors = "ae1c1434-3cf1-4e28-ab82-3ca23b97895f"
 Chevie = "367f69f0-ca63-11e8-2372-438b29340c1b"
 
 [extensions]
-GaussChevieExt = "Chevie"
+GarsideHomologyChevieExt = "Chevie"
 
 [compat]
 AbstractAlgebra = "0.50, 0.51"

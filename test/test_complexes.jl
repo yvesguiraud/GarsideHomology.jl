@@ -1,35 +1,35 @@
-# Tests of the complexes layer (Gauss.Complexes): monoid algebras, based free modules,
+# Tests of the complexes layer (GarsideHomology.Complexes): monoid algebras, based free modules,
 # labelled sparse matrices, chain complexes, finitely generated modules. Small complexes
 # written by hand, no monoid: a monoid here is only a list of names, its labels are
 # integers.
 
-using Gauss
-using Gauss: MonoidAlgebra    # public, not exported (Oscar exports a MonoidAlgebra)
-using Gauss: rank     # public, not exported (Chevie exports its own `rank`)
+using GarsideHomology
+using GarsideHomology: MonoidAlgebra    # public, not exported (Oscar exports a MonoidAlgebra)
+using GarsideHomology: rank     # public, not exported (Chevie exports its own `rank`)
 using Test
 
-# AbstractAlgebra and SparseArrays are dependencies of Gauss, not of the test
+# AbstractAlgebra and SparseArrays are dependencies of GarsideHomology, not of the test
 # environment: reach them through the submodule.
-const AA = Gauss.Complexes.AbstractAlgebra
-const SA = Gauss.Complexes.SparseArrays
+const AA = GarsideHomology.Complexes.AbstractAlgebra
+const SA = GarsideHomology.Complexes.SparseArrays
 const ZZ = AA.ZZ
 const L2 = NTuple{2, Int32}
 
 # A monoid described by the names of its simples; label l names simples[l + 1], so that
 # label 0 is the identity.
-struct NamedMonoid <: Gauss.Complexes.AbstractMonoid
+struct NamedMonoid <: GarsideHomology.Complexes.AbstractMonoid
     simples::Vector{String}
 end
 
 # A chain complex of another type, known to the layer only through the interface of
 # AbstractChainComplex.
-struct WrappedComplex{R, D, C} <: Gauss.Complexes.AbstractChainComplex{R, D}
+struct WrappedComplex{R, D, C} <: GarsideHomology.Complexes.AbstractChainComplex{R, D}
     inner::C
 end
 WrappedComplex(C::ChainComplex{R, M, D}) where {R, M, D} = WrappedComplex{R, D, typeof(C)}(C)
 Base.range(W::WrappedComplex) = range(W.inner)
 Base.getindex(W::WrappedComplex, n::Integer) = W.inner[n]
-Gauss.Complexes.differential(W::WrappedComplex, n::Integer) = differential(W.inner, n)
+GarsideHomology.Complexes.differential(W::WrappedComplex, n::Integer) = differential(W.inner, n)
 AA.base_ring(W::WrappedComplex) = base_ring(W.inner)
 
 @testset "Complexes" begin
@@ -39,8 +39,8 @@ AA.base_ring(W::WrappedComplex) = base_ring(W.inner)
         A = MonoidAlgebra(ZZ, m)
         @test base_ring(A) === ZZ
         @test A.side === :both
-        @test Gauss.Complexes.label_type(A) == L2
-        @test Gauss.Complexes.label_type(MonoidAlgebra(ZZ, m, :right)) == Int32
+        @test GarsideHomology.Complexes.label_type(A) == L2
+        @test GarsideHomology.Complexes.label_type(MonoidAlgebra(ZZ, m, :right)) == Int32
         @test_throws ArgumentError MonoidAlgebra(ZZ, m, :middle)
         @test_throws MethodError MonoidAlgebra(ZZ, :not_a_monoid)
         @test_throws MethodError MonoidAlgebra(1, m)
@@ -48,8 +48,8 @@ AA.base_ring(W::WrappedComplex) = base_ring(W.inner)
         @test hash(A) == hash(MonoidAlgebra(ZZ, m, :both))
         @test A != MonoidAlgebra(ZZ, m, :left)
         @test A != MonoidAlgebra(ZZ, NamedMonoid(["e", "b"]))
-        @test Gauss.Complexes.identity_label(Int32) === Int32(0)
-        @test Gauss.Complexes.identity_label(L2) === (Int32(0), Int32(0))
+        @test GarsideHomology.Complexes.identity_label(Int32) === Int32(0)
+        @test GarsideHomology.Complexes.identity_label(L2) === (Int32(0), Int32(0))
         @test occursin("bimodules", sprint(show, A))
     end
 
@@ -67,7 +67,7 @@ AA.base_ring(W::WrappedComplex) = base_ring(W.inner)
         @test rank(BasedFreeModule(ZZ, 0)) == 0
         @test_throws ArgumentError BasedFreeModule(ZZ, -1)
         @test_throws MethodError BasedFreeModule(1, 3)
-        @test N isa Gauss.Complexes.AbstractModule
+        @test N isa GarsideHomology.Complexes.AbstractModule
         @test sprint(show, N) == "BasedFreeModule of rank 3 over $(ZZ)"
         A = MonoidAlgebra(ZZ, NamedMonoid(["e"]))
         @test base_ring(BasedFreeModule(A, 2)) === A
@@ -122,8 +122,8 @@ AA.base_ring(W::WrappedComplex) = base_ring(W.inner)
         @test labels(LabelledSparseMatrix(1, 1, [1, 2], Int32[1], L2[(0, 0)], [1])) == L2[(0, 0)]
         bad = LabelledSparseMatrix(1, 1, [1, 2], Int32[1], Int32[1], [0]; check = false)
         @test bad isa LabelledSparseMatrix
-        @test_throws ArgumentError Gauss.Complexes.check_invariants(bad)
-        @test Gauss.Complexes.check_invariants(d) === d
+        @test_throws ArgumentError GarsideHomology.Complexes.check_invariants(bad)
+        @test GarsideHomology.Complexes.check_invariants(d) === d
 
         # Monomials out of bounds, invalid labels, overflow.
         @test_throws ArgumentError labelled_sparse([2], [1], Int32[1], [1], 1, 1)
@@ -265,7 +265,7 @@ AA.base_ring(W::WrappedComplex) = base_ring(W.inner)
         T = ChainComplex([BasedFreeModule(B, ["[]"]), BasedFreeModule(B, ["[a]", "[b]"]),
                           BasedFreeModule(B, ["[a|b]"])], [e0, e1])
         V = WrappedComplex(T)
-        @test V isa Gauss.Complexes.AbstractChainComplex{typeof(B), LabelledSparseMatrix{L2, Int}}
+        @test V isa GarsideHomology.Complexes.AbstractChainComplex{typeof(B), LabelledSparseMatrix{L2, Int}}
         sign_right(l) = isodd([0, 1, 1, 2][l[2] + 1]) ? -1 : 1
         for χ in (nothing, sign_right)
             S, ST = specialise(V, χ), specialise(T, χ)
@@ -321,21 +321,21 @@ AA.base_ring(W::WrappedComplex) = base_ring(W.inner)
     end
 
     @testset "Exports" begin
-        for s in names(Gauss.Complexes)
-            (s === :Complexes || !Base.isexported(Gauss.Complexes, s)) && continue
-            @test Base.isexported(Gauss, s)
-            @test getfield(Gauss, s) === getfield(Gauss.Complexes, s)
+        for s in names(GarsideHomology.Complexes)
+            (s === :Complexes || !Base.isexported(GarsideHomology.Complexes, s)) && continue
+            @test Base.isexported(GarsideHomology, s)
+            @test getfield(GarsideHomology, s) === getfield(GarsideHomology.Complexes, s)
         end
         # Same functions as AbstractAlgebra's: no clash with AbstractAlgebra, Nemo, Hecke.
         @test nrows === AA.number_of_rows && ncols === AA.number_of_columns
         @test rank === AA.rank && base_ring === AA.base_ring
         # rank is public but not exported, because Chevie exports its own rank.
-        @test !Base.isexported(Gauss, :rank) && Base.ispublic(Gauss, :rank)
-        @test Gauss.rank === Gauss.Complexes.rank
+        @test !Base.isexported(GarsideHomology, :rank) && Base.ispublic(GarsideHomology, :rank)
+        @test GarsideHomology.rank === GarsideHomology.Complexes.rank
         for s in (:MonoidAlgebra, :AbstractMonoid, :AbstractModule, :AbstractChainComplex)
-            @test Base.ispublic(Gauss.Complexes, s) && !Base.isexported(Gauss.Complexes, s)
+            @test Base.ispublic(GarsideHomology.Complexes, s) && !Base.isexported(GarsideHomology.Complexes, s)
         end
-        @test Base.ispublic(Gauss, :MonoidAlgebra) && !Base.isexported(Gauss, :MonoidAlgebra)
-        @test Gauss.MonoidAlgebra === Gauss.Complexes.MonoidAlgebra
+        @test Base.ispublic(GarsideHomology, :MonoidAlgebra) && !Base.isexported(GarsideHomology, :MonoidAlgebra)
+        @test GarsideHomology.MonoidAlgebra === GarsideHomology.Complexes.MonoidAlgebra
     end
 end

@@ -1,21 +1,21 @@
 # Tests of the collapsible pairs (pairs.jl): complexes written by hand, and the three tiny
 # reference snapshots against the counts recorded in J0 (data/reference/collapsible_pairs.csv).
-# The other snapshots are checked in test_snapshots.jl when GAUSS_SNAPSHOT_DIR is set.
+# The other snapshots are checked in test_snapshots.jl when GARSIDE_HOMOLOGY_SNAPSHOT_DIR is set.
 
 isdefined(Main, :read_snapshot) || include("snapshot_io.jl")
 
-using Gauss
-using Gauss: MonoidAlgebra    # public, not exported (Oscar exports a MonoidAlgebra)
+using GarsideHomology
+using GarsideHomology: MonoidAlgebra    # public, not exported (Oscar exports a MonoidAlgebra)
 using Test
 
-const _P_SA = Gauss.Complexes.SparseArrays
+const _P_SA = GarsideHomology.Complexes.SparseArrays
 const PAIR_REFERENCE = joinpath(@__DIR__, "data", "reference", "collapsible_pairs.csv")
 
-struct PairsTestMonoid <: Gauss.Complexes.AbstractMonoid end
+struct PairsTestMonoid <: GarsideHomology.Complexes.AbstractMonoid end
 
 @testset "Collapsible pairs" begin
     L2 = NTuple{2, Int32}
-    A = MonoidAlgebra(Gauss.Complexes.AbstractAlgebra.ZZ, PairsTestMonoid())
+    A = MonoidAlgebra(GarsideHomology.Complexes.AbstractAlgebra.ZZ, PairsTestMonoid())
 
     @testset "Complexes written by hand" begin
         # ⟨a⟩: ∂[a] = a·[]·e − e·[]·a has no monomial 1·y·1.

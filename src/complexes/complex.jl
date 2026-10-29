@@ -6,14 +6,14 @@
 Supertype of the chain complexes `C_lo ← C_{lo+1} ← … ← C_hi` of this layer, over a ring
 described by an object of type `R` (an AbstractAlgebra ring or a [`MonoidAlgebra`](@ref)),
 with maps of type `D` (`SparseMatrixCSC` over ℤ, [`LabelledSparseMatrix`](@ref) over a
-monoid algebra). Convention of Gauss: `d_n : C_{n+1} → C_n` has the index of its target.
+monoid algebra). Convention of GarsideHomology: `d_n : C_{n+1} → C_n` has the index of its target.
 
 Interface, required: `range(C)` (the degrees `lo:hi`), `C[n]` (the module `C_n`, a
 `BoundsError` outside the degrees), [`differential`](@ref)`(C, n)` (the map `d_n`, the zero
 map outside `lo:(hi - 1)`) and `base_ring(C)`. Derived, for every subtype: `firstindex`,
 `lastindex`, [`specialise`](@ref), [`is_square_zero`](@ref), [`homology`](@ref),
 [`collapsible_pairs`](@ref). [`ChainComplex`](@ref) is the generic concrete type; a type
-that carries more structure (the lcm resolutions of Gauss, for instance) is a subtype of
+that carries more structure (the lcm resolutions of GarsideHomology, for instance) is a subtype of
 its own, usually wrapping a `ChainComplex`.
 """
 abstract type AbstractChainComplex{R <: _RingDescriptor, D} end
@@ -26,7 +26,7 @@ Base.lastindex(C::AbstractChainComplex) = last(range(C))
     ChainComplex(maps::AbstractVector{<:SparseMatrixCSC}; lo = 0)
 
 Chain complex `C_lo ← C_{lo+1} ← … ← C_hi` of free modules over a common ring, where
-`maps[k]` is `d_n : C_{n+1} → C_n` for `n = lo + k - 1` (convention of Gauss: `d_n` has
+`maps[k]` is `d_n : C_{n+1} → C_n` for `n = lo + k - 1` (convention of GarsideHomology: `d_n` has
 target `C_n`, whereas Hecke and most texts index `d_n : C_n → C_{n-1}` by the source).
 The maps are [`LabelledSparseMatrix`](@ref)s over a [`MonoidAlgebra`](@ref), or
 `SparseMatrixCSC`s over ℤ. The second form takes integer matrices only and builds the
@@ -117,8 +117,8 @@ _zero_map(::Type{LabelledSparseMatrix{L, Tv}}, m, n) where {L, Tv} = LabelledSpa
 
 The [`ChainComplex`](@ref) over the ring of coefficients of the monoid algebra of `C`, with
 the same bases (shared, not copied) and the maps `specialise(d_n)` or `specialise(d_n, χ)`.
-For a resolution of Gauss, the typed interface is `homology(R, M)` and
-`Gauss.tensor_product`, with a module of coefficients `M`.
+For a resolution of GarsideHomology, the typed interface is `homology(R, M)` and
+`GarsideHomology.tensor_product`, with a module of coefficients `M`.
 """
 function specialise(C::AbstractChainComplex{<:MonoidAlgebra, LabelledSparseMatrix{L, Tv}},
                     χ = nothing) where {L, Tv}

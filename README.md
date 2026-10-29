@@ -1,11 +1,11 @@
-# Gauss.jl
+# GarsideHomology.jl
 
-[![CI](https://github.com/yvesguiraud/Gauss.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/yvesguiraud/Gauss.jl/actions/workflows/CI.yml)
-[![Coverage](https://codecov.io/gh/yvesguiraud/Gauss.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/yvesguiraud/Gauss.jl)
+[![CI](https://github.com/yvesguiraud/GarsideHomology.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/yvesguiraud/GarsideHomology.jl/actions/workflows/CI.yml)
+[![Coverage](https://codecov.io/gh/yvesguiraud/GarsideHomology.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/yvesguiraud/GarsideHomology.jl)
 
 Small free resolutions of Garside monoids and their homology, in Julia.
 
-Gauss.jl computes the *reduced lcm resolution* of a Garside monoid, a variant of the
+GarsideHomology.jl computes the *reduced lcm resolution* of a Garside monoid, a variant of the
 Dehornoy–Lafont resolution with fewer cells, and the homology of the corresponding
 groups with various coefficients. The first target is the homology of real and well-generated complex braid groups.
 
@@ -13,7 +13,7 @@ groups with various coefficients. The first target is the homology of real and w
 
 Early development, not registered. In place:
 
-- `Gauss.Complexes`, with based free modules over monoid algebras, labelled sparse
+- `GarsideHomology.Complexes`, with based free modules over monoid algebras, labelled sparse
   matrices, chain complexes, their specialisation to integer coefficients and their
   homology over ℤ, computed by
   [SparseElementaryDivisors.jl](https://github.com/yvesguiraud/SparseElementaryDivisors.jl).
@@ -26,7 +26,7 @@ Early development, not registered. In place:
   reference resolutions of the preliminary implementation, B*(G₃₇) in a few seconds
   instead of several minutes. An
   ordering of the lcms chooses the resolution: the reduced one by default, that of
-  Dehornoy and Lafont with `LCMOrdering(TrivialPreorder())`. `Gauss.write_snapshot`
+  Dehornoy and Lafont with `LCMOrdering(TrivialPreorder())`. `GarsideHomology.write_snapshot`
   writes a resolution in the text format of the reference snapshots.
 - The certificates of the resolutions, `certify`: homogeneity of the boundaries, ∂² = 0
   computed in the bimodules, Euler characteristic of each weight against the Möbius
@@ -34,13 +34,13 @@ Early development, not registered. In place:
   correct, and the reduced one is minimal in all their 86 cases.
 - The modules of coefficients `TrivialModule()` and `SignModule()` (ℤε, the braid
   reflections acting by −1), the homology `homology(R, M)` and the tensor products
-  `Gauss.tensor_product` (or `⊗`, with `using Gauss: ⊗`). With ℤε, the homology of the
+  `GarsideHomology.tensor_product` (or `⊗`, with `using GarsideHomology: ⊗`). With ℤε, the homology of the
   braid groups of the well-generated exceptional groups agrees with table 4 of
   [O. Garnier](https://arxiv.org/abs/2302.10033) up to B(G₃₆); for B(G₃₇), the
   coefficients outgrow the integer types of the solver for now.
 
 ```julia
-using Gauss, SparseArrays
+using GarsideHomology, SparseArrays
 
 # Cellular chain complex of the real projective plane: d₀ = 0, d₁ = 2.
 C = ChainComplex([spzeros(Int, 1, 1), sparse([1], [1], [2], 1, 1)])

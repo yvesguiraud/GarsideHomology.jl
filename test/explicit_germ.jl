@@ -1,12 +1,12 @@
 # A germ given by its table of simple products, for the tests of the germ interface (a
 # tool of the tests, not part of the package). Lengths, divisions, descents, lcms,
 # smallest words and the canonical numbering are deduced by brute force, independently
-# of the generic methods of Gauss, which is enough for a few hundred simples.
+# of the generic methods of GarsideHomology, which is enough for a few hundred simples.
 #
 # Examples: the classical and dual braid monoids of the dihedral group I₂(m), realised in
 # the group itself as interval germs.
 
-using Gauss
+using GarsideHomology
 
 """
     ExplicitGerm(keys, atom_keys, identity_key, products)
@@ -18,12 +18,12 @@ simple (the products by the identity may be omitted). The simples are numbered i
 canonical order (0 for the identity, then by length and smallest word), the keys being
 kept for the tests (`G.keys[s + 1]` is the key of the simple `s`) but ignored by `==`.
 """
-struct ExplicitGerm{K} <: Gauss.AbstractGerm
+struct ExplicitGerm{K} <: GarsideHomology.AbstractGerm
     natoms::Int
     words::Vector{Vector{Int32}}              # words[s + 1]: smallest word of s
     products::Dict{NTuple{2, Int32}, Int32}   # (s, t) => st, when st is simple
     quotients::Dict{NTuple{2, Int32}, Int32}  # (s, t) => s \ t, when s ≼ t
-    descents::Vector{Gauss.StaticBitSet{K}}   # descents[s + 1]
+    descents::Vector{GarsideHomology.StaticBitSet{K}}   # descents[s + 1]
     lcms::Matrix{NTuple{2, Int32}}            # lcms[ω + 1, a] = (ω ∨ a, ω \ (ω ∨ a))
     keys::Vector{Any}                         # keys[s + 1]
 end
@@ -101,10 +101,10 @@ function ExplicitGerm(keys::AbstractVector, atom_keys::AbstractVector, identity_
         P[i, j] == 0 || (prods[(id[i], id[j])] = id[P[i, j]])
         Q[i, j] == 0 || (quots[(id[i], id[j])] = id[Q[i, j]])
     end
-    desc = Vector{Gauss.StaticBitSet{K}}(undef, n)
+    desc = Vector{GarsideHomology.StaticBitSet{K}}(undef, n)
     lcms = Matrix{NTuple{2, Int32}}(undef, n, N)
     for x in 1:n
-        desc[id[x] + 1] = Gauss.StaticBitSet{K}(α for α in 1:N if divides(A[α], x))
+        desc[id[x] + 1] = GarsideHomology.StaticBitSet{K}(α for α in 1:N if divides(A[α], x))
         for α in 1:N
             common = [m for m in 1:n if divides(x, m) && divides(A[α], m)]
             least = filter(m -> all(divides(m, z) for z in common), common)
@@ -121,21 +121,21 @@ function ExplicitGerm(keys::AbstractVector, atom_keys::AbstractVector, identity_
     return ExplicitGerm{K}(N, [words[i] for i in order], prods, quots, desc, lcms, sorted_keys)
 end
 
-Gauss.natoms(G::ExplicitGerm) = G.natoms
-Gauss.nsimples(G::ExplicitGerm) = length(G.words)
-Gauss.simples(G::ExplicitGerm) = Int32(0):Int32(length(G.words) - 1)
+GarsideHomology.natoms(G::ExplicitGerm) = G.natoms
+GarsideHomology.nsimples(G::ExplicitGerm) = length(G.words)
+GarsideHomology.simples(G::ExplicitGerm) = Int32(0):Int32(length(G.words) - 1)
 Base.length(G::ExplicitGerm, s::Integer) = length(G.words[s + 1])
-Gauss.product(G::ExplicitGerm, s::Integer, t::Integer) = get(G.products, (Int32(s), Int32(t)), nothing)
-Gauss.ldiv(G::ExplicitGerm, s::Integer, t::Integer) = get(G.quotients, (Int32(s), Int32(t)), nothing)
-Gauss.left_descents(G::ExplicitGerm, s::Integer) = G.descents[s + 1]
+GarsideHomology.product(G::ExplicitGerm, s::Integer, t::Integer) = get(G.products, (Int32(s), Int32(t)), nothing)
+GarsideHomology.ldiv(G::ExplicitGerm, s::Integer, t::Integer) = get(G.quotients, (Int32(s), Int32(t)), nothing)
+GarsideHomology.left_descents(G::ExplicitGerm, s::Integer) = G.descents[s + 1]
 
-function Gauss.lcm_atom(G::ExplicitGerm, ω::Integer, a::Integer)
+function GarsideHomology.lcm_atom(G::ExplicitGerm, ω::Integer, a::Integer)
     1 <= a <= G.natoms || throw(ArgumentError("$a is not an atom"))
     m, τ = G.lcms[ω + 1, a]
     return (lcm = m, complement = τ)
 end
 
-function Gauss.opposite(G::ExplicitGerm)
+function GarsideHomology.opposite(G::ExplicitGerm)
     k(s) = G.keys[s + 1]
     reversed = Dict{Tuple{Any, Any}, Any}((k(t), k(s)) => k(u) for ((s, t), u) in G.products)
     return ExplicitGerm(G.keys, G.keys[2:(G.natoms + 1)], G.keys[1], reversed)
@@ -218,48 +218,48 @@ reported by a warning, so that a single `@test check_germ(G) == 0` covers it.
 function check_germ(G)
     failures = 0
     fail(msg) = (failures += 1; @warn msg; nothing)
-    S = Gauss.simples(G)
+    S = GarsideHomology.simples(G)
     n, N = nsimples(G), natoms(G)
     S == 0:(n - 1) || fail("simples(G) = $S")
     one(G) === Int32(0) && isone(G, 0) && !isone(G, 1) || fail("identity")
-    Gauss.atoms(G) == 1:N || fail("atoms(G)")
-    divides(s, t) = Gauss.ldiv(G, s, t) !== nothing
+    GarsideHomology.atoms(G) == 1:N || fail("atoms(G)")
+    divides(s, t) = GarsideHomology.ldiv(G, s, t) !== nothing
     for a in 1:N
-        length(G, a) == 1 && Gauss.word(G, a) == [a] || fail("atom $a")
+        length(G, a) == 1 && GarsideHomology.word(G, a) == [a] || fail("atom $a")
     end
     for s in S, t in S
-        p = Gauss.product(G, s, t)
+        p = GarsideHomology.product(G, s, t)
         if p !== nothing
-            p isa Int32 && Gauss.ldiv(G, s, p) == t && length(G, p) == length(G, s) + length(G, t) ||
+            p isa Int32 && GarsideHomology.ldiv(G, s, p) == t && length(G, p) == length(G, s) + length(G, t) ||
                 fail("product($s, $t) = $p")
         end
-        q = Gauss.ldiv(G, s, t)
-        q === nothing || (q isa Int32 && Gauss.product(G, s, q) == t) || fail("ldiv($s, $t) = $q")
-        Gauss.is_left_divisor(G, s, t) == (q !== nothing) || fail("is_left_divisor($s, $t)")
-        Gauss.isless_lex(G, s, t) == isless(Gauss.word(G, s), Gauss.word(G, t)) ||
+        q = GarsideHomology.ldiv(G, s, t)
+        q === nothing || (q isa Int32 && GarsideHomology.product(G, s, q) == t) || fail("ldiv($s, $t) = $q")
+        GarsideHomology.is_left_divisor(G, s, t) == (q !== nothing) || fail("is_left_divisor($s, $t)")
+        GarsideHomology.isless_lex(G, s, t) == isless(GarsideHomology.word(G, s), GarsideHomology.word(G, t)) ||
             fail("isless_lex($s, $t)")
-        Gauss.isless_deglex(G, s, t) ==
-            isless((length(G, s), Gauss.word(G, s)), (length(G, t), Gauss.word(G, t))) ||
+        GarsideHomology.isless_deglex(G, s, t) ==
+            isless((length(G, s), GarsideHomology.word(G, s)), (length(G, t), GarsideHomology.word(G, t))) ||
             fail("isless_deglex($s, $t)")
     end
     for s in S
-        Gauss.product(G, 0, s) == s && Gauss.product(G, s, 0) == s && Gauss.ldiv(G, 0, s) == s &&
-            Gauss.ldiv(G, s, s) == 0 || fail("identity and $s")
-        D = Gauss.left_descents(G, s)
+        GarsideHomology.product(G, 0, s) == s && GarsideHomology.product(G, s, 0) == s && GarsideHomology.ldiv(G, 0, s) == s &&
+            GarsideHomology.ldiv(G, s, s) == 0 || fail("identity and $s")
+        D = GarsideHomology.left_descents(G, s)
         collect(D) == [a for a in 1:N if divides(a, s)] || fail("left_descents($s) = $D")
-        w = Gauss.word(G, s)
+        w = GarsideHomology.word(G, s)
         length(w) == length(G, s) || fail("word($s) = $w")
-        foldl((x, a) -> Gauss.product(G, x, a)::Int32, w; init = Int32(0)) == s ||
+        foldl((x, a) -> GarsideHomology.product(G, x, a)::Int32, w; init = Int32(0)) == s ||
             fail("word($s) = $w does not give $s")
         isempty(w) || first(w) == first(D) || fail("word($s) does not start with the smallest descent")
-        s == 0 || (length(G, s - 1), Gauss.word(G, s - 1)) < (length(G, s), w) ||
+        s == 0 || (length(G, s - 1), GarsideHomology.word(G, s - 1)) < (length(G, s), w) ||
             fail("canonical order at $s")
         divides(s, n - 1) || fail("$s does not divide Δ = $(n - 1)")
         for a in 1:N
-            r = Gauss.lcm_atom(G, s, a)
+            r = GarsideHomology.lcm_atom(G, s, a)
             m, τ = r
             r isa NamedTuple{(:lcm, :complement), NTuple{2, Int32}} || fail("type of lcm_atom($s, $a)")
-            Gauss.product(G, s, τ) == m && divides(a, m) || fail("lcm_atom($s, $a) = $r")
+            GarsideHomology.product(G, s, τ) == m && divides(a, m) || fail("lcm_atom($s, $a) = $r")
             all(divides(m, x) for x in S if divides(s, x) && divides(a, x)) ||
                 fail("lcm_atom($s, $a) = $r not least")
             divides(a, s) && !(m == s && τ == 0) && fail("lcm_atom($s, $a) = $r with a ≼ s")
@@ -267,34 +267,34 @@ function check_germ(G)
     end
     # Opposite: an involution, with the reversed products. The simple s = a₁⋯aₖ of G is
     # aₖ ·ᵒᵖ ⋯ ·ᵒᵖ a₁ in the opposite germ.
-    O = Gauss.opposite(G)
+    O = GarsideHomology.opposite(G)
     natoms(O) == N && nsimples(O) == n || fail("size of the opposite")
-    Gauss.opposite(O) == G || fail("opposite(opposite(G)) != G")
-    image = [foldl((x, a) -> Gauss.product(O, x, a)::Int32, reverse(Gauss.word(G, s));
+    GarsideHomology.opposite(O) == G || fail("opposite(opposite(G)) != G")
+    image = [foldl((x, a) -> GarsideHomology.product(O, x, a)::Int32, reverse(GarsideHomology.word(G, s));
                    init = Int32(0)) for s in S]
     sort(image) == S || fail("the simples of the opposite are not those of G")
     for s in S, t in S
-        p = Gauss.product(G, s, t)
-        q = Gauss.product(O, image[t + 1], image[s + 1])
+        p = GarsideHomology.product(G, s, t)
+        q = GarsideHomology.product(O, image[t + 1], image[s + 1])
         (p === nothing ? q === nothing : q == image[p + 1]) || fail("opposite on ($s, $t)")
     end
     return failures
 end
 
 # ------------------------------------------------------------------------------------
-# Right covers, for Gauss.tabulate
+# Right covers, for GarsideHomology.tabulate
 
 """
     right_covers_of(G)
 
 The right covers of a germ whose simples are all numbered, in the form taken by
-`Gauss.tabulate`: `R[a, s + 1]` is `sa + 1`, or 0; the identity is numbered 1.
+`GarsideHomology.tabulate`: `R[a, s + 1]` is `sa + 1`, or 0; the identity is numbered 1.
 """
 function right_covers_of(G)
-    S, N = Gauss.simples(G), natoms(G)
+    S, N = GarsideHomology.simples(G), natoms(G)
     R = zeros(Int32, N, length(S))
     for s in S, a in 1:N
-        v = Gauss.product(G, s, a)
+        v = GarsideHomology.product(G, s, a)
         v === nothing || (R[a, s + 1] = v + 1)
     end
     return R
@@ -303,7 +303,7 @@ end
 """
     interval_covers(S, atoms, identity, mul, len) -> (R, identity_number)
 
-The right covers of the interval germ of `interval_germ`, for `Gauss.tabulate`, the
+The right covers of the interval germ of `interval_germ`, for `GarsideHomology.tabulate`, the
 elements being numbered by their positions in `S`; no lcm is computed, so that the
 germ need not be a lattice.
 """
@@ -397,7 +397,7 @@ function explore!(G)
         x = queue[head]
         head += 1
         for a in 1:natoms(G)
-            y = Gauss.product(G, x, a)
+            y = GarsideHomology.product(G, x, a)
             y === nothing || y in seen || (push!(seen, y); push!(queue, y))
         end
     end
@@ -405,7 +405,7 @@ function explore!(G)
 end
 
 # The simple of H with the same smallest word as the simple s of G.
-word_image(H, G, s) = foldl((x, a) -> Gauss.product(H, x, a)::Int32, Gauss.word(G, s); init = Int32(0))
+word_image(H, G, s) = foldl((x, a) -> GarsideHomology.product(H, x, a)::Int32, GarsideHomology.word(G, s); init = Int32(0))
 
 """
     same_germ(L, T; max_pairs = 200_000, sample = 50_000)
@@ -418,16 +418,16 @@ lexicographic comparisons.
 """
 function same_germ(L, T; max_pairs = 200_000, sample = 50_000)
     S = explore!(L)
-    length(S) == nsimples(T) == nsimples(L) == Gauss.nnumbered(L) || return false
+    length(S) == nsimples(T) == nsimples(L) == GarsideHomology.nnumbered(L) || return false
     φ = Dict(s => word_image(T, L, s) for s in S)
     length(Set(values(φ))) == length(S) || return false
     ψ(x) = x === nothing ? nothing : φ[x]
     for s in S
         length(L, s) == length(T, φ[s]) || return false
-        collect(Gauss.left_descents(L, s)) == collect(Gauss.left_descents(T, φ[s])) || return false
-        Gauss.word(L, s) == Gauss.word(T, φ[s]) || return false
+        collect(GarsideHomology.left_descents(L, s)) == collect(GarsideHomology.left_descents(T, φ[s])) || return false
+        GarsideHomology.word(L, s) == GarsideHomology.word(T, φ[s]) || return false
         for a in 1:natoms(L)
-            r, q = Gauss.lcm_atom(L, s, a), Gauss.lcm_atom(T, φ[s], a)
+            r, q = GarsideHomology.lcm_atom(L, s, a), GarsideHomology.lcm_atom(T, φ[s], a)
             (φ[r.lcm], φ[r.complement]) == (q.lcm, q.complement) || return false
         end
     end
@@ -440,9 +440,9 @@ function same_germ(L, T; max_pairs = 200_000, sample = 50_000)
          for _ in 1:sample]
     end
     for (s, t) in pairs
-        ψ(Gauss.product(L, s, t)) == Gauss.product(T, φ[s], φ[t]) || return false
-        ψ(Gauss.ldiv(L, s, t)) == Gauss.ldiv(T, φ[s], φ[t]) || return false
-        Gauss.isless_lex(L, s, t) == Gauss.isless_lex(T, φ[s], φ[t]) || return false
+        ψ(GarsideHomology.product(L, s, t)) == GarsideHomology.product(T, φ[s], φ[t]) || return false
+        ψ(GarsideHomology.ldiv(L, s, t)) == GarsideHomology.ldiv(T, φ[s], φ[t]) || return false
+        GarsideHomology.isless_lex(L, s, t) == GarsideHomology.isless_lex(T, φ[s], φ[t]) || return false
     end
-    return Gauss.nnumbered(L) == n
+    return GarsideHomology.nnumbered(L) == n
 end

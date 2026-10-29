@@ -4,7 +4,7 @@
 # rank n; numbers of cells of the minimal resolution of the dual braid monoid
 # (`cells_minimal`).
 #
-# Provenance: computed in J1 by Gauss ([[provenance]]), from the classical braid monoid
+# Provenance: computed in J1 by GarsideHomology ([[provenance]]), from the classical braid monoid
 # B⁺(W) and from the dual braid monoid B*(W) wherever both were computed, with equal
 # results; ℤε of B*(A₉) and of B*(E₈) not computed, their `sign` coming from B⁺(W); I2(p)
 # from B*(W) only. `cells_minimal`: the numbers of cells of the resolution Gauss_a of
@@ -28,7 +28,7 @@ date = 2026-10-24
 machine = "N9"
 threads = 16
 julia = "1.13.2"
-gauss = "65e950d"
+garside_homology = "65e950d"
 solver = "SparseElementaryDivisors 0.1.0"
 chevie = "0.1.15"
 numbering = ["j0"]
@@ -45,7 +45,7 @@ date = 2026-10-26
 machine = "N9"
 threads = 16
 julia = "1.13.3"
-gauss = "e23bf50"
+garside_homology = "e23bf50"
 chevie = "0.1.15"
 numbering = ["default"]
 
@@ -59,7 +59,7 @@ date = 2026-10-26
 machine = "ouragan"
 threads = 32
 julia = "1.13.3"
-gauss = "e23bf50"
+garside_homology = "e23bf50"
 solver = "SparseElementaryDivisors dev-0.1.1 (2159d9f)"
 chevie = "0.1.15"
 numbering = ["default"]

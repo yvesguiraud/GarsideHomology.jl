@@ -1,5 +1,5 @@
 # Reading and writing the reference snapshots of J0 (format version 1, see
-# data/reference/FORMAT.md) with the types of Gauss.Complexes.
+# data/reference/FORMAT.md) with the types of GarsideHomology.Complexes.
 #
 # A tool for the tests and for the comparisons of the new construction (J1.d), not part
 # of the package. A snapshot is read into a `Snapshot`: its header, the simples met (by
@@ -7,13 +7,13 @@
 # differentials are labelled by pairs (σ, τ) of simples. Writing regenerates every data
 # line from these types, so that equal fingerprints show that nothing was lost.
 
-using Gauss
-using Gauss: MonoidAlgebra    # public, not exported (Oscar exports a MonoidAlgebra)
+using GarsideHomology
+using GarsideHomology: MonoidAlgebra    # public, not exported (Oscar exports a MonoidAlgebra)
 using CodecZlib: GzipCompressorStream, GzipDecompressorStream
 import SHA
 
-const _SNAP_ZZ = Gauss.Complexes.AbstractAlgebra.ZZ
-const _SNAP_SA = Gauss.Complexes.SparseArrays
+const _SNAP_ZZ = GarsideHomology.Complexes.AbstractAlgebra.ZZ
+const _SNAP_SA = GarsideHomology.Complexes.SparseArrays
 
 """
     SnapshotMonoid(simples)
@@ -22,7 +22,7 @@ The simples met in a snapshot, given by their smallest words in the atoms (`"2.1
 `"e"` for the identity) and numbered 0 for the identity, then by length and word:
 the simple numbered `i` is `simples[i + 1]`.
 """
-struct SnapshotMonoid <: Gauss.Complexes.AbstractMonoid
+struct SnapshotMonoid <: GarsideHomology.Complexes.AbstractMonoid
     simples::Vector{String}
     index::Dict{String, Int32}
 end
@@ -364,7 +364,7 @@ coefficient: named tuples `(n, source, target, coefficient)`.
 """
 function identity_monomials(C)
     monomials = NamedTuple{(:n, :source, :target, :coefficient), NTuple{4, Int}}[]
-    one_label = Gauss.Complexes.identity_label(NTuple{2, Int32})
+    one_label = GarsideHomology.Complexes.identity_label(NTuple{2, Int32})
     for n in first(range(C)):(last(range(C)) - 1)
         d = differential(C, n)
         rows, labs, vals = _SNAP_SA.rowvals(d), labels(d), _SNAP_SA.nonzeros(d)

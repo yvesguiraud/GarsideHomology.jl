@@ -214,7 +214,7 @@ the sign module on the right (ℤε), with lengths given by the germ. The sign o
 `(σ, τ) ↦ (−1)^(ℓ(σ) + ℓ(τ))`, only changes the signs of the cells of a homogeneous
 resolution (`ℓ(σ) + ℓ(τ)` is the difference of the lengths of the weights of the source and
 of the target), hence gives the trivial homology. For a resolution, the typed interface is
-`homology(R, M)` and `Gauss.tensor_product`, with a module of coefficients `M`.
+`homology(R, M)` and `GarsideHomology.tensor_product`, with a module of coefficients `M`.
 """
 specialise(d::LabelledSparseMatrix) = _specialise(d, nothing)
 specialise(d::LabelledSparseMatrix, χ) = _specialise(d, χ)

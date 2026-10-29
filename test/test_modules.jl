@@ -4,14 +4,14 @@
 
 isdefined(Main, :check_germ) || include("explicit_germ.jl")
 
-using Gauss
-using Gauss: MonoidAlgebra, AbstractMonoidModule, tensor_product, ⊗, cell_tree
+using GarsideHomology
+using GarsideHomology: MonoidAlgebra, AbstractMonoidModule, tensor_product, ⊗, cell_tree
 using Test
 import Chevie
 
-const _M_AA = Gauss.Complexes.AbstractAlgebra
+const _M_AA = GarsideHomology.Complexes.AbstractAlgebra
 const _M_ZZ = _M_AA.ZZ
-const _M_SA = Gauss.Complexes.SparseArrays
+const _M_SA = GarsideHomology.Complexes.SparseArrays
 
 @testset "Modules of coefficients" begin
     G = FinitelyGeneratedAbelianGroup
@@ -23,14 +23,14 @@ const _M_SA = Gauss.Complexes.SparseArrays
 
     @testset "TrivialModule and SignModule" begin
         @test T isa AbstractMonoidModule{typeof(_M_ZZ)} && S isa AbstractMonoidModule{typeof(_M_ZZ)}
-        @test base_ring(T) === _M_ZZ && Gauss.rank(T) == 1 && Gauss.rank(S) == 1
+        @test base_ring(T) === _M_ZZ && GarsideHomology.rank(T) == 1 && GarsideHomology.rank(S) == 1
         @test T == TrivialModule(_M_ZZ) && S == SignModule(_M_ZZ) && T != S
         @test sprint(show, T) == "TrivialModule over $(_M_ZZ)" && sprint(show, S) == "SignModule over $(_M_ZZ)"
         @test base_ring(SignModule(_M_AA.QQ)) === _M_AA.QQ      # any ring, tensors over ℤ only
         @test_throws MethodError TrivialModule(2)
-        # The integers by default: those of AbstractAlgebra, Gauss.ZZ (public, not exported).
-        @test TrivialModule() == T && SignModule() == S && Gauss.ZZ === _M_ZZ
-        @test Base.ispublic(Gauss, :ZZ) && !Base.isexported(Gauss, :ZZ)
+        # The integers by default: those of AbstractAlgebra, GarsideHomology.ZZ (public, not exported).
+        @test TrivialModule() == T && SignModule() == S && GarsideHomology.ZZ === _M_ZZ
+        @test Base.ispublic(GarsideHomology, :ZZ) && !Base.isexported(GarsideHomology, :ZZ)
         @test homology(R0, SignModule()) == sign3
     end
 
@@ -90,7 +90,7 @@ const _M_SA = Gauss.Complexes.SparseArrays
 
     @testset "Lazy germ" begin
         W = Chevie.coxgroup(:A, 3)
-        lazy = lcm_resolution(Gauss.CoxeterGerm(Chevie.cartan(W)))
+        lazy = lcm_resolution(GarsideHomology.CoxeterGerm(Chevie.cartan(W)))
         table = lcm_resolution(germ(Chevie.BraidMonoid(W)))
         @test homology(lazy, T) == GG([G(1), G(1), G(0, [2]), G(0)]) == homology(table, T)   # H_*(B₄; ℤ)
         @test homology(lazy, S) == homology(table, S)
@@ -110,10 +110,10 @@ const _M_SA = Gauss.Complexes.SparseArrays
 
     @testset "Exports" begin
         for s in (:TrivialModule, :SignModule)
-            @test Base.isexported(Gauss, s)
+            @test Base.isexported(GarsideHomology, s)
         end
         for s in (:AbstractMonoidModule, :tensor_product, :⊗)
-            @test Base.ispublic(Gauss, s) && !Base.isexported(Gauss, s)
+            @test Base.ispublic(GarsideHomology, s) && !Base.isexported(GarsideHomology, s)
         end
     end
 end

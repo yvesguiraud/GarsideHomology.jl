@@ -122,7 +122,7 @@ function _snapshot_header(T::CellTree, case::AbstractString, extra, groups, germ
             throw(ArgumentError("write_snapshot: invalid header line $key: $value"))
         push!(header, key => value)
     end
-    push!(header, "gauss" => string(pkgversion(@__MODULE__)))
+    push!(header, "garside_homology" => string(pkgversion(@__MODULE__)))
     push!(header, "julia" => string(VERSION))
     push!(header, "date" => Libc.strftime("%Y-%m-%dT%H:%M:%S", time()))
     push!(header, "cellules" => string(sum(length(g.atoms) for g in groups if g.section == "C")))
@@ -153,7 +153,7 @@ section 5). For another complex, an `ArgumentError`.
 The header gives the format, `case` (if not empty), the ordering, the side convention,
 the number of atoms and the fingerprint of the germ ([`fingerprint`](@ref)), then the
 pairs `key => value` of `extra` (what only the caller knows: label, construction,
-machine, commits), then the versions of Gauss and Julia, the date and the numbers of
+machine, commits), then the versions of GarsideHomology and Julia, the date and the numbers of
 cells and terms (FORMAT.md, section 7). It does not enter the fingerprints.
 
 The fingerprint of the germ can cost most of the writing for a large tabulated germ (such

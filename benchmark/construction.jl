@@ -13,8 +13,8 @@
 # fingerprint of a tabulated germ, to compare the germs of P1 and P2.
 # Output: one line in benchmark/out/construction_<machine>.csv.
 
-using Gauss
-using Gauss: CellTree, LCMProjectionData, ncells
+using GarsideHomology
+using GarsideHomology: CellTree, LCMProjectionData, ncells
 import Chevie
 
 const OUT_DIR = joinpath(@__DIR__, "out")
@@ -37,7 +37,7 @@ monoid(kind, W) = kind === :classic ? Chevie.BraidMonoid(W) :
                   kind === :dual ? Chevie.DualBraidMonoid(W; c = collect(1:ngens(W))) :
                   Chevie.DualBraidMonoid(W)
 
-germ_p2(kind, W) = kind === :classic ? Gauss.CoxeterGerm(Chevie.cartan(W)) :
+germ_p2(kind, W) = kind === :classic ? GarsideHomology.CoxeterGerm(Chevie.cartan(W)) :
                    kind === :dual ? dual_germ(W; c = collect(1:ngens(W))) : dual_germ(W)
 
 resolution(G) = lcm_resolution(LCMProjectionData(CellTree(G)))
@@ -46,7 +46,7 @@ resolution(G) = lcm_resolution(LCMProjectionData(CellTree(G)))
 function warm_up(kind, path, K)
     if kind === :classic
         path == "P1" && germ(Chevie.BraidMonoid(Chevie.coxgroup(:A, 3)))
-        resolution(Gauss.CoxeterGerm(Chevie.cartan(Chevie.coxgroup(:A, 8))))   # rank 8, lazy
+        resolution(GarsideHomology.CoxeterGerm(Chevie.cartan(Chevie.coxgroup(:A, 8))))   # rank 8, lazy
         return nothing
     end
     W = kind === :complex ? Chevie.crg(4) : Chevie.coxgroup(:I, 2, 5)
@@ -107,11 +107,11 @@ function main()
     s["diff"] = measure_step(function ()
         P = LCMProjectionData(T)
         C = lcm_resolution(P)
-        return (C, Gauss._nchains(P.chains))
+        return (C, GarsideHomology._nchains(P.chains))
     end)
     C, chains = s["diff"].value
-    terms = sum(Gauss.Complexes.SparseArrays.nnz(differential(C, n)) for n in 0:(last(range(C)) - 1); init = 0)
-    fp = applicable(simples, G) ? sprint(show, Gauss.fingerprint(G)) : "germe paresseux"
+    terms = sum(GarsideHomology.Complexes.SparseArrays.nnz(differential(C, n)) for n in 0:(last(range(C)) - 1); init = 0)
+    fp = applicable(simples, G) ? sprint(show, GarsideHomology.fingerprint(G)) : "germe paresseux"
     header = ["machine", "julia", "threads", "commit_gauss", "modifs_gauss", "cas", "chemin", "tour",
               "cellules", "termes", "chaines", "maxrss_debut_Gio"]
     row = Any[machine, string(VERSION), Threads.nthreads(), git("rev-parse", "--short", "HEAD"),

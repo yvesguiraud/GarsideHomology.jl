@@ -1,12 +1,12 @@
 """
-    GaussChevieExt
+    GarsideHomologyChevieExt
 
 Package extension loaded together with Chevie: the germs of the braid monoids
 (`BraidMonoid` of a finite Coxeter group) and of the dual braid monoids of Chevie,
-built by `Gauss.germ(M)` and `Gauss.TableGerm(M)`, and `Gauss.dual_germ(W; c)`, which
+built by `GarsideHomology.germ(M)` and `GarsideHomology.TableGerm(M)`, and `GarsideHomology.dual_germ(W; c)`, which
 builds the germ of a dual braid monoid from the group without building the monoid.
 
-The right covers σ → σa given to `Gauss.tabulate` come from the arithmetic of the group
+The right covers σ → σa given to `GarsideHomology.tabulate` come from the arithmetic of the group
 alone. An element is identified by the images of the roots of the generators, which
 form a basis: a key of `n` small integers, updated by the action of the atoms without
 forming products of permutations.
@@ -18,9 +18,9 @@ forming products of permutations.
   decomposition of c (Bessis), then covers by the layers.
 - Reference: the simples listed by `left_divisors` of Chevie (`method = :chevie`).
 """
-module GaussChevieExt
+module GarsideHomologyChevieExt
 
-import Gauss
+import GarsideHomology
 import Chevie
 
 const ChevieMonoid = Union{Chevie.BraidMonoid, Chevie.DualBraidMonoid}
@@ -59,32 +59,32 @@ function _fuss_catalan(W, m::Integer)
 end
 
 function _check_threshold(n, what)
-    n <= Gauss._TABULATION_THRESHOLD ||
+    n <= GarsideHomology._TABULATION_THRESHOLD ||
         throw(ArgumentError("$what has $n simples, above the tabulation threshold " *
-                            "$(Gauss._TABULATION_THRESHOLD), and there is no lazy germ " *
+                            "$(GarsideHomology._TABULATION_THRESHOLD), and there is no lazy germ " *
                             "for the dual braid monoids; TableGerm forces the tabulation"))
     return nothing
 end
 
-function Gauss.germ(M::Chevie.DualBraidMonoid)
+function GarsideHomology.germ(M::Chevie.DualBraidMonoid)
     _check_threshold(_simples_count(M), "germ: $M")
-    return Gauss.TableGerm(M)
+    return GarsideHomology.TableGerm(M)
 end
 
 # Braid monoid: tabulated under the threshold, lazy above.
-Gauss.germ(M::Chevie.BraidMonoid) =
-    _simples_count(M) <= Gauss._TABULATION_THRESHOLD ? Gauss.TableGerm(M) :
-    Gauss.CoxeterGerm(Chevie.cartan(M.W))
+GarsideHomology.germ(M::Chevie.BraidMonoid) =
+    _simples_count(M) <= GarsideHomology._TABULATION_THRESHOLD ? GarsideHomology.TableGerm(M) :
+    GarsideHomology.CoxeterGerm(Chevie.cartan(M.W))
 
-Gauss.TableGerm(M::ChevieMonoid) = Gauss.TableGerm(_right_covers(M)...)
+GarsideHomology.TableGerm(M::ChevieMonoid) = GarsideHomology.TableGerm(_right_covers(M)...)
 
-function Gauss.dual_germ(W::ReflectionGroup; c = nothing)
+function GarsideHomology.dual_germ(W::ReflectionGroup; c = nothing)
     n = length(Chevie.gens(W))
     length(Chevie.refltype(W)) == 1 && n == Chevie.semisimplerank(W) ||
         throw(ArgumentError("dual_germ: $W must be well-generated and irreducible"))
     _check_threshold(_dual_count(W), "dual_germ: $W")
     word = c === nothing ? _default_coxeter_word(W, Val(n)) : collect(Int, c)
-    return Gauss.TableGerm(_dual_covers(W, W(word...), word, nothing)...)
+    return GarsideHomology.TableGerm(_dual_covers(W, W(word...), word, nothing)...)
 end
 
 # ------------------------------------------------------------------------------------
@@ -215,7 +215,7 @@ end
 """
     _right_covers(M, timings = nothing; method = :auto) -> (R, identity)
 
-The right covers of the simples of `M`, in the form taken by `Gauss.tabulate`, the
+The right covers of the simples of `M`, in the form taken by `GarsideHomology.tabulate`, the
 identity being numbered 1. For a dual braid monoid, `method = :chevie` uses the simples
 listed by `left_divisors` (the reference of J1.c, c3); `:auto` uses the criterion of
 Brady and Watt for a real group and the Hurwitz orbit otherwise. With a vector
@@ -275,7 +275,7 @@ function _classical_covers(M::Chevie.BraidMonoid, ::Val{nb}, timings) where {nb}
     found == n || throw(ArgumentError("TableGerm: $found distinct keys for the $n elements of " *
                                       "$(M.W): the images of the roots of the generators do " *
                                       "not determine the elements"))
-    Gauss._mark!(timings, :covers, t)
+    GarsideHomology._mark!(timings, :covers, t)
     return R, 1
 end
 
@@ -283,14 +283,14 @@ end
 function _chevie_dual_covers(M::Chevie.DualBraidMonoid, ::Val{nb}, timings) where {nb}
     t = time_ns()
     layers = Chevie.left_divisors(M, M.δ)
-    t = Gauss._mark!(timings, :enumeration, t)
+    t = GarsideHomology._mark!(timings, :enumeration, t)
     simples = reduce(vcat, layers)
     length(simples) <= typemax(Int32) || throw(ArgumentError("TableGerm: $M has too many simples"))
     isone(simples[1]) || throw(ArgumentError("TableGerm: the first simple of $M is not the identity"))
     lengths = Int32[k - 1 for (k, l) in enumerate(layers) for _ in l]
     D = max(nb, maximum(_perm_degree, M.atoms; init = 0), maximum(_perm_degree, simples))
     R = _covers_by_layers([_key(w, Val(nb)) for w in simples], lengths, _images(M.atoms, D))
-    Gauss._mark!(timings, :covers, t)
+    GarsideHomology._mark!(timings, :covers, t)
     return R, 1
 end
 
@@ -313,15 +313,15 @@ function _dual_covers(W, c, word, ::Val{nb}, timings, atoms) where {nb}
             throw(ArgumentError("TableGerm: $(length(atomlist)) atoms for a real group with " *
                                 "$(length(reflections)) reflections"))
         R, n = _real_covers(roots, c, atomlist, Val(nb))
-        t = Gauss._mark!(timings, :enumeration, t)
-        Gauss._mark!(timings, :covers, t)
+        t = GarsideHomology._mark!(timings, :enumeration, t)
+        GarsideHomology._mark!(timings, :covers, t)
     else
         simple_keys, lengths, atomlist = _hurwitz_simples(W, roots, c, word, reflections, atoms, Val(nb))
-        t = Gauss._mark!(timings, :enumeration, t)
+        t = GarsideHomology._mark!(timings, :enumeration, t)
         D = max(nb, maximum(_perm_degree, atomlist; init = 0))
         R = _covers_by_layers(simple_keys, lengths, _images(atomlist, D))
         n = length(simple_keys)
-        Gauss._mark!(timings, :covers, t)
+        GarsideHomology._mark!(timings, :covers, t)
     end
     length(Chevie.refltype(W)) == 1 && n != expected &&
         throw(ArgumentError("TableGerm: $n simples for $W, Π (dᵢ + h)/dᵢ = $expected"))
@@ -448,7 +448,7 @@ function _hurwitz_simples(W, roots, c, word, reflections, atoms, ::Val{nb}) wher
     start = ntuple(i -> letter(decomposition[i]), Val(nb))
     table = Dict{Tuple{Int32, Int32}, Int32}()
     conjugate(i, j) = get!(() -> letter(letters[i] * letters[j] * inv(letters[i])), table, (i, j))
-    orbit = Gauss.hurwitz_orbit(start, conjugate)
+    orbit = GarsideHomology.hurwitz_orbit(start, conjugate)
     d = Chevie.degrees(W)
     expected = factorial(big(nb)) * big(maximum(d))^nb ÷ _order(W)
     length(orbit) == expected ||
@@ -521,4 +521,4 @@ function _default_coxeter_word(W, ::Val{nb}) where {nb}
                         "(Springer's criterion); give c"))
 end
 
-end # module GaussChevieExt
+end # module GarsideHomologyChevieExt

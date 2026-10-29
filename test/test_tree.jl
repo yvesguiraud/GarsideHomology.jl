@@ -6,8 +6,8 @@
 isdefined(Main, :check_germ) || include("explicit_germ.jl")
 isdefined(Main, :read_fingerprints) || include("snapshot_io.jl")
 
-using Gauss
-using Gauss: CellTree, ncells     # public, not exported
+using GarsideHomology
+using GarsideHomology: CellTree, ncells     # public, not exported
 using Test
 import Chevie
 
@@ -23,16 +23,16 @@ const TREE_REFERENCE = joinpath(@__DIR__, "data", "reference")
 const TREE_VARIANTS = [
     "a" => (LCMOrdering(ComplementDeglex()), :atoms),
     "b" => (LCMOrdering(FunctionPreorder((G, ω, x, y) -> length(G, x.complement) < length(G, y.complement))), :counts),
-    "c" => (LCMOrdering(FunctionPreorder((G, ω, x, y) -> Gauss.isless_lex(G, x.complement, y.complement))), :bar),
+    "c" => (LCMOrdering(FunctionPreorder((G, ω, x, y) -> GarsideHomology.isless_lex(G, x.complement, y.complement))), :bar),
     "d" => (LCMOrdering(TrivialPreorder()), :atoms),
 ]
 
 # The fingerprints of the C lines of T, degree => (lines, atoms, bar).
 function tree_c_fingerprints(T)
     out = Dict{Int, Tuple{Int, String, String}}()
-    for n in 0:Gauss._top_degree(T)
-        a = sort!(Gauss._cell_lines(T, n))
-        b = sort!(Gauss._cell_lines(T, n; bar = true))
+    for n in 0:GarsideHomology._top_degree(T)
+        a = sort!(GarsideHomology._cell_lines(T, n))
+        b = sort!(GarsideHomology._cell_lines(T, n; bar = true))
         out[n] = (length(a), _sha_lines(a), _sha_lines(b))
     end
     return out
@@ -49,7 +49,7 @@ end
 function check_classical(T)
     N = natoms(T.germ)
     return ncells(T) == 2^N && all(ncells(T, k) == binomial(N, k) for k in 0:N) &&
-           allunique(Gauss.cell_weight(T, x) for x in 1:ncells(T))
+           allunique(GarsideHomology.cell_weight(T, x) for x in 1:ncells(T))
 end
 
 # The structure of a tree: contiguous children, parents, degrees, lists read in the tree,
@@ -59,27 +59,27 @@ function check_tree(T)
     fail(msg) = (failures += 1; @warn msg; nothing)
     G = T.germ
     n = ncells(T)
-    sum(Gauss._degree_counts(T)) == n || fail("degree counts")
-    vcat([collect(Gauss.cell_range(T, d)) for d in 0:Gauss._top_degree(T)]...) == 1:n || fail("cell ranges")
-    Gauss.cell_degree(T, 1) == 0 && Gauss.cell_weight(T, 1) == 0 || fail("root")
+    sum(GarsideHomology._degree_counts(T)) == n || fail("degree counts")
+    vcat([collect(GarsideHomology.cell_range(T, d)) for d in 0:GarsideHomology._top_degree(T)]...) == 1:n || fail("cell ranges")
+    GarsideHomology.cell_degree(T, 1) == 0 && GarsideHomology.cell_weight(T, 1) == 0 || fail("root")
     next = 2
     for x in 1:n
-        ch = Gauss.cell_children(T, x)
+        ch = GarsideHomology.cell_children(T, x)
         isempty(ch) || first(ch) == next || fail("children of $x not contiguous")
         next += length(ch)
         for (k, y) in enumerate(ch)
             T.parent[y] == x || fail("parent of $y")
-            Gauss.cell_degree(T, y) == Gauss.cell_degree(T, x) + 1 || fail("degree of $y")
-            collect(Gauss.admissible_atoms(T, y)) == [Gauss.cell_atom(T, z) for z in ch[1:(k - 1)]] ||
+            GarsideHomology.cell_degree(T, y) == GarsideHomology.cell_degree(T, x) + 1 || fail("degree of $y")
+            collect(GarsideHomology.admissible_atoms(T, y)) == [GarsideHomology.cell_atom(T, z) for z in ch[1:(k - 1)]] ||
                 fail("list of $y")
-            Gauss.cell_atom(T, y) in Gauss.admissible_atoms(T, x) || fail("atom of $y not in the list of $x")
-            r = Gauss.lcm_atom(G, Gauss.cell_weight(T, x), Gauss.cell_atom(T, y))
-            (r.lcm, r.complement) == (Gauss.cell_weight(T, y), Gauss.cell_letter(T, y)) ||
+            GarsideHomology.cell_atom(T, y) in GarsideHomology.admissible_atoms(T, x) || fail("atom of $y not in the list of $x")
+            r = GarsideHomology.lcm_atom(G, GarsideHomology.cell_weight(T, x), GarsideHomology.cell_atom(T, y))
+            (r.lcm, r.complement) == (GarsideHomology.cell_weight(T, y), GarsideHomology.cell_letter(T, y)) ||
                 fail("letter and weight of $y")
         end
-        b = Gauss.bar_form(T, x)
-        length(b) == Gauss.cell_degree(T, x) == length(Gauss.atom_sequence(T, x)) || fail("bar form of $x")
-        foldl((s, t) -> Gauss.product(G, s, t)::Int32, b; init = Int32(0)) == Gauss.cell_weight(T, x) ||
+        b = GarsideHomology.bar_form(T, x)
+        length(b) == GarsideHomology.cell_degree(T, x) == length(GarsideHomology.atom_sequence(T, x)) || fail("bar form of $x")
+        foldl((s, t) -> GarsideHomology.product(G, s, t)::Int32, b; init = Int32(0)) == GarsideHomology.cell_weight(T, x) ||
             fail("product of the letters of $x")
     end
     next == n + 1 || fail("children: $next")
@@ -90,27 +90,27 @@ end
     @testset "B⁺(A₂) and B*(A₂), written by hand" begin
         # The C lines of the tiny reference snapshots classic_A2_a and dual_A2_a.
         T = CellTree(classical_dihedral_germ(3))
-        @test sort!(vcat([Gauss._cell_lines(T, n) for n in 0:2]...)) ==
+        @test sort!(vcat([GarsideHomology._cell_lines(T, n) for n in 0:2]...)) ==
               ["C 0 - [] e", "C 1 1 [1] 1", "C 1 2 [2] 2", "C 2 2.1 [2|1.2] 1.2.1"]
         D = CellTree(dual_dihedral_germ(3))
-        @test sort!(vcat([Gauss._cell_lines(D, n) for n in 0:2]...)) ==
+        @test sort!(vcat([GarsideHomology._cell_lines(D, n) for n in 0:2]...)) ==
               ["C 0 - [] e", "C 1 1 [1] 1", "C 1 2 [2] 2", "C 1 3 [3] 3", "C 2 2.1 [2|3] 1.2", "C 2 3.1 [3|1] 1.2"]
-        @test Gauss._cell_lines(D, 2; bar = true) == ["C 2 [2|3] 1.2", "C 2 [3|1] 1.2"]
+        @test GarsideHomology._cell_lines(D, 2; bar = true) == ["C 2 [2|3] 1.2", "C 2 [3|1] 1.2"]
         @test sprint(show, D) == "CellTree: 6 cells, by degree [1, 3, 2], LCMOrdering(ComplementDeglex())"
         @test ncells(D) == 6 && ncells(D, 1) == 3 && ncells(D, 3) == 0 && ncells(D, -1) == 0
-        @test Gauss.cell_range(D, 2) == 5:6 && Gauss.cell_children(D, 1) == 2:4
+        @test GarsideHomology.cell_range(D, 2) == 5:6 && GarsideHomology.cell_children(D, 1) == 2:4
         # The cell [3|1]: created by the atom 1 from [3], whose list is (1, 2) (both lcms Δ,
         # a₁ kept as the first in the inherited order).
-        x = only(y for y in Gauss.cell_range(D, 2) if Gauss.atom_sequence(D, y) == [3, 1])
-        @test Gauss.bar_form(D, x) == [3, 1] && Gauss.cell_weight(D, x) == 4 && Gauss.cell_letter(D, x) == 1
+        x = only(y for y in GarsideHomology.cell_range(D, 2) if GarsideHomology.atom_sequence(D, y) == [3, 1])
+        @test GarsideHomology.bar_form(D, x) == [3, 1] && GarsideHomology.cell_weight(D, x) == 4 && GarsideHomology.cell_letter(D, x) == 1
         p = Int(D.parent[x])
-        @test Gauss.bar_form(D, p) == [3] && collect(Gauss.admissible_atoms(D, p)) == [1, 2]
-        @test collect(Gauss.admissible_atoms(D, 1)) == [1, 2, 3]
+        @test GarsideHomology.bar_form(D, p) == [3] && collect(GarsideHomology.admissible_atoms(D, p)) == [1, 2]
+        @test collect(GarsideHomology.admissible_atoms(D, 1)) == [1, 2, 3]
         @test check_tree(T) == 0 && check_tree(D) == 0
         # The order of the root acts on the atom sequences of the trivial preorder.
         R = CellTree(dual_dihedral_germ(3), LCMOrdering(TrivialPreorder(); root_order = [3, 2, 1]))
-        @test [Gauss.cell_atom(R, y) for y in Gauss.cell_children(R, 1)] == [3, 2, 1]
-        @test check_tree(R) == 0 && Gauss._degree_counts(R) == [1, 3, 2]
+        @test [GarsideHomology.cell_atom(R, y) for y in GarsideHomology.cell_children(R, 1)] == [3, 2, 1]
+        @test check_tree(R) == 0 && GarsideHomology._degree_counts(R) == [1, 3, 2]
     end
 
     @testset "Explicit germs" begin
@@ -119,7 +119,7 @@ end
                 T = CellTree(G, S)
                 @test check_tree(T) == 0
                 # Euler characteristic of the resolution of ℤ: 0.
-                @test sum((-1)^n * ncells(T, n) for n in 0:Gauss._top_degree(T)) == 0
+                @test sum((-1)^n * ncells(T, n) for n in 0:GarsideHomology._top_degree(T)) == 0
             end
         end
     end
@@ -153,17 +153,17 @@ end
 
     @testset "Lazy germ" begin
         # The same cells for B⁺(A₃) from the lazy germ, whose simples are numbered as met.
-        H = Gauss.CoxeterGerm(Chevie.cartan(A(3)))
+        H = GarsideHomology.CoxeterGerm(Chevie.cartan(A(3)))
         L = CellTree(H)
         T = CellTree(germ(Chevie.BraidMonoid(A(3))))
-        @test Gauss._degree_counts(L) == [1, 3, 3, 1] && check_classical(L)
-        @test all(sort(Gauss._cell_lines(L, n)) == sort(Gauss._cell_lines(T, n)) for n in 0:3)
+        @test GarsideHomology._degree_counts(L) == [1, 3, 3, 1] && check_classical(L)
+        @test all(sort(GarsideHomology._cell_lines(L, n)) == sort(GarsideHomology._cell_lines(T, n)) for n in 0:3)
     end
 
     @testset "Exports" begin
         for s in (:CellTree, :ncells, :cell_range, :cell_weight, :cell_letter, :cell_atom,
                   :cell_degree, :cell_children, :admissible_atoms, :bar_form, :atom_sequence)
-            @test Base.ispublic(Gauss, s) && !Base.isexported(Gauss, s)
+            @test Base.ispublic(GarsideHomology, s) && !Base.isexported(GarsideHomology, s)
         end
     end
 end

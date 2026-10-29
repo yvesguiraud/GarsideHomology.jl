@@ -1,18 +1,18 @@
 # Tests of the expected values of data/expected/ (f5 of J1.f): the three files checked
 # without computation (format, alternating sums, links between the files, formulas), a
 # small selection recomputed from the germs (2 or 3 cases per file), and, when the
-# environment variable GAUSS_LONG_TESTS is set, every entry recomputed.
+# environment variable GARSIDE_HOMOLOGY_LONG_TESTS is set, every entry recomputed.
 #
-# GAUSS_LONG_TESTS = "all" recomputes every entry, any other value is a regular expression
+# GARSIDE_HOMOLOGY_LONG_TESTS = "all" recomputes every entry, any other value is a regular expression
 # on the names of the tables ('^(B[2-4]|G\(3,3,.\))$', say). The long tests need a solver
 # that widens its integers (SparseElementaryDivisors 0.1.1, where DEFAULT_VALUE_TYPES is
 # defined); with an older one they are skipped. Until the version 0.1.1 is registered, they
 # run in an environment where the solver is developed, such as CatLab/j1:
-#     julia --project=j1 -t 16 <path of Gauss.jl>/test/test_expected_values.jl
+#     julia --project=j1 -t 16 <path of GarsideHomology.jl>/test/test_expected_values.jl
 # About 1 h 45 min for all the entries on a machine like N9 (estimate from J1.f).
 
-using Gauss
-using Gauss: rank, germ_isomorphism, cell_tree, ncells
+using GarsideHomology
+using GarsideHomology: rank, germ_isomorphism, cell_tree, ncells
 using Test
 import Chevie
 import SparseElementaryDivisors
@@ -70,7 +70,7 @@ const EV_EXCEPTIONAL = ev_read("exceptional_braid_groups.toml")
 const EV_SPHERICAL = ev_read("spherical_artin_groups.toml")
 const EV_IMPRIMITIVE = ev_read("imprimitive_braid_groups.toml")
 const EV_PROVENANCE_KEYS = Set(["run", "description", "script", "data", "catlab", "date", "machine", "threads",
-                                "julia", "gauss", "solver", "chevie", "numbering", "value_types", "ceiling"])
+                                "julia", "garside_homology", "solver", "chevie", "numbering", "value_types", "ceiling"])
 
 @testset "Expected values" begin
 
@@ -80,7 +80,7 @@ const EV_PROVENANCE_KEYS = Set(["run", "description", "script", "data", "catlab"
             @test runs isa Vector && length(runs) == n
             for run in runs
                 @test issubset(keys(run), EV_PROVENANCE_KEYS)
-                @test all(haskey(run, k) for k in ("run", "description", "catlab", "date", "machine", "gauss", "julia"))
+                @test all(haskey(run, k) for k in ("run", "description", "catlab", "date", "machine", "garside_homology", "julia"))
             end
         end
     end
@@ -248,12 +248,12 @@ const EV_PROVENANCE_KEYS = Set(["run", "description", "script", "data", "catlab"
     end
 end
 
-# The long tests: every entry recomputed (or those whose name matches GAUSS_LONG_TESTS),
+# The long tests: every entry recomputed (or those whose name matches GARSIDE_HOMOLOGY_LONG_TESTS),
 # integers widened up to Int128, as in J1.f. Not recomputed: ℤε where it was not computed
 # in J1 ("?", B*(A₉), B*(E₈), whose `sign` comes from B⁺(W), and G37, from Magma); the
 # groups that are not well generated (no dual braid monoid). For G(m, 1, n), the
 # isomorphism of dual germs with Bₙ, which gives the same resolution up to the numbering.
-const EV_LONG = get(ENV, "GAUSS_LONG_TESTS", "")
+const EV_LONG = get(ENV, "GARSIDE_HOMOLOGY_LONG_TESTS", "")
 const EV_LONG_TYPES = (Int32, Int64, Int128)
 const EV_SIGN_NOT_RECOMPUTED = ("G37", "dual A9", "dual E8")
 
@@ -263,7 +263,7 @@ function ev_long_line(label, t)
 end
 
 if isempty(EV_LONG)
-    @info "Long tests of the expected values skipped: set GAUSS_LONG_TESTS to all, or to a " *
+    @info "Long tests of the expected values skipped: set GARSIDE_HOMOLOGY_LONG_TESTS to all, or to a " *
           "regular expression on the names of the tables."
 elseif !isdefined(SparseElementaryDivisors, :DEFAULT_VALUE_TYPES)
     @info "Long tests of the expected values skipped: the solver does not widen its integers " *

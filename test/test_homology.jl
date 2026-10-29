@@ -1,18 +1,18 @@
 # Tests of the homology over ℤ (homology.jl): small complexes written by hand and the three
 # tiny reference snapshots. The files of expected values are checked in
-# test_expected_values.jl, the homology of all the snapshots of GAUSS_SNAPSHOT_DIR in
+# test_expected_values.jl, the homology of all the snapshots of GARSIDE_HOMOLOGY_SNAPSHOT_DIR in
 # test_snapshots.jl.
 
 isdefined(Main, :read_snapshot) || include("snapshot_io.jl")
 
-using Gauss
-using Gauss: MonoidAlgebra    # public, not exported (Oscar exports a MonoidAlgebra)
-using Gauss: rank
+using GarsideHomology
+using GarsideHomology: MonoidAlgebra    # public, not exported (Oscar exports a MonoidAlgebra)
+using GarsideHomology: rank
 using Test
 
-const _H_SA = Gauss.Complexes.SparseArrays
+const _H_SA = GarsideHomology.Complexes.SparseArrays
 
-struct HomologyTestMonoid <: Gauss.Complexes.AbstractMonoid
+struct HomologyTestMonoid <: GarsideHomology.Complexes.AbstractMonoid
     simples::Vector{String}
 end
 
@@ -65,7 +65,7 @@ end
         # Free commutative monoid on a, b (simples e = 0, a = 1, b = 2, ab = 3), Koszul
         # resolution.
         L2 = NTuple{2, Int32}
-        B = MonoidAlgebra(Gauss.Complexes.AbstractAlgebra.ZZ, HomologyTestMonoid(["e", "a", "b", "ab"]))
+        B = MonoidAlgebra(GarsideHomology.Complexes.AbstractAlgebra.ZZ, HomologyTestMonoid(["e", "a", "b", "ab"]))
         d0 = labelled_sparse([1, 1, 1, 1], [1, 1, 2, 2], L2[(1, 0), (0, 1), (2, 0), (0, 2)],
                              [1, -1, 1, -1], 1, 2)
         d1 = labelled_sparse([1, 1, 2, 2], [1, 1, 1, 1], L2[(2, 0), (0, 2), (1, 0), (0, 1)],
