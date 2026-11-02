@@ -12,16 +12,22 @@ import Chevie
 @testset "Germs from Chevie" verbose = true begin
     A(n) = Chevie.coxgroup(:A, n)
     B(n) = Chevie.coxgroup(:B, n)
-    cases = [
+    # The monoids of Chevie, built once: their construction dominates the time of these
+    # tests (J1.g, task g3).
+    monoids = Dict(
         "B⁺(A₃)" => Chevie.BraidMonoid(A(3)),
         "B⁺(B₃)" => Chevie.BraidMonoid(B(3)),
         "B⁺(H₃)" => Chevie.BraidMonoid(Chevie.coxgroup(:H, 3)),
         "B*(A₃)" => Chevie.DualBraidMonoid(A(3); c = collect(1:3)),
         "B*(B₃)" => Chevie.DualBraidMonoid(B(3); c = collect(1:3)),
+        "B*(I₂(5))" => Chevie.DualBraidMonoid(Chevie.coxgroup(:I, 2, 5); c = [1, 2]),
         "B*(G₄)" => Chevie.DualBraidMonoid(Chevie.crg(4)),
         "B*(G₅)" => Chevie.DualBraidMonoid(Chevie.crg(5)),
-        "B*(G₆)" => Chevie.DualBraidMonoid(Chevie.crg(6)),
-    ]
+        "B*(G₆)" => Chevie.DualBraidMonoid(Chevie.crg(6)),        # c: a word of 19 letters
+        "B*(G₂₅)" => Chevie.DualBraidMonoid(Chevie.crg(25)),
+        "B*(G₂₆)" => Chevie.DualBraidMonoid(Chevie.crg(26)))
+    cases = [name => monoids[name] for name in ("B⁺(A₃)", "B⁺(B₃)", "B⁺(H₃)", "B*(A₃)", "B*(B₃)",
+                                                 "B*(G₄)", "B*(G₅)", "B*(G₆)")]
     sizes = Dict("B⁺(A₃)" => 24, "B⁺(B₃)" => 48, "B⁺(H₃)" => 120, "B*(A₃)" => 14,
                  "B*(B₃)" => 20, "B*(G₄)" => 5, "B*(G₅)" => 6, "B*(G₆)" => 8)
 
@@ -35,17 +41,11 @@ import Chevie
         @test check_germ(G) == 0
     end
 
+    # Integer roots (A₃, B₃), cyclotomic roots (I₂(5)), complex groups; no part of the code
+    # depends on the rank (D₄ and H₃ removed in J1.g, task g3).
     @testset "Enumeration without Chevie's simples (c3bis): $name" for (name, M) in [
-            "B*(A₃)" => Chevie.DualBraidMonoid(A(3); c = collect(1:3)),
-            "B*(B₃)" => Chevie.DualBraidMonoid(B(3); c = collect(1:3)),
-            "B*(D₄)" => Chevie.DualBraidMonoid(Chevie.coxgroup(:D, 4); c = collect(1:4)),
-            "B*(H₃)" => Chevie.DualBraidMonoid(Chevie.coxgroup(:H, 3); c = collect(1:3)),
-            "B*(I₂(5))" => Chevie.DualBraidMonoid(Chevie.coxgroup(:I, 2, 5); c = [1, 2]),
-            "B*(G₄)" => Chevie.DualBraidMonoid(Chevie.crg(4)),
-            "B*(G₅)" => Chevie.DualBraidMonoid(Chevie.crg(5)),
-            "B*(G₆)" => Chevie.DualBraidMonoid(Chevie.crg(6)),        # c: a word of 19 letters
-            "B*(G₂₅)" => Chevie.DualBraidMonoid(Chevie.crg(25)),
-            "B*(G₂₆)" => Chevie.DualBraidMonoid(Chevie.crg(26))]
+            name => monoids[name] for name in ("B*(A₃)", "B*(B₃)", "B*(I₂(5))", "B*(G₄)", "B*(G₅)",
+                                               "B*(G₆)", "B*(G₂₅)", "B*(G₂₆)")]
         ext = Base.get_extension(GarsideHomology, :GarsideHomologyChevieExt)
         G = GarsideHomology.TableGerm(M)
         # Same germ as by the simples of left_divisors (the reference of c3).
@@ -56,9 +56,10 @@ import Chevie
 
     @testset "Default Coxeter element of dual_germ" begin
         # Chevie's default c is 1:n for these groups (j1/c3bis_coxeter.jl): Springer's test
-        # accepts it and the germ is that of DualBraidMonoid(W).
+        # accepts it, and dual_germ(W) is the germ for c = 1:n. Its equality with the germ of
+        # DualBraidMonoid(W; c) is tested above (c3bis), here only for G₂₉ (J1.g, task g3).
         for W in (A(3), B(3), Chevie.coxgroup(:H, 3), Chevie.crg(4), Chevie.crg(5), Chevie.crg(25))
-            @test dual_germ(W) == GarsideHomology.TableGerm(Chevie.DualBraidMonoid(W; c = collect(1:length(Chevie.gens(W)))))
+            @test dual_germ(W) == dual_germ(W; c = collect(1:length(Chevie.gens(W))))
         end
         # For G₂₉, 1.2.3.4 has order h = 20 but is not regular: the search finds 1.2.4.3,
         # Chevie's choice.
@@ -87,7 +88,8 @@ import Chevie
             "B⁺(A₃)" => A(3), "B⁺(B₃)" => B(3), "B⁺(D₄)" => Chevie.coxgroup(:D, 4),
             "B⁺(A₄)" => A(4), "B⁺(B₄)" => B(4), "B⁺(F₄)" => Chevie.coxgroup(:F, 4)]
         L = GarsideHomology.CoxeterGerm(Chevie.cartan(W))
-        @test same_germ(L, GarsideHomology.TableGerm(Chevie.BraidMonoid(W)))
+        M = get(() -> Chevie.BraidMonoid(W), monoids, name)
+        @test same_germ(L, GarsideHomology.TableGerm(M))
     end
 
     @testset "verify and Fuss–Catalan numbers with Chevie" begin
@@ -98,7 +100,7 @@ import Chevie
             @test all(GarsideHomology.count_multichains(G, k) == ext._fuss_catalan(W, k) for k in 1:3)
         end
         @test [GarsideHomology.count_multichains(dual_germ(A(3)), k) for k in 1:3] == [14, 55, 140]
-        @test GarsideHomology.verify(GarsideHomology.TableGerm(Chevie.BraidMonoid(B(3))); full = true) === nothing
+        @test GarsideHomology.verify(GarsideHomology.TableGerm(monoids["B⁺(B₃)"]); full = true) === nothing
     end
 
     @testset "Fingerprints with Chevie" begin
@@ -109,7 +111,7 @@ import Chevie
         end
         @test fp(dual_germ(B(3); c = [1, 2, 3])) == fp(dual_germ(B(3); c = [3, 2, 1]))
         fA3, fB3 = fp(dual_germ(A(3))), fp(dual_germ(B(3)))
-        @test fA3 != fp(GarsideHomology.TableGerm(Chevie.BraidMonoid(A(3)))) && fA3 != fB3
+        @test fA3 != fp(GarsideHomology.TableGerm(monoids["B⁺(A₃)"])) && fA3 != fB3
         # B*(B₃): μ(1, Δ) = (−1)³ Π (dᵢ + h − 2)/dᵢ = −10; [1, −1] in B₃ has −7.
         @test fB3.mobius == -10 && fB3.natoms == 9 && sum(fB3.simples_by_length) == 20
     end
@@ -150,11 +152,10 @@ import Chevie
         # w ↦ w⁻¹ fixes the atoms: B⁺(W)ᵒᵖ ≅ B⁺(W) and, for a real group,
         # B*(W, c)ᵒᵖ ≅ B*(W, c⁻¹), with the same order of the atoms.
         W = B(3)
-        @test opposite(GarsideHomology.TableGerm(Chevie.BraidMonoid(W))) == GarsideHomology.TableGerm(Chevie.BraidMonoid(W))
-        @test opposite(GarsideHomology.TableGerm(Chevie.DualBraidMonoid(W; c = [1, 2, 3]))) ==
-              GarsideHomology.TableGerm(Chevie.DualBraidMonoid(W; c = [3, 2, 1]))
-        @test opposite(GarsideHomology.TableGerm(Chevie.DualBraidMonoid(W; c = [1, 2, 3]))) !=
-              GarsideHomology.TableGerm(Chevie.DualBraidMonoid(W; c = [1, 2, 3]))
+        P, D = GarsideHomology.TableGerm(monoids["B⁺(B₃)"]), GarsideHomology.TableGerm(monoids["B*(B₃)"])
+        @test opposite(P) == P
+        @test opposite(D) == GarsideHomology.TableGerm(Chevie.DualBraidMonoid(W; c = [3, 2, 1]))
+        @test opposite(D) != D
     end
 
     @testset "Entry point" begin
@@ -174,12 +175,12 @@ import Chevie
         @test ext._simples_count(Chevie.BraidMonoid(Chevie.coxgroup(:E, 8))) == 696729600
         # Timings of the phases, for the measurements of c3.
         timings = Pair{Symbol, Float64}[]
-        R, identity = ext._right_covers(Chevie.DualBraidMonoid(A(3); c = collect(1:3)), timings)
+        R, identity = ext._right_covers(monoids["B*(A₃)"], timings)
         G, _ = GarsideHomology._tabulate(R, identity, timings)
         @test first.(timings) == [:enumeration, :covers, :input, :lengths, :right_cancellation,
                                   :left_covers, :left_quotients, :bounded, :canonical,
                                   :lex_ranks, :tables, :lcms]
         @test all(>=(0), last.(timings))
-        @test G == GarsideHomology.TableGerm(Chevie.DualBraidMonoid(A(3); c = collect(1:3)))
+        @test G == GarsideHomology.TableGerm(monoids["B*(A₃)"])
     end
 end

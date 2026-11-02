@@ -567,10 +567,11 @@ end
 # complex reflection group); the lazy germ of E₈; and the homology of a monoid of Chevie
 # through its germ. The other ranks and types of roots, and the ranks of the classical
 # path other than 3, still compile at their first call (a tenth to seven tenths of a
-# second each, measured in g4). Run at precompilation by PrecompileTools, and by the
-# tests (coverage).
+# second each, measured in g4). Run at precompilation by PrecompileTools.
 using PrecompileTools: @setup_workload, @compile_workload
 
+# COV_EXCL_START: run only while the extension is precompiled, never in the tests; a
+# failure makes the precompilation, hence every task of the CI, fail (J1.g, task g3).
 function _precompile_workload()
     W = Chevie.coxgroup(:A, 3)
     GarsideHomology.germ(W)
@@ -586,7 +587,6 @@ function _precompile_workload()
     return nothing
 end
 
-# COV_EXCL_START: run only while the extension is precompiled, never in the tests
 @setup_workload begin
     @compile_workload _precompile_workload()
 end

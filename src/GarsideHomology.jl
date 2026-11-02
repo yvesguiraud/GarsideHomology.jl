@@ -137,8 +137,11 @@ public ZZ
 # that of the large groups, B*(E₈) and G₃₄ to G₃₇), and a lazy germ; their resolutions for
 # the two orderings, their certificates and their homology with trivial and sign
 # coefficients, so that the first computation of a session does not pay for compiling the
-# whole pipeline. Run at precompilation by PrecompileTools, and by the tests (coverage).
+# whole pipeline. Run at precompilation by PrecompileTools.
 using PrecompileTools: @setup_workload, @compile_workload
+
+# COV_EXCL_START: run only while the package is precompiled, never in the tests; a failure
+# makes the precompilation, hence every task of the CI, fail (J1.g, task g3).
 
 # The germ of the dual braid monoid of I₂(m), tabulated from its right covers: rows, the
 # atoms r₀, …, r_{m-1} (the reflections, simples 2 to m + 1); columns, the simples 1, the
@@ -165,7 +168,6 @@ function _precompile_workload()
     return nothing
 end
 
-# COV_EXCL_START: run only while the package is precompiled, never in the tests
 @setup_workload begin
     @compile_workload _precompile_workload()
 end
