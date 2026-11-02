@@ -81,8 +81,9 @@ degrees of `C`, or the [`FinitelyGeneratedAbelianGroup`](@ref) `H_n` alone. With
 and its torsion is given by the elementary divisors of `d_n` other than 1, computed by
 `SparseElementaryDivisors.sparse_elementary_divisors`, to which the keyword arguments are
 passed (`value_type`, `nworkers`, `core_format`, `verbose`, ...). `homology(C)` computes
-each differential once. A complex over a monoid algebra must be specialised first, e.g.
-`homology(specialise(C))`.
+each differential once. A complex over a monoid algebra needs coefficients first: for a
+resolution `R` of GarsideHomology, `homology(R, M)` with a module or a ring
+(`homology(R, ℤ)`), or the homology of an extension of scalars, `homology(extend_scalars(C))`.
 """
 function homology(C::AbstractChainComplex{R, D}; kwargs...) where
         {R <: AbstractAlgebra.Integers, D <: SparseMatrixCSC{<:Integer}}
@@ -103,5 +104,6 @@ function homology(C::AbstractChainComplex{R, D}, n::Integer; kwargs...) where
 end
 
 homology(::AbstractChainComplex{<:MonoidAlgebra}, args...; kwargs...) =
-    throw(ArgumentError("homology needs a complex over ℤ: specialise the complex first, " *
-                        "e.g. homology(specialise(C)), or give a module of coefficients"))
+    throw(ArgumentError("homology needs coefficients for a complex over a monoid algebra: " *
+                        "homology(C, ℤ), homology(C, TrivialModule()), or the homology of " *
+                        "ℤ ⊗ C ⊗ ℤ, that is homology(extend_scalars(C))"))

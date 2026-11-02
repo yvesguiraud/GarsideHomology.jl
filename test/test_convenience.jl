@@ -1,6 +1,6 @@
-# Tests of the conveniences of J1.g (task g1): germ(W) of a finite Coxeter group of Chevie,
+# Tests of the conveniences of J1.g: germ(W) of a finite Coxeter group of Chevie,
 # lcm_resolution and homology of a monoid of Chevie through its germ, homology of a germ,
-# ncells of a resolution.
+# ncells of a resolution (task g1); a ring for its trivial module, the ⊗ of Chevie (task g2).
 
 isdefined(Main, :check_germ) || include("explicit_germ.jl")
 
@@ -61,5 +61,32 @@ import Chevie
         # H_*(B₄; ℤ) by the classical braid monoid of A₃, tabulated and lazy.
         trivial4 = GG([G(1), G(1), G(0, [2]), G(0)])
         @test homology(germ(Chevie.coxgroup(:A, 3))) == trivial4 == homology(CoxeterGerm(Chevie.cartan(Chevie.coxgroup(:A, 3))))
+    end
+
+    @testset "A ring for its trivial module" begin
+        R = lcm_resolution(dual_dihedral_germ(3))
+        @test homology(R, ℤ) == trivial3 == homology(R, TrivialModule()) && homology(R, ℤ, 1) == G(1)
+        @test homology(dual_dihedral_germ(3), ℤ) == trivial3 && homology(dual_dihedral_germ(3), ℤ, 1) == G(1)
+        M = Chevie.BraidMonoid(Chevie.coxgroup(:A, 2))
+        @test homology(M, ℤ) == trivial3 && homology(M, ℤ, 1) == G(1)
+        T = GarsideHomology.tensor_product
+        X, Y, E = T(ℤ, R, ℤ), T(TrivialModule(), R, TrivialModule()), extend_scalars(R)
+        @test all(differential(X, n) == differential(Y, n) == differential(E, n) for n in 0:1)
+        @test all(differential(T(ℤ, R), n) == differential(T(TrivialModule(), R), n) for n in 0:1)
+        @test all(differential(T(R, ℤ), n) == differential(T(R, TrivialModule()), n) for n in 0:1)
+        @test homology(T(ℤ, R, SignModule())) == sign3
+        @test homology(GarsideHomology.:⊗(GarsideHomology.:⊗(ℤ, R), ℤ)) == trivial3
+        @test_throws "integers only" homology(R, GarsideHomology.Complexes.AbstractAlgebra.QQ)
+        @test_throws ArgumentError T(ℤ, extend_scalars(R))           # not over a monoid algebra
+    end
+
+    @testset "⊗ of Chevie" begin
+        # Chevie exports the ⊗ of FinitePosets; the extension gives it methods for our
+        # complexes, so that ℤ ⊗ R ⊗ ℤ works with Chevie loaded, without importing ours.
+        tc = Chevie.:⊗
+        R = lcm_resolution(dual_dihedral_germ(3))
+        @test tc !== GarsideHomology.:⊗
+        @test homology(tc(tc(ℤ, R), ℤ)) == trivial3
+        @test homology(tc(TrivialModule(), tc(R, SignModule()))) == sign3
     end
 end

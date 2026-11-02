@@ -7,7 +7,7 @@
 The basis of the module of degree `n` of an lcm resolution: the cells of degree `n` of
 its tree, as their numbers `cell_range(T, n)`, in the order of the construction. A
 vector of `Int` that keeps the tree, so that a complex built on such bases, and its
-specialisations, which share them, know their cells ([`cell_tree`](@ref),
+extensions of scalars, which share them, know their cells ([`cell_tree`](@ref),
 [`atom_sequence`](@ref), [`bar_form`](@ref)).
 """
 struct CellBasis{T <: CellTree} <: AbstractVector{Int}
@@ -36,7 +36,7 @@ of its cells ([`cell_tree`](@ref)), hence the germ and the ordering.
 
 It implements the interface of `AbstractChainComplex` (`range`, `R[n]`,
 [`differential`](@ref), `base_ring`) through the `ChainComplex` it wraps, whose bases are
-[`CellBasis`](@ref)es; [`specialise`](@ref) gives a `ChainComplex` over ℤ on the same bases,
+[`CellBasis`](@ref)es; [`extend_scalars`](@ref) gives a `ChainComplex` over ℤ on the same bases,
 which still know their cells. Functions that need more than a chain complex, such as the
 writing of snapshots ([`write_snapshot`](@ref)), have methods for this type.
 """
@@ -49,7 +49,7 @@ struct LCMResolution{G <: AbstractGerm, O <: LCMOrdering, R <: MonoidAlgebra, M 
         A.side === :both && A.monoid === tree.germ ||
             throw(ArgumentError("LCMResolution: the complex is not over the bimodules of the germ of the tree"))
         for n in range(complex)
-            b = cells(complex[n])
+            b = basis(complex[n])
             b isa CellBasis && b.tree === tree && b.degree == n ||
                 throw(ArgumentError("LCMResolution: the basis of degree $n is not that of the cells of the tree"))
         end
@@ -85,8 +85,9 @@ matching of the cells (see [`LCMOrdering`](@ref), [`CellTree`](@ref),
 Its module of degree `n` has for basis the cells of degree `n` ([`CellBasis`](@ref)), and
 `differential(R, n)`, from degree `n + 1` to degree `n`, is a `LabelledSparseMatrix` whose
 column `j` is the boundary of the `j`-th cell of degree `n + 1`, with labels `(σ, τ)` for
-the terms `coef · σ y τ`. Its specialisations ([`specialise`](@ref)) compute the homology
-of the monoid, that of its group of fractions.
+the terms `coef · σ y τ`. Its tensor products by modules of coefficients
+(`homology(R, M)`, `homology(R, ℤ)`, `ℤ ⊗ R ⊗ ℤ`, [`extend_scalars`](@ref)) compute the
+homology of the monoid, that of its group of fractions.
 
 - `lcm_resolution(G)`: the reduced resolution ([`ComplementDeglex`](@ref)).
 - `lcm_resolution(G, LCMOrdering(TrivialPreorder(); root_order = p))`: the order
@@ -138,13 +139,13 @@ end
     cell_tree(R::LCMResolution) -> CellTree
     cell_tree(C::AbstractChainComplex) -> CellTree
 
-The tree of the cells of an lcm resolution, or of one of its specialisations, read from
+The tree of the cells of an lcm resolution, or of one of its extensions of scalars, read from
 the bases of its modules.
 """
 cell_tree(R::LCMResolution) = R.tree
 
 function cell_tree(C::AbstractChainComplex)
-    b = cells(C[first(range(C))])
+    b = basis(C[first(range(C))])
     b isa CellBasis || throw(ArgumentError("cell_tree: the complex is not an lcm resolution (its bases are not CellBasis)"))
     return b.tree
 end

@@ -5,7 +5,7 @@
 
 using GarsideHomology
 using GarsideHomology: MonoidAlgebra    # public, not exported (Oscar exports a MonoidAlgebra)
-using GarsideHomology: rank     # public, not exported (Chevie exports its own `rank`)
+using GarsideHomology: rank, basis     # public, not exported (Chevie exports its own `rank` and `basis`)
 using Test
 
 # AbstractAlgebra and SparseArrays are dependencies of GarsideHomology, not of the test
@@ -57,13 +57,13 @@ AA.base_ring(W::WrappedComplex) = base_ring(W.inner)
         M = BasedFreeModule(ZZ, ["[]", "[a]"])
         @test rank(M) == 2
         @test base_ring(M) === ZZ
-        @test cells(M) == ["[]", "[a]"]
+        @test basis(M) == ["[]", "[a]"]
         @test M == BasedFreeModule(ZZ, ["[]", "[a]"])
         @test hash(M) == hash(BasedFreeModule(ZZ, ["[]", "[a]"]))
         @test M != BasedFreeModule(ZZ, ["[a]", "[]"])
         N = BasedFreeModule(ZZ, 3)
         @test rank(N) == 3
-        @test cells(N) == 1:3
+        @test basis(N) == 1:3
         @test rank(BasedFreeModule(ZZ, 0)) == 0
         @test_throws ArgumentError BasedFreeModule(ZZ, -1)
         @test_throws MethodError BasedFreeModule(1, 3)
@@ -80,7 +80,7 @@ AA.base_ring(W::WrappedComplex) = base_ring(W.inner)
         J = [1, 1, 1, 1, 2, 2, 2]
         L = Int32[3, 1, 1, 3, 2, 2, 2]
         V = [1, 2, -1, 4, 1, -1, 7]
-        d = labelled_sparse(I, J, L, V, 3, 2)
+        d = LabelledSparseMatrix(I, J, L, V, 3, 2)
         @test d == LabelledSparseMatrix(3, 2, [1, 4, 5], Int32[1, 2, 2, 1], Int32[1, 1, 3, 2],
                                         [2, -1, 5, 7])
         @test hash(d) == hash(LabelledSparseMatrix(3, 2, [1, 4, 5], Int32[1, 2, 2, 1],
@@ -99,12 +99,12 @@ AA.base_ring(W::WrappedComplex) = base_ring(W.inner)
 
         z = LabelledSparseMatrix{Int32, Int}(3, 2)
         @test iszero(z) && size(z) == (3, 2) && SA.nnz(z) == 0
-        @test labelled_sparse(Int[], Int[], Int32[], Int[], 3, 2) == z
+        @test LabelledSparseMatrix(Int[], Int[], Int32[], Int[], 3, 2) == z
         @test size(LabelledSparseMatrix{L2, Int}(0, 0)) == (0, 0)
         @test_throws ArgumentError LabelledSparseMatrix{Int32, Int}(-1, 2)
 
         # Pairs of labels are sorted lexicographically.
-        e = labelled_sparse([1, 1], [1, 1], L2[(2, 1), (1, 2)], [1, -1], 1, 1)
+        e = LabelledSparseMatrix([1, 1], [1, 1], L2[(2, 1), (1, 2)], [1, -1], 1, 1)
         @test labels(e) == L2[(1, 2), (2, 1)] && SA.nonzeros(e) == [-1, 1]
 
         # Invariants.
@@ -126,34 +126,34 @@ AA.base_ring(W::WrappedComplex) = base_ring(W.inner)
         @test GarsideHomology.Complexes.check_invariants(d) === d
 
         # Monomials out of bounds, invalid labels, overflow.
-        @test_throws ArgumentError labelled_sparse([2], [1], Int32[1], [1], 1, 1)
-        @test_throws ArgumentError labelled_sparse([1], [2], Int32[1], [1], 1, 1)
-        @test_throws ArgumentError labelled_sparse([1], [1], Int32[-1], [1], 1, 1)
-        @test_throws ArgumentError labelled_sparse([1, 1], [1], Int32[1], [1], 1, 1)
-        @test_throws OverflowError labelled_sparse([1, 1], [1, 1], Int32[1, 1],
-                                                   [typemax(Int), 1], 1, 1)
-        bd = labelled_sparse([1, 1], [1, 1], Int32[1, 1], BigInt[typemax(Int), 1], 1, 1)
+        @test_throws ArgumentError LabelledSparseMatrix([2], [1], Int32[1], [1], 1, 1)
+        @test_throws ArgumentError LabelledSparseMatrix([1], [2], Int32[1], [1], 1, 1)
+        @test_throws ArgumentError LabelledSparseMatrix([1], [1], Int32[-1], [1], 1, 1)
+        @test_throws ArgumentError LabelledSparseMatrix([1, 1], [1], Int32[1], [1], 1, 1)
+        @test_throws OverflowError LabelledSparseMatrix([1, 1], [1, 1], Int32[1, 1],
+                                                        [typemax(Int), 1], 1, 1)
+        bd = LabelledSparseMatrix([1, 1], [1, 1], Int32[1, 1], BigInt[typemax(Int), 1], 1, 1)
         @test SA.nonzeros(bd) == [BigInt(typemax(Int)) + 1]
         # Coefficients other than machine integers: the arithmetic of their type.
-        @test specialise(bd, l -> -1) == SA.sparse([1], [1], [-(BigInt(typemax(Int)) + 1)], 1, 1)
+        @test extend_scalars(bd, l -> -1) == SA.sparse([1], [1], [-(BigInt(typemax(Int)) + 1)], 1, 1)
         @test !is_square_zero(ChainComplex([SA.sparse([1], [1], [BigInt(2)], 1, 1), SA.sparse([1], [1], [BigInt(3)], 1, 1)]))
     end
 
     @testset "Specialisation of a matrix" begin
-        d = labelled_sparse([2, 1, 2, 2, 3, 3, 1], [1, 1, 1, 1, 2, 2, 2],
-                            Int32[3, 1, 1, 3, 2, 2, 2], [1, 2, -1, 4, 1, -1, 7], 3, 2)
-        A = specialise(d)
+        d = LabelledSparseMatrix([2, 1, 2, 2, 3, 3, 1], [1, 1, 1, 1, 2, 2, 2],
+                                 Int32[3, 1, 1, 3, 2, 2, 2], [1, 2, -1, 4, 1, -1, 7], 3, 2)
+        A = extend_scalars(d)
         @test A isa SA.SparseMatrixCSC{Int, Int}
         @test A == SA.sparse([1, 2, 1], [1, 1, 2], [2, 4, 7], 3, 2)
         χ(l) = isodd(l) ? 1 : -1
-        @test specialise(d, χ) == SA.sparse([1, 2, 1], [1, 1, 2], [2, 4, -7], 3, 2)
+        @test extend_scalars(d, χ) == SA.sparse([1, 2, 1], [1, 1, 2], [2, 4, -7], 3, 2)
         # Sums over labels that cancel leave no stored zero.
-        e = labelled_sparse([1, 1], [1, 1], Int32[1, 2], [1, -1], 1, 1)
-        @test SA.nnz(specialise(e)) == 0 && size(specialise(e)) == (1, 1)
-        @test SA.nnz(specialise(e, χ)) == 1
-        f = labelled_sparse([1, 1], [1, 1], Int32[1, 2], [typemax(Int), 1], 1, 1)
-        @test_throws OverflowError specialise(f)
-        @test size(specialise(LabelledSparseMatrix{Int32, Int}(0, 4))) == (0, 4)
+        e = LabelledSparseMatrix([1, 1], [1, 1], Int32[1, 2], [1, -1], 1, 1)
+        @test SA.nnz(extend_scalars(e)) == 0 && size(extend_scalars(e)) == (1, 1)
+        @test SA.nnz(extend_scalars(e, χ)) == 1
+        f = LabelledSparseMatrix([1, 1], [1, 1], Int32[1, 2], [typemax(Int), 1], 1, 1)
+        @test_throws OverflowError extend_scalars(f)
+        @test size(extend_scalars(LabelledSparseMatrix{Int32, Int}(0, 4))) == (0, 4)
     end
 
     @testset "Complexes over ℤ" begin
@@ -212,36 +212,36 @@ AA.base_ring(W::WrappedComplex) = base_ring(W.inner)
         # 0 → C₁ = ⟨[a]⟩ → C₀ = ⟨[]⟩, ∂[a] = a·[]·e − e·[]·a.
         A = MonoidAlgebra(ZZ, NamedMonoid(["e", "a"]))
         len = [0, 1]                                 # len[l + 1] = ℓ(label l)
-        da = labelled_sparse([1, 1], [1, 1], L2[(1, 0), (0, 1)], [1, -1], 1, 1)
+        da = LabelledSparseMatrix([1, 1], [1, 1], L2[(1, 0), (0, 1)], [1, -1], 1, 1)
         P = ChainComplex([BasedFreeModule(A, ["[]"]), BasedFreeModule(A, ["[a]"])], [da])
         @test base_ring(P) == A
         @test differential(P, 0) === da
         @test differential(P, 1) == LabelledSparseMatrix{L2, Int}(1, 0)
         @test_throws ArgumentError is_square_zero(P)
-        S = specialise(P)
+        S = extend_scalars(P)
         @test base_ring(S) === ZZ
-        @test cells(S[1]) === cells(P[1])            # bases are shared, not copied
+        @test basis(S[1]) === basis(P[1])            # bases are shared, not copied
         @test iszero(differential(S, 0)) && size(differential(S, 0)) == (1, 1)
         # Sign on the right, trivial on the left: H₀(ℕ ; ℤε) = ℤ/2ℤ.
         sign_right(l) = isodd(len[l[2] + 1]) ? -1 : 1
-        @test differential(specialise(P, sign_right), 0) == SA.sparse([1], [1], [2], 1, 1)
+        @test differential(extend_scalars(P, sign_right), 0) == SA.sparse([1], [1], [2], 1, 1)
 
         # Free commutative monoid on a, b, simples e = 0, a = 1, b = 2, ab = 3: Koszul
         # resolution of bimodules, ∂[a|b] = (a⊗1 − 1⊗a)[b] − (b⊗1 − 1⊗b)[a].
         B = MonoidAlgebra(ZZ, NamedMonoid(["e", "a", "b", "ab"]))
         lenB = [0, 1, 1, 2]
-        d0 = labelled_sparse([1, 1, 1, 1], [1, 1, 2, 2],
-                             L2[(1, 0), (0, 1), (2, 0), (0, 2)], [1, -1, 1, -1], 1, 2)
-        d1 = labelled_sparse([1, 1, 2, 2], [1, 1, 1, 1],
-                             L2[(2, 0), (0, 2), (1, 0), (0, 1)], [-1, 1, 1, -1], 2, 1)
+        d0 = LabelledSparseMatrix([1, 1, 1, 1], [1, 1, 2, 2],
+                                  L2[(1, 0), (0, 1), (2, 0), (0, 2)], [1, -1, 1, -1], 1, 2)
+        d1 = LabelledSparseMatrix([1, 1, 2, 2], [1, 1, 1, 1],
+                                  L2[(2, 0), (0, 2), (1, 0), (0, 1)], [-1, 1, 1, -1], 2, 1)
         T = ChainComplex([BasedFreeModule(B, ["[]"]), BasedFreeModule(B, ["[a]", "[b]"]),
                           BasedFreeModule(B, ["[a|b]"])], [d0, d1])
         @test sprint(show, T) == "ChainComplex over $(B) in degrees 0:2, ranks 1, 2, 1"
-        ST = specialise(T)
+        ST = extend_scalars(T)
         @test all(iszero(differential(ST, n)) for n in -1:2)
         @test is_square_zero(ST)
         sign_right_B(l) = isodd(lenB[l[2] + 1]) ? -1 : 1
-        SE = specialise(T, sign_right_B)
+        SE = extend_scalars(T, sign_right_B)
         @test differential(SE, 0) == SA.sparse([1, 1], [1, 2], [2, 2], 1, 2)
         @test differential(SE, 1) == SA.sparse([1, 2], [1, 1], [-2, 2], 2, 1)
         @test is_square_zero(SE)
@@ -258,20 +258,20 @@ AA.base_ring(W::WrappedComplex) = base_ring(W.inner)
         @test !is_square_zero(WrappedComplex(ChainComplex([d0, SA.sparse([1, 2, 3], [1, 1, 1], [1, 1, 1], 3, 1)])))
         # Over a monoid algebra: the Koszul resolution of the free commutative monoid on a, b.
         B = MonoidAlgebra(ZZ, NamedMonoid(["e", "a", "b", "ab"]))
-        e0 = labelled_sparse([1, 1, 1, 1], [1, 1, 2, 2],
-                             L2[(1, 0), (0, 1), (2, 0), (0, 2)], [1, -1, 1, -1], 1, 2)
-        e1 = labelled_sparse([1, 1, 2, 2], [1, 1, 1, 1],
-                             L2[(2, 0), (0, 2), (1, 0), (0, 1)], [-1, 1, 1, -1], 2, 1)
+        e0 = LabelledSparseMatrix([1, 1, 1, 1], [1, 1, 2, 2],
+                                  L2[(1, 0), (0, 1), (2, 0), (0, 2)], [1, -1, 1, -1], 1, 2)
+        e1 = LabelledSparseMatrix([1, 1, 2, 2], [1, 1, 1, 1],
+                                  L2[(2, 0), (0, 2), (1, 0), (0, 1)], [-1, 1, 1, -1], 2, 1)
         T = ChainComplex([BasedFreeModule(B, ["[]"]), BasedFreeModule(B, ["[a]", "[b]"]),
                           BasedFreeModule(B, ["[a|b]"])], [e0, e1])
         V = WrappedComplex(T)
         @test V isa GarsideHomology.Complexes.AbstractChainComplex{typeof(B), LabelledSparseMatrix{L2, Int}}
         sign_right(l) = isodd([0, 1, 1, 2][l[2] + 1]) ? -1 : 1
         for χ in (nothing, sign_right)
-            S, ST = specialise(V, χ), specialise(T, χ)
+            S, ST = extend_scalars(V, χ), extend_scalars(T, χ)
             @test S isa ChainComplex && range(S) == range(ST)
             @test all(differential(S, n) == differential(ST, n) for n in -1:2)
-            @test all(cells(S[n]) === cells(T[n]) for n in 0:2)
+            @test all(basis(S[n]) === basis(T[n]) for n in 0:2)
         end
         @test collapsible_pairs(V) == collapsible_pairs(T)
         @test_throws ArgumentError is_square_zero(V)
@@ -337,5 +337,13 @@ AA.base_ring(W::WrappedComplex) = base_ring(W.inner)
         end
         @test Base.ispublic(GarsideHomology, :MonoidAlgebra) && !Base.isexported(GarsideHomology, :MonoidAlgebra)
         @test GarsideHomology.MonoidAlgebra === GarsideHomology.Complexes.MonoidAlgebra
+        # basis: the function of AbstractAlgebra, public but not exported (Chevie exports
+        # its own basis); it replaces cells (J1.g), as extend_scalars replaces specialise and
+        # the constructor LabelledSparseMatrix(I, J, L, V, m, n) replaces labelled_sparse.
+        @test basis === AA.basis === GarsideHomology.Complexes.basis
+        @test Base.ispublic(GarsideHomology, :basis) && !Base.isexported(GarsideHomology, :basis)
+        @test Base.ispublic(GarsideHomology.Complexes, :basis) && !Base.isexported(GarsideHomology.Complexes, :basis)
+        @test Base.isexported(GarsideHomology, :extend_scalars)
+        @test !any(isdefined(GarsideHomology, s) for s in (:cells, :specialise, :labelled_sparse))
     end
 end

@@ -8,7 +8,7 @@ isdefined(Main, :check_germ) || include("explicit_germ.jl")
 
 using GarsideHomology
 using GarsideHomology: MonoidAlgebra    # public, not exported (Oscar exports a MonoidAlgebra)
-using GarsideHomology: CellTree, CellBasis, LCMResolution, cell_tree, LCMProjectionData
+using GarsideHomology: CellTree, CellBasis, LCMResolution, cell_tree, LCMProjectionData, basis
 # write_snapshot is called as GarsideHomology.write_snapshot: the tool of J1.b (snapshot_io.jl)
 # defines a write_snapshot of its own in Main, for its Snapshot type.
 using Test
@@ -27,31 +27,31 @@ import Chevie
         @test firstindex(C) == 0 && lastindex(C) == 2 && rank(C[end]) == 2
         @test_throws BoundsError C[3]
         @test base_ring(C) == MonoidAlgebra(GarsideHomology.Complexes.AbstractAlgebra.ZZ, cell_tree(C).germ, :both)
-        @test cells(C[1]) isa CellBasis && collect(cells(C[2])) == [5, 6]
-        @test sprint(show, cells(C[1])) == "CellBasis: 3 cells of degree 1"
-        @test sprint(show, MIME"text/plain"(), cells(C[1])) == "CellBasis: 3 cells of degree 1"
+        @test basis(C[1]) isa CellBasis && collect(basis(C[2])) == [5, 6]
+        @test sprint(show, basis(C[1])) == "CellBasis: 3 cells of degree 1"
+        @test sprint(show, MIME"text/plain"(), basis(C[1])) == "CellBasis: 3 cells of degree 1"
         @test sprint(show, C) == "LCMResolution: 6 cells, by degree [1, 3, 2], 14 terms, " *
                                  "germ ExplicitGerm with 3 atoms, LCMOrdering(ComplementDeglex())"
         T = cell_tree(C)
-        @test T isa CellTree && cell_tree(specialise(C)) === T
+        @test T isa CellTree && cell_tree(extend_scalars(C)) === T
         # The functions of the complexes layer, through the interface of AbstractChainComplex.
-        @test specialise(C) isa ChainComplex && cells(specialise(C)[1]) === cells(C[1])
+        @test extend_scalars(C) isa ChainComplex && basis(extend_scalars(C)[1]) === basis(C[1])
         @test isempty(collapsible_pairs(C))
         @test_throws ArgumentError homology(C)
         @test is_square_zero(C)                 # in the bimodules, since e1 (certificates.jl)
         @test differential(C, 5) == GarsideHomology.Complexes.LabelledSparseMatrix{NTuple{2, Int32}, Int}(0, 0)
         # The constructor checks that the complex is that of the tree.
         @test_throws ArgumentError LCMResolution(cell_tree(lcm_resolution(dual_dihedral_germ(3))), C.complex)
-        plain = ChainComplex([BasedFreeModule(base_ring(C), collect(cells(C[n]))) for n in 0:2], C.complex.maps)
+        plain = ChainComplex([BasedFreeModule(base_ring(C), collect(basis(C[n]))) for n in 0:2], C.complex.maps)
         @test_throws ArgumentError LCMResolution(T, plain)
-        left = ChainComplex([BasedFreeModule(MonoidAlgebra(GarsideHomology.Complexes.AbstractAlgebra.ZZ, T.germ, :left), cells(C[n])) for n in 0:2], C.complex.maps)
+        left = ChainComplex([BasedFreeModule(MonoidAlgebra(GarsideHomology.Complexes.AbstractAlgebra.ZZ, T.germ, :left), basis(C[n])) for n in 0:2], C.complex.maps)
         @test_throws ArgumentError LCMResolution(T, left)
         @test size(differential(C, 0)) == (1, 3) && size(differential(C, 1)) == (3, 2)
-        @test homology(specialise(C)) == braid3
-        @test homology(specialise(lcm_resolution(classical_dihedral_germ(3)))) == braid3
+        @test homology(extend_scalars(C)) == braid3
+        @test homology(extend_scalars(lcm_resolution(classical_dihedral_germ(3)))) == braid3
         # Dehornoy–Lafont for another order of the atoms: same homology.
         R = lcm_resolution(dual_dihedral_germ(3), LCMOrdering(TrivialPreorder(); root_order = [3, 2, 1]))
-        @test homology(specialise(R)) == braid3
+        @test homology(extend_scalars(R)) == braid3
         # With data kept by the caller, whose memo stays.
         P = LCMProjectionData(CellTree(dual_dihedral_germ(3)))
         D = lcm_resolution(P)
@@ -62,7 +62,7 @@ import Chevie
     @testset "Snapshots of B*(B₃)" begin
         M = Chevie.DualBraidMonoid(Chevie.coxgroup(:B, 3); c = collect(1:3))
         C = lcm_resolution(germ(M))
-        @test homology(specialise(C)) == artinB3
+        @test homology(extend_scalars(C)) == artinB3
         dir = mktempdir()
         path = joinpath(dir, "dual_B3_a.txt.gz")
         @test GarsideHomology.write_snapshot(path, C; case = "dual_B3", extra = ["libelle" => "B*(B₃)"]) == path
@@ -80,7 +80,7 @@ import Chevie
         # The same complex as the tiny reference snapshot of J0, up to the header.
         tiny = read_snapshot(joinpath(@__DIR__, "data", "snapshots", "dual_B3_a.txt.gz"))
         @test snapshot_fingerprints(tiny) == rows
-        @test homology(specialise(s.complex)) == homology(specialise(tiny.complex)) == artinB3
+        @test homology(extend_scalars(s.complex)) == homology(extend_scalars(tiny.complex)) == artinB3
         # Gauss_d, strict as well.
         Cd = lcm_resolution(germ(M), LCMOrdering(TrivialPreorder()))
         pd = joinpath(dir, "dual_B3_d.txt.gz")
@@ -100,14 +100,14 @@ import Chevie
         @test_throws ArgumentError GarsideHomology.write_snapshot(pd, Cd; germ_fingerprint = :other)
         # Errors.
         @test_throws ArgumentError GarsideHomology.write_snapshot(joinpath(dir, "x.txt"), C)
-        @test_throws ArgumentError GarsideHomology.write_snapshot(joinpath(dir, "y.txt.gz"), specialise(C))
+        @test_throws ArgumentError GarsideHomology.write_snapshot(joinpath(dir, "y.txt.gz"), extend_scalars(C))
         @test_throws ArgumentError GarsideHomology.write_snapshot(joinpath(dir, "z.txt.gz"), C; extra = ["a" => "b\nc"])
     end
 
     @testset "Example of the README" begin
         R = lcm_resolution(dual_germ(Chevie.crg(4)))
         @test sprint(show, certify(R)) == "ResolutionCertificate: correct, minimal, linear"
-        @test homology(specialise(R)) == braid3 == homology(R, TrivialModule())
+        @test homology(extend_scalars(R)) == braid3 == homology(R, TrivialModule())
         @test homology(R, SignModule()) == FinitelyGeneratedGradedAbelianGroup([G(0, [2]), G(0, [3]), G(0)])
     end
 

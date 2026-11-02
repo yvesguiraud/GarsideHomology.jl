@@ -17,7 +17,8 @@ onto the cells ([`LCMProjectionData`](@ref)) and the lcm resolution
 ([`lcm_resolution`](@ref), [`LCMResolution`](@ref)), with its snapshots
 ([`write_snapshot`](@ref)) and its certificate ([`certify`](@ref)), the modules of
 coefficients ([`TrivialModule`](@ref), [`SignModule`](@ref)) and the tensor products by
-them ([`tensor_product`](@ref), `homology(R, M)`).
+them ([`tensor_product`](@ref), `homology(R, M)`), in which a ring stands for its trivial
+module ([`ℤ`](@ref): `homology(R, ℤ)`, `ℤ ⊗ R ⊗ ℤ`).
 """
 module GarsideHomology
 
@@ -25,10 +26,25 @@ module GarsideHomology
 # else in GarsideHomology, so that it can later become a package of its own.
 include("complexes/Complexes.jl")
 using .Complexes
-using .Complexes: rank, MonoidAlgebra, AbstractMonoid, AbstractModule, AbstractChainComplex
+using .Complexes: rank, basis, MonoidAlgebra, AbstractMonoid, AbstractModule, AbstractChainComplex
 using SparseArrays: nnz, nzrange, rowvals, nonzeros
 import AbstractAlgebra
 using AbstractAlgebra: ZZ
+
+"""
+    ℤ
+
+The ring of integers of AbstractAlgebra, that of the coefficients of the resolutions, under
+a name of its own: the same object as `GarsideHomology.ZZ`. A ring stands for its trivial
+module: `homology(R, ℤ)`, `ℤ ⊗ R ⊗ ℤ`. Typed `\\bbZ` then Tab, in the Julia REPL and in the
+editors that know Julia (VS Code, Jupyter, Pluto, the Julia modes of Emacs and Vim).
+
+`ZZ` is public but not exported: Nemo, Hecke and Oscar export a `ZZ` of their own, another
+object, and exporting ours would make `ZZ` ambiguous, hence unusable, for their users. To
+write `ZZ`, import it: `using GarsideHomology: ZZ` (rather than `GarsideHomology.ZZ` at
+each use).
+"""
+const ℤ = AbstractAlgebra.ZZ
 import SHA
 import CodecZlib
 using CodecZlib: GzipCompressorStream
@@ -66,12 +82,12 @@ include("modules/tensor.jl")
 export BasedFreeModule, LabelledSparseMatrix, ChainComplex
 export FinitelyGeneratedModule, FinitelyGeneratedAbelianGroup
 export FinitelyGeneratedGradedModule, FinitelyGeneratedGradedAbelianGroup
-export labelled_sparse, cells, labels, differential, specialise, torsion, is_square_zero
+export labels, differential, extend_scalars, torsion, is_square_zero
 export homology, collapsible_pairs
 export base_ring, nrows, ncols
-# Public, not exported: Chevie exports its own `rank` (see Complexes.jl), Oscar a type
-# MonoidAlgebra of its own (J1.e, M5).
-public rank, MonoidAlgebra
+# Public, not exported: Chevie exports its own `rank` and `basis` (see Complexes.jl),
+# Oscar a type MonoidAlgebra of its own (J1.e, M5).
+public rank, basis, MonoidAlgebra
 
 # Interface of germs. Exported: the names an ordinary user types. Public only: the
 # vocabulary of germs and of the construction, and the names exported elsewhere
@@ -89,9 +105,11 @@ public germ_isomorphism
 export LCMOrdering, ComplementDeglex, TrivialPreorder, FunctionPreorder
 public AbstractLCMPreorder, precedes, extends_divisibility
 
-# Tree of the cells: a tool of the construction, public but not exported. Accessors with
-# the prefix cell_, since weight and degree are exported by Oscar, AbstractAlgebra, Chevie.
-public CellTree, ncells, cell_range, cell_weight, cell_letter, cell_atom, cell_degree
+# Tree of the cells: a tool of the construction, public but not exported, except ncells,
+# which also counts the cells of a resolution (J1.g). Accessors with the prefix cell_, since
+# weight and degree are exported by Oscar, AbstractAlgebra, Chevie.
+export ncells
+public CellTree, cell_range, cell_weight, cell_letter, cell_atom, cell_degree
 public cell_children, admissible_atoms, bar_form, atom_sequence
 
 # Projection onto the cells (provisional names, before the theory of the article).
@@ -102,13 +120,15 @@ export lcm_resolution, certify
 public LCMResolution, CellBasis, cell_tree, write_snapshot
 public ResolutionCertificate, is_correct, is_minimal, is_linear
 
-# Modules of coefficients. Exported: the modules a user types. Public only: the abstract
-# type, and the tensor products (tensor_product is exported by Hecke and Oscar, ⊗ by Hecke):
-# write `using GarsideHomology: ⊗` for the notation, which wins over the exports of those packages.
-export TrivialModule, SignModule
+# Modules of coefficients. Exported: the modules a user types, and ℤ, which stands for the
+# trivial module. Public only: the abstract type, and the tensor products (tensor_product is
+# exported by Hecke and Oscar, ⊗ by Hecke, Oscar and Chevie): write `using GarsideHomology: ⊗`
+# for the notation, which wins over the exports of those packages; with Chevie loaded, its ⊗
+# also tensors our complexes (package extension).
+export TrivialModule, SignModule, ℤ
 public AbstractMonoidModule, tensor_product, ⊗
-# The ring of integers of AbstractAlgebra, that of the coefficients of the resolutions:
-# public, not exported, since Nemo, Hecke and Oscar export a ZZ of their own, another object.
+# The ring of integers of AbstractAlgebra, the same object as ℤ: public, not exported, since
+# Nemo, Hecke and Oscar export a ZZ of their own, another object.
 public ZZ
 
 end # module GarsideHomology

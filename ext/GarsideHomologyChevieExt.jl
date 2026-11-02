@@ -5,8 +5,9 @@ Package extension loaded together with Chevie: the germs of the braid monoids
 (`BraidMonoid` of a finite Coxeter group) and of the dual braid monoids of Chevie,
 built by `GarsideHomology.germ(M)` and `GarsideHomology.TableGerm(M)`, and `GarsideHomology.dual_germ(W; c)`, which
 builds the germ of a dual braid monoid from the group without building the monoid. Also
-`germ(W)` for a finite Coxeter group (the germ of its classical braid monoid), and
-`lcm_resolution(M)` and `homology(M)` for a monoid of Chevie, through its germ.
+`germ(W)` for a finite Coxeter group (the germ of its classical braid monoid),
+`lcm_resolution(M)` and `homology(M)` for a monoid of Chevie, through its germ, and the
+methods of the `⊗` of Chevie for our complexes.
 
 The right covers σ → σa given to `GarsideHomology.tabulate` come from the arithmetic of the group
 alone. An element is identified by the images of the roots of the generators, which
@@ -104,17 +105,26 @@ GarsideHomology.lcm_resolution(M::ChevieMonoid, ordering::GarsideHomology.LCMOrd
                                GarsideHomology.LCMOrdering()) =
     GarsideHomology.lcm_resolution(GarsideHomology.germ(M), ordering)
 
+# N is a module of coefficients, or a ring for its trivial module (J1.g).
 GarsideHomology.Complexes.homology(M::ChevieMonoid,
-                                   N::GarsideHomology.AbstractMonoidModule = GarsideHomology.TrivialModule();
+                                   N::GarsideHomology._Coefficients = GarsideHomology.TrivialModule();
                                    kwargs...) =
     GarsideHomology.Complexes.homology(GarsideHomology.germ(M), N; kwargs...)
 
-GarsideHomology.Complexes.homology(M::ChevieMonoid, N::GarsideHomology.AbstractMonoidModule, n::Integer;
+GarsideHomology.Complexes.homology(M::ChevieMonoid, N::GarsideHomology._Coefficients, n::Integer;
                                    kwargs...) =
     GarsideHomology.Complexes.homology(GarsideHomology.germ(M), N, n; kwargs...)
 
 GarsideHomology.Complexes.homology(M::ChevieMonoid, n::Integer; kwargs...) =
     GarsideHomology.Complexes.homology(GarsideHomology.germ(M), n; kwargs...)
+
+# The ⊗ of Chevie, that of FinitePosets (reexported by Chevie), also tensors our complexes,
+# so that `ℤ ⊗ R ⊗ ℤ` works with Chevie loaded, without `using GarsideHomology: ⊗` (J1.g).
+# One argument is always a complex of GarsideHomology: no type piracy.
+Chevie.FinitePosets.:⊗(N::GarsideHomology._Coefficients, C::GarsideHomology.Complexes.AbstractChainComplex) =
+    GarsideHomology.tensor_product(N, C)
+Chevie.FinitePosets.:⊗(C::GarsideHomology.Complexes.AbstractChainComplex, M::GarsideHomology._Coefficients) =
+    GarsideHomology.tensor_product(C, M)
 
 # ------------------------------------------------------------------------------------
 # Keys
