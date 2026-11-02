@@ -1,6 +1,8 @@
 # Tests on Linux, Windows and macOS, with the oldest supported Julia (1.11, required by
-# Chevie 0.1.15) and the latest release, 4 threads; coverage uploaded to Codecov.
-# Runs on pushes to main, on pull requests, and by hand (Actions tab, "Run workflow").
+# Chevie 0.1.15) and the latest release, 4 threads. Coverage on one task only (Ubuntu,
+# latest Julia), uploaded to Codecov and kept as an artifact (lcov.info), since the
+# instrumentation makes the hot loops about 30 times slower (J1.g, task g3, as in the
+# solver). Runs on pushes to main, on pull requests, and by hand (Actions tab, "Run workflow").
 name: CI
 
 on:
@@ -10,8 +12,9 @@ on:
   workflow_dispatch:
 
 concurrency:
+  # Cancel superseded runs of the same branch or pull request, except on main
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   test:
@@ -28,6 +31,8 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
     env:
       JULIA_NUM_THREADS: 4
+      # Coverage on one task only: it makes the tests about 30 times slower.
+      COVERAGE: ${{ matrix.os == 'ubuntu-latest' && matrix.version == '1' }}
     steps:
       - uses: actions/checkout@v7
       - uses: julia-actions/setup-julia@v3
@@ -36,9 +41,18 @@ jobs:
       - uses: julia-actions/cache@v3
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
+        with:
+          coverage: ${{ env.COVERAGE }}
       - uses: julia-actions/julia-processcoverage@v1
+        if: env.COVERAGE == 'true'
       - uses: codecov/codecov-action@v7
+        if: env.COVERAGE == 'true'
         with:
           files: lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false
+      - uses: actions/upload-artifact@v7   # lcov.info, for the coverage surveys
+        if: env.COVERAGE == 'true'
+        with:
+          name: lcov
+          path: lcov.info
