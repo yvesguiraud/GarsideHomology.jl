@@ -9,7 +9,7 @@ using GarsideHomology
 using Test
 import Chevie
 
-@testset "Germs from Chevie" begin
+@testset "Germs from Chevie" verbose = true begin
     A(n) = Chevie.coxgroup(:A, n)
     B(n) = Chevie.coxgroup(:B, n)
     cases = [
