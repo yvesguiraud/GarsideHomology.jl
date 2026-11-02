@@ -104,7 +104,7 @@ end
 _fingerprint_string(G::AbstractGerm, f::Symbol) =
     f === :compute ? (applicable(simples, G) ? sprint(show, fingerprint(G)) : "non calculée (germe paresseux)") :
     throw(ArgumentError("write_snapshot: germ_fingerprint = :$f, expected :compute, nothing, a GermFingerprint or a string"))
-_fingerprint_string(G::AbstractGerm, ::Nothing) = "non calculée"
+_fingerprint_string(G::AbstractGerm, ::Nothing) = "non calculée"  # COV_EXCL_LINE (constant, folded into its caller)
 _fingerprint_string(G::AbstractGerm, f::GermFingerprint) = sprint(show, f)
 _fingerprint_string(G::AbstractGerm, f::AbstractString) = String(f)
 

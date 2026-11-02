@@ -49,36 +49,38 @@ without the import.
 ⊗(N::_Coefficients, C::AbstractChainComplex) = tensor_product(N, C)
 ⊗(C::AbstractChainComplex, M::_Coefficients) = tensor_product(C, M)
 
+# The arguments are not reassigned (a module for a ring): the local names left and right
+# keep a single type each.
 function tensor_product(N::_Coefficients, C::AbstractChainComplex{<:MonoidAlgebra})
-    N = _module(N)
+    left = _module(N)
     A = base_ring(C)
-    _check_coefficients(A, N)
+    _check_coefficients(A, left)
     A.side === :right &&
         throw(ArgumentError("tensor_product: the left side of the complex is already tensored"))
-    χ = _character(N, A.monoid)
+    χ = _character(left, A.monoid)
     A.side === :left && return extend_scalars(C, χ)
     return _one_sided(C, :right, l -> (χ(l[1]), l[2]))
 end
 
 function tensor_product(C::AbstractChainComplex{<:MonoidAlgebra}, M::_Coefficients)
-    M = _module(M)
+    right = _module(M)
     A = base_ring(C)
-    _check_coefficients(A, M)
+    _check_coefficients(A, right)
     A.side === :left &&
         throw(ArgumentError("tensor_product: the right side of the complex is already tensored"))
-    χ = _character(M, A.monoid)
+    χ = _character(right, A.monoid)
     A.side === :right && return extend_scalars(C, χ)
     return _one_sided(C, :left, l -> (χ(l[2]), l[1]))
 end
 
 function tensor_product(N::_Coefficients, C::AbstractChainComplex{<:MonoidAlgebra},
                         M::_Coefficients)
-    N, M = _module(N), _module(M)
+    left, right = _module(N), _module(M)
     A = base_ring(C)
-    A.side === :both || return tensor_product(tensor_product(N, C), M)
-    _check_coefficients(A, N)
-    _check_coefficients(A, M)
-    χN, χM = _character(N, A.monoid), _character(M, A.monoid)
+    A.side === :both || return tensor_product(tensor_product(left, C), right)
+    _check_coefficients(A, left)
+    _check_coefficients(A, right)
+    χN, χM = _character(left, A.monoid), _character(right, A.monoid)
     return extend_scalars(C, l -> χN(l[1]) * χM(l[2]))
 end
 
