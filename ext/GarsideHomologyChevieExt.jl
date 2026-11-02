@@ -560,4 +560,36 @@ function _default_coxeter_word(W, ::Val{nb}) where {nb}
                         "(Springer's criterion); give c"))
 end
 
+# ------------------------------------------------------------------------------------
+# Precompilation of the first calls of the extension (J1.g, task g4): the classical and
+# dual germs of A₃, by the group and by the monoids of Chevie; the dual germs of A₂ to A₈
+# (the ranks of the dual path, integer roots), of H₃ (cyclotomic roots) and of G₄ (a
+# complex reflection group); the lazy germ of E₈; and the homology of a monoid of Chevie
+# through its germ. The other ranks and types of roots, and the ranks of the classical
+# path other than 3, still compile at their first call (a tenth to seven tenths of a
+# second each, measured in g4). Run at precompilation by PrecompileTools, and by the
+# tests (coverage).
+using PrecompileTools: @setup_workload, @compile_workload
+
+function _precompile_workload()
+    W = Chevie.coxgroup(:A, 3)
+    GarsideHomology.germ(W)
+    GarsideHomology.dual_germ(W)
+    GarsideHomology.germ(Chevie.DualBraidMonoid(W))
+    for n in 2:8
+        GarsideHomology.dual_germ(Chevie.coxgroup(:A, n))
+    end
+    GarsideHomology.dual_germ(Chevie.coxgroup(:H, 3))
+    GarsideHomology.dual_germ(Chevie.crg(4))
+    GarsideHomology.germ(Chevie.coxgroup(:E, 8))
+    GarsideHomology.Complexes.homology(Chevie.BraidMonoid(W), GarsideHomology.ℤ)
+    return nothing
+end
+
+# COV_EXCL_START: run only while the extension is precompiled, never in the tests
+@setup_workload begin
+    @compile_workload _precompile_workload()
+end
+# COV_EXCL_STOP
+
 end # module GarsideHomologyChevieExt

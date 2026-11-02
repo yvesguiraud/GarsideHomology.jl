@@ -80,6 +80,13 @@ import Chevie
         @test_throws ArgumentError T(ℤ, extend_scalars(R))           # not over a monoid algebra
     end
 
+    @testset "Precompilation workloads" begin
+        # Run at precompilation by PrecompileTools (J1.g, task g4); run here for coverage.
+        @test GarsideHomology._precompile_workload() === nothing
+        ext = Base.get_extension(GarsideHomology, :GarsideHomologyChevieExt)
+        @test ext._precompile_workload() === nothing
+    end
+
     @testset "⊗ of Chevie" begin
         # Chevie exports the ⊗ of FinitePosets; the extension gives it methods for our
         # complexes, so that ℤ ⊗ R ⊗ ℤ works with Chevie loaded, without importing ours.

@@ -131,4 +131,44 @@ public AbstractMonoidModule, tensor_product, ⊗
 # Nemo, Hecke and Oscar export a ZZ of their own, another object.
 public ZZ
 
+# ------------------------------------------------------------------------------------
+# Precompilation of the first calls (J1.g, task g4): tabulated germs with at most 64 atoms
+# and with more (one or two words of 64 bits for the sets of atoms, the second case being
+# that of the large groups, B*(E₈) and G₃₄ to G₃₇), and a lazy germ; their resolutions for
+# the two orderings, their certificates and their homology with trivial and sign
+# coefficients, so that the first computation of a session does not pay for compiling the
+# whole pipeline. Run at precompilation by PrecompileTools, and by the tests (coverage).
+using PrecompileTools: @setup_workload, @compile_workload
+
+# The germ of the dual braid monoid of I₂(m), tabulated from its right covers: rows, the
+# atoms r₀, …, r_{m-1} (the reflections, simples 2 to m + 1); columns, the simples 1, the
+# reflections and the Coxeter element c (simple m + 2); 1 · rₖ = rₖ and rₖ · rₖ₊₁ = c.
+function _dual_dihedral_germ(m::Integer)
+    covers = zeros(Int, m, m + 2)
+    for k in 0:(m - 1)
+        covers[k + 1, 1] = k + 2
+        covers[mod(k + 1, m) + 1, k + 2] = m + 2
+    end
+    return TableGerm(covers, 1)
+end
+
+function _precompile_workload()
+    # B*(A₂) and B*(I₂(65)), tabulated (65 atoms take two words), and B⁺(A₃), lazy.
+    germs = (_dual_dihedral_germ(3), _dual_dihedral_germ(65), CoxeterGerm([2 -1 0; -1 2 -1; 0 -1 2]))
+    for G in germs, ordering in (LCMOrdering(), LCMOrdering(TrivialPreorder()))
+        R = lcm_resolution(G, ordering)
+        certify(R)
+        homology(R, ℤ)
+        homology(R, SignModule())
+        ncells(R)
+    end
+    return nothing
+end
+
+# COV_EXCL_START: run only while the package is precompiled, never in the tests
+@setup_workload begin
+    @compile_workload _precompile_workload()
+end
+# COV_EXCL_STOP
+
 end # module GarsideHomology
