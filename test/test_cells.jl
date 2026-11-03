@@ -60,7 +60,7 @@ import Chevie
         @test P("2|12") == x == P(" 2 | 12 ") == P("2|1·2") == P(A2(2), A2(1, 2))
         @test P("e") == P() == basis(P[0])[1] && P("1") == basis(P[1])[1]
         @test extend_scalars(P)("2|12") == x                 # the bases are shared
-        for bad in ("1|2", "2|3", "", "2||12", "[2|12]", "11")
+        for bad in ("1|2", "2|3", "", "2||12", "11")
             @test_throws ArgumentError P(bad)
         end
         @test_throws ArgumentError P(A2(1), A2(2))           # not a cell

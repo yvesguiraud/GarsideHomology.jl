@@ -1,5 +1,5 @@
-# The graded basis of a complex, the generators read from their written form, and the
-# printing of long lists within a line (J1.h).
+# The graded basis of a complex, and the printing of long lists within a line (J1.h). The
+# generators are read from their written form with the elements (elements.jl).
 
 """
     GradedBasis
@@ -98,33 +98,4 @@ function _fits(text, n::Integer, width::Integer)
         total > width && return false
     end
     return true
-end
-
-# ------------------------------------------------------------------------------------
-# Generators read from their written form
-
-"""
-    (C::AbstractChainComplex)(text::AbstractString)
-
-The generator of `C` written `text`, in any degree: for a resolution of GarsideHomology, the
-cell of bar form `text` (`P("2|12")`); for other bases, the element whose printed form is
-`text`, an `ArgumentError` if none or several are (in several degrees).
-"""
-(C::AbstractChainComplex)(text::AbstractString) = _read_generator(basis(C[first(range(C))]), C, text)
-
-# The default, for bases of descriptors: the element whose printed form is the text.
-function _read_generator(::AbstractVector, C::AbstractChainComplex, text::AbstractString)
-    t = strip(text)
-    found = [(n, x) for n in range(C) for x in basis(C[n]) if string(x) == t]
-    isempty(found) && throw(ArgumentError("\"$text\" is not a generator of the complex"))
-    length(found) == 1 ||
-        throw(ArgumentError("\"$text\" names generators in several places (degrees $(unique(first.(found))))"))
-    return last(only(found))
-end
-
-# An integer does not name a generator; C(2|12) is C(14) for Julia.
-function (C::AbstractChainComplex)(n::Integer)
-    throw(ArgumentError("C($n): an integer does not name a generator. If you wrote C(x|y), Julia " *
-                        "computed the bitwise or x|y = $n before the call: write the bar form " *
-                        "between quotes, C(\"x|y\")"))
 end

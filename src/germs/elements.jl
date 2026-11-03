@@ -305,3 +305,26 @@ function _atom_of(index::Dict{String, Int}, names::Vector{String}, tok::Abstract
     n !== nothing && 1 <= n <= length(names) && return n
     throw(ArgumentError("cannot read \"$context\": no atom named \"$tok\" (the germ has $(length(names)) atoms)"))
 end
+
+# ------------------------------------------------------------------------------------
+# The germs as monoids of the modules of the complexes layer (J1.h): their elements are the
+# labels of the terms, written as words, read from their written form, multiplied in the
+# germ (a product that is not a simple is not a label), and handed to the user as
+# GermElements, which act on the sides of the elements of the modules.
+
+Complexes._label_writer(G::AbstractGerm, N::Notation) = _SimpleWriter(G, N)
+Complexes._write_label(io::IO, w::_SimpleWriter, l::Integer) = _write_simple(io, w, l)
+Complexes._digit_labels(w::_SimpleWriter) = any(name -> isdigit(first(name)), w.names)
+Complexes._read_label(G::AbstractGerm, N::Notation, text::AbstractString, context::AbstractString) =
+    _parse_simple(G, N, text; context = context)
+Complexes._label_product(G::AbstractGerm, a::Integer, b::Integer) =
+    iszero(a) ? Int32(b) : iszero(b) ? Int32(a) : product(G, a, b)
+Complexes._label_value(G::AbstractGerm, l::Int32) = GermElement(G, l; check = false)
+
+function Complexes._label_code(G::AbstractGerm, s::GermElement)
+    s.germ === G || throw(ArgumentError("the element $s is not one of the germ of the module"))
+    return s.index
+end
+
+Base.:*(s::GermElement, v::Complexes.BasedFreeModuleElement) = Complexes._act(v, :left, s.germ, s.index)
+Base.:*(v::Complexes.BasedFreeModuleElement, s::GermElement) = Complexes._act(v, :right, s.germ, s.index)

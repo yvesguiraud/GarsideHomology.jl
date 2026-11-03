@@ -31,9 +31,48 @@ Base.show(io::IO, B::CellBasis) = print(io, "CellBasis of degree ", B.degree, " 
 Base.:(==)(A::CellBasis, B::CellBasis) =
     A.tree === B.tree && A.degree == B.degree || isempty(A) && isempty(B)
 
+# The hooks of the bases of the complexes layer for the cells (J1.h): a cell is written in
+# bar form between brackets, [] for the cell of degree 0; it is found from itself or from its
+# bar form, and it knows its degree.
+
+struct _CellGenerators{W <: _CellWriter}
+    cells::W
+    empty::String
+end
+
+Complexes._generator_writer(B::CellBasis, N::Notation) = _CellGenerators(_CellWriter(B.tree, N), N.empty_cell_in_module)
+
+function Complexes._write_generator(io::IO, w::_CellGenerators, B::CellBasis, i::Integer)
+    B.degree == 0 && return print(io, w.empty)
+    print(io, "[")
+    _write_cell(io, w.cells, B.tree, first(cell_range(B.tree, B.degree)) + i - 1)
+    print(io, "]")
+    return nothing
+end
+
+function Complexes._basis_index(B::CellBasis, x::Cell)
+    x.tree === B.tree && cell_degree(x) == B.degree ||
+        throw(ArgumentError("the cell $x is not one of the basis (the cells of degree $(B.degree) of its tree)"))
+    return Int(x.index) - first(cell_range(B.tree, B.degree)) + 1
+end
+
+# The cell written `text`, the cell of degree 0 for an empty text (the generator of []).
+_written_cell(T::CellTree, N::Notation, text::AbstractString) =
+    isempty(strip(text)) ? Cell(T, Int32(1)) : _read_cell(T, N, text)
+
+Complexes._find_in_basis(B::CellBasis, N::Notation, text::AbstractString, ::AbstractString) =
+    Complexes._basis_index(B, _written_cell(B.tree, N, text))
+
+Complexes._basis_degree(B::CellBasis) = B.degree
+
 # A complex whose bases are cells reads its generators as bar forms (P("2|12")).
-Complexes._read_generator(B::CellBasis, ::AbstractChainComplex, text::AbstractString) =
-    _read_cell(B.tree, notation(), text)
+function Complexes._find_generator(B::CellBasis, ::AbstractChainComplex, N::Notation, text::AbstractString)
+    c = _written_cell(B.tree, N, text)
+    n = cell_degree(c)
+    return (n, Int(c.index) - first(cell_range(B.tree, n)) + 1)
+end
+
+Complexes._generator_degree(::CellBasis, x::Cell) = cell_degree(x)
 
 const _LCMMatrix = LabelledSparseMatrix{NTuple{2, Int32}, Int}
 
@@ -156,6 +195,16 @@ The tree of the cells of an lcm resolution, or of one of its extensions of scala
 the bases of its modules.
 """
 cell_tree(R::LCMResolution) = R.tree
+
+"""
+    (C::AbstractChainComplex)(x::Cell)
+
+The generator `[x]` of the module of the degree of the cell `x`, for a complex whose bases are
+cells: `P(x)` is `P[n](x)` for a cell of degree `n`.
+"""
+function (C::AbstractChainComplex)(x::Cell)
+    return C[cell_degree(x)](x)
+end
 
 """
     (C::AbstractChainComplex)(letters::GermElement...)

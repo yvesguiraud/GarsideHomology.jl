@@ -28,7 +28,8 @@ module GarsideHomology
 # else in GarsideHomology, so that it can later become a package of its own.
 include("complexes/Complexes.jl")
 using .Complexes
-using .Complexes: rank, basis, MonoidAlgebra, AbstractMonoid, AbstractModule, AbstractChainComplex, GradedBasis
+using .Complexes: rank, basis, MonoidAlgebra, AbstractMonoid, AbstractModule, AbstractChainComplex, GradedBasis,
+                  BasedFreeModuleElement, Differential
 using SparseArrays: nnz, nzrange, rowvals, nonzeros
 import AbstractAlgebra
 using AbstractAlgebra: ZZ
@@ -91,9 +92,10 @@ export homology, collapsible_pairs
 export base_ring, nrows, ncols
 export Notation, set_notation!, notation
 # Public, not exported: Chevie exports its own `rank` and `basis` (see Complexes.jl),
-# Oscar a type MonoidAlgebra of its own (J1.e, M5); GradedBasis, the type of basis(C), is
-# obtained without being named (J1.h).
-public rank, basis, MonoidAlgebra, GradedBasis
+# Oscar a type MonoidAlgebra of its own (J1.e, M5); GradedBasis, BasedFreeModuleElement and
+# Differential, the types of basis(C), of M(x) and of differential(C), are obtained without
+# being named (J1.h).
+public rank, basis, MonoidAlgebra, GradedBasis, BasedFreeModuleElement, Differential
 
 # Interface of germs. Exported: the names an ordinary user types. Public only: the
 # vocabulary of germs and of the construction, and the names exported elsewhere

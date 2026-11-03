@@ -37,8 +37,9 @@ export Notation, set_notation!, notation
 
 # MonoidAlgebra is public but not exported: Oscar exports a type of its own of that name.
 public rank, basis, MonoidAlgebra, AbstractMonoid, AbstractModule, AbstractChainComplex, label_type, identity_label, check_invariants
-# The graded basis of a complex, basis(C) (J1.h).
-public GradedBasis
+# The graded basis of a complex, basis(C), the elements of the modules and the differential
+# as an object, differential(C) (J1.h).
+public GradedBasis, BasedFreeModuleElement, Differential
 
 include("arithmetic.jl")
 include("notation.jl")
@@ -47,6 +48,7 @@ include("modules.jl")
 include("labelled.jl")
 include("complex.jl")
 include("graded_basis.jl")
+include("elements.jl")
 include("fg_modules.jl")
 include("homology.jl")
 include("pairs.jl")
