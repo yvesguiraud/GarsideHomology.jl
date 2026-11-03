@@ -162,7 +162,7 @@ end
 # Compatibility with divisibility (a tool of the developer)
 
 """
-    extends_divisibility(P::AbstractLCMPreorder, G::AbstractGerm, ωs = simples(G)) -> Bool
+    extends_divisibility(P::AbstractLCMPreorder, G::AbstractGerm, ωs = _simple_numbers(G)) -> Bool
 
 Whether the preorder `P` is compatible with divisibility at each simple of `ωs`: for all
 atoms `a` and `b` that do not divide `ω`, if `ω ∨ a` strictly divides `ω ∨ b`, then
@@ -174,7 +174,7 @@ condition never meet in the same list.
 By brute force, in `N²` comparisons for each simple (`N` atoms): a tool of the developer.
 For a lazy germ, which does not list its simples, give them as `ωs`.
 """
-function extends_divisibility(P::AbstractLCMPreorder, G::AbstractGerm, ωs = simples(G))
+function extends_divisibility(P::AbstractLCMPreorder, G::AbstractGerm, ωs = _simple_numbers(G))
     N = natoms(G)
     for ω in ωs
         D = left_descents(G, ω)

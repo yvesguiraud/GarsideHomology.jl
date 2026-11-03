@@ -27,7 +27,7 @@ end
 function _foreach_interval(f, G::AbstractGerm)
     marks = zeros(Int32, nsimples(G))
     layer, next = Int32[], Int32[]
-    for σ in simples(G)
+    for σ in _simple_numbers(G)
         _foreach_multiple(ν -> f(σ, ν), G, σ, marks, σ + Int32(1), layer, next)
     end
     return nothing
@@ -78,7 +78,7 @@ every common multiple of ω and a.
 """
 function verify(G::AbstractGerm; full::Bool = false)
     fail(msg) = throw(ArgumentError("verify: " * msg))
-    S = simples(G)
+    S = _simple_numbers(G)
     n, N = length(S), natoms(G)
     S == 0:(n - 1) || fail("the simples are not 0:$(n - 1)")
     length(G, 0) == 0 && isempty(left_descents(G, 0)) || fail("the identity has a length or a descent")
@@ -123,7 +123,7 @@ end
 function _verify_lattice(G::AbstractGerm)
     marks = zeros(Int32, nsimples(G))
     layer, next = Int32[], Int32[]
-    for ω in simples(G)
+    for ω in _simple_numbers(G)
         _foreach_multiple(G, ω, marks, ω + Int32(1), layer, next) do m
             for a in left_descents(G, m)
                 is_left_divisor(G, lcm_atom(G, ω, a).lcm, m) ||
@@ -176,7 +176,7 @@ The [`GermFingerprint`](@ref) of a germ whose simples are all numbered, in
 O(#intervals · N) operations.
 """
 function fingerprint(G::AbstractGerm)
-    S = simples(G)
+    S = _simple_numbers(G)
     N = natoms(G)
     lengths = [length(G, s) for s in S]
     L = maximum(lengths)
@@ -197,7 +197,7 @@ end
 # μ(1, σ) for every simple σ of a germ whose simples are all numbered, as the vector μ with
 # μ[σ + 1] = μ(1, σ): in the order of the lengths, μ(1, 1) = 1 and μ(1, σ) = −Σ_{ρ ≺ σ} μ(1, ρ),
 # each σ adding its value to the accumulators of its strict multiples. O(#intervals · N).
-function _mobius_values(G::AbstractGerm, lengths::Vector{Int} = [length(G, s) for s in simples(G)])
+function _mobius_values(G::AbstractGerm, lengths::Vector{Int} = [length(G, s) for s in _simple_numbers(G)])
     n = length(lengths)
     acc = zeros(Int, n)
     μ = zeros(Int, n)

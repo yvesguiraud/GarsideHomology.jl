@@ -87,7 +87,7 @@ import Chevie
     @testset "isless_deglex" begin
         T = GarsideHomology.TableGerm(Chevie.DualBraidMonoid(Chevie.coxgroup(:B, 3); c = collect(1:3)))
         generic(s, t) = invoke(GarsideHomology.isless_deglex, Tuple{GarsideHomology.AbstractGerm, Integer, Integer}, T, s, t)
-        S = GarsideHomology.simples(T)
+        S = GarsideHomology._simple_numbers(T)
         @test all(GarsideHomology.isless_deglex(T, s, t) == generic(s, t) == (s < t) for s in S, t in S)
         @test_throws BoundsError GarsideHomology.isless_deglex(T, 0, nsimples(T))
         H = GarsideHomology.CoxeterGerm(Chevie.cartan(Chevie.coxgroup(:A, 3)))

@@ -22,10 +22,11 @@ parent, then in the order given by the ordering. The children of a node are cont
 cells of degree `n` form [`cell_range`](@ref)`(T, n)`, which fixes the order of the basis
 of the free module of degree `n`.
 
-Accessors (public, not exported): [`ncells`](@ref), [`cell_range`](@ref),
-[`cell_weight`](@ref), [`cell_letter`](@ref), [`cell_atom`](@ref),
-[`cell_degree`](@ref), [`cell_children`](@ref), [`admissible_atoms`](@ref),
-[`bar_form`](@ref), [`atom_sequence`](@ref).
+Accessors, on the numbers of the cells: [`ncells`](@ref), [`cell_weight`](@ref),
+[`cell_degree`](@ref) and [`atom_sequence`](@ref) (exported, since they also read a
+[`Cell`](@ref), the cell for the user), [`cell_range`](@ref), [`cell_letter`](@ref),
+[`cell_atom`](@ref), [`cell_children`](@ref), [`admissible_atoms`](@ref) and
+[`bar_form`](@ref) (public, not exported).
 """
 struct CellTree{G <: AbstractGerm, O <: LCMOrdering}
     germ::G

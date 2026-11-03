@@ -11,7 +11,7 @@ The element of Chevie of each simple of `G`, built from `M`: the product of the 
 `M` along `word(G, s)`, at the position `s + 1`.
 """
 chevie_elements(G, M) =
-    [foldl(*, (M.atoms[a] for a in GarsideHomology.word(G, s)); init = one(M)) for s in GarsideHomology.simples(G)]
+    [foldl(*, (M.atoms[a] for a in GarsideHomology.word(G, s)); init = one(M)) for s in GarsideHomology._simple_numbers(G)]
 
 # The pairs (s, a) whose lcm is compared: all of them if there are at most `max_pairs`,
 # otherwise a reproducible sample of `sample` pairs and all the pairs where s is an atom
@@ -43,7 +43,7 @@ Returns `(failures, pairs, complete)`; the first failures are reported by warnin
 function compare_with_chevie(G, M; max_pairs = 20_000, sample = 2_000, seed = 1)
     failures = 0
     fail(msg) = (failures += 1; failures <= 20 && @warn msg; nothing)
-    S = GarsideHomology.simples(G)
+    S = GarsideHomology._simple_numbers(G)
     n, N = length(S), natoms(G)
     N == length(M.atoms) || fail("$N atoms, Chevie has $(length(M.atoms))")
     elt = chevie_elements(G, M)

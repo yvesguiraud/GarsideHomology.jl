@@ -33,7 +33,7 @@ end
 
 natoms(G::TableGerm) = G.natoms
 nsimples(G::TableGerm) = length(G.lengths)
-simples(G::TableGerm) = Int32(0):Int32(length(G.lengths) - 1)
+_simple_numbers(G::TableGerm) = Int32(0):Int32(length(G.lengths) - 1)
 Base.length(G::TableGerm, s::Integer) = Int(G.lengths[_ix(s)])
 left_descents(G::TableGerm, s::Integer) = G.descents[_ix(s)]
 isless_lex(G::TableGerm, s::Integer, t::Integer) = G.lex_ranks[_ix(s)] < G.lex_ranks[_ix(t)]
@@ -395,7 +395,7 @@ TableGerm(G::AbstractGerm) = first(tabulate(G))
 # Right covers of a germ whose simples are all numbered, in the provisional numbering
 # s + 1; `left = true` gives the left covers a·s, which are the right covers of Mᵒᵖ.
 function _covers(G::AbstractGerm; left::Bool = false)
-    S = simples(G)
+    S = _simple_numbers(G)
     N = natoms(G)
     R = zeros(Int32, N, length(S))
     for s in S, a in 1:N

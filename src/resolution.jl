@@ -5,12 +5,13 @@
     CellBasis
 
 The basis of the module of degree `n` of an lcm resolution: the cells of degree `n` of
-its tree, as their numbers `cell_range(T, n)`, in the order of the construction. A
-vector of `Int` that keeps the tree, so that a complex built on such bases, and its
-extensions of scalars, which share them, know their cells ([`cell_tree`](@ref),
-[`atom_sequence`](@ref), [`bar_form`](@ref)).
+its tree, as [`Cell`](@ref)s, in the order of the construction (the numbers
+`cell_range(T, n)`), created on demand. A vector that keeps the tree, so that a complex
+built on such bases, and its extensions of scalars, which share them, know their cells
+([`cell_tree`](@ref)). At the REPL, a vector of cells in bar form, cut in the middle when
+it is long.
 """
-struct CellBasis{T <: CellTree} <: AbstractVector{Int}
+struct CellBasis{T <: CellTree} <: AbstractVector{Cell{T}}
     tree::T
     degree::Int
 end
@@ -19,11 +20,66 @@ Base.size(B::CellBasis) = (ncells(B.tree, B.degree),)
 Base.IndexStyle(::Type{<:CellBasis}) = IndexLinear()
 Base.@propagate_inbounds function Base.getindex(B::CellBasis, i::Int)
     @boundscheck checkbounds(B, i)
-    return first(cell_range(B.tree, B.degree)) + i - 1
+    return Cell(B.tree, Int32(first(cell_range(B.tree, B.degree)) + i - 1))
 end
 
-Base.show(io::IO, B::CellBasis) = print(io, "CellBasis: ", length(B), " cells of degree ", B.degree)
-Base.show(io::IO, ::MIME"text/plain", B::CellBasis) = show(io, B)
+Base.showarg(io::IO, B::CellBasis, toplevel::Bool) = print(io, "CellBasis of degree ", B.degree)
+Base.show(io::IO, B::CellBasis) = print(io, "CellBasis of degree ", B.degree, " with ", length(B), " cells")
+
+# Two bases of cells of the same tree and degree are equal without comparing the cells,
+# which are then the same; otherwise only two empty bases are equal, as vectors.
+Base.:(==)(A::CellBasis, B::CellBasis) =
+    A.tree === B.tree && A.degree == B.degree || isempty(A) && isempty(B)
+
+# The hooks of the bases of the complexes layer for the cells (J1.h): a cell is written in
+# bar form between brackets, [] for the cell of degree 0; it is found from itself or from its
+# bar form, and it knows its degree.
+
+struct _CellGenerators{W <: _CellWriter}
+    cells::W
+    empty::String
+end
+
+Complexes._generator_writer(B::CellBasis, N::Notation) = _CellGenerators(_CellWriter(B.tree, N), N.empty_cell_in_module)
+
+function Complexes._write_generator(io::IO, w::_CellGenerators, B::CellBasis, i::Integer)
+    B.degree == 0 && return print(io, w.empty)
+    print(io, "[")
+    _write_cell(io, w.cells, B.tree, first(cell_range(B.tree, B.degree)) + i - 1)
+    print(io, "]")
+    return nothing
+end
+
+function Complexes._basis_index(B::CellBasis, x::Cell)
+    x.tree === B.tree && cell_degree(x) == B.degree ||
+        throw(ArgumentError("the cell $x is not one of the basis (the cells of degree $(B.degree) of its tree)"))
+    return Int(x.index) - first(cell_range(B.tree, B.degree)) + 1
+end
+
+# The cell written `text`, the cell of degree 0 for an empty text (the generator of []).
+_written_cell(T::CellTree, N::Notation, text::AbstractString) =
+    isempty(strip(text)) ? Cell(T, Int32(1)) : _read_cell(T, N, text)
+
+Complexes._find_in_basis(B::CellBasis, N::Notation, text::AbstractString, ::AbstractString) =
+    Complexes._basis_index(B, _written_cell(B.tree, N, text))
+
+Complexes._basis_degree(B::CellBasis) = B.degree
+
+# A complex whose bases are cells reads its generators as bar forms (P("2|12")).
+function Complexes._find_generator(B::CellBasis, ::AbstractChainComplex, N::Notation, text::AbstractString)
+    c = _written_cell(B.tree, N, text)
+    n = cell_degree(c)
+    return (n, Int(c.index) - first(cell_range(B.tree, n)) + 1)
+end
+
+Complexes._generator_degree(::CellBasis, x::Cell) = cell_degree(x)
+
+# The detailed displays (display.jl of the complexes layer): the section of the cells, the
+# boundaries of degree 1 (a[] - []a) omitted with :limit, the cells in bar form.
+Complexes._basis_title(::CellBasis) = "Cells"  # COV_EXCL_LINE (a constant, folded by the compiler)
+Complexes._omits_first_boundaries(::CellBasis) = true  # COV_EXCL_LINE (a constant, folded by the compiler)
+Complexes._write_plain_generator(io::IO, w::_CellGenerators, B::CellBasis, i::Integer) =
+    _write_cell(io, w.cells, B.tree, first(cell_range(B.tree, B.degree)) + i - 1)
 
 const _LCMMatrix = LabelledSparseMatrix{NTuple{2, Int32}, Int}
 
@@ -39,6 +95,14 @@ It implements the interface of `AbstractChainComplex` (`range`, `R[n]`,
 [`CellBasis`](@ref)es; [`extend_scalars`](@ref) gives a `ChainComplex` over ℤ on the same bases,
 which still know their cells. Functions that need more than a chain complex, such as the
 writing of snapshots ([`write_snapshot`](@ref)), have methods for this type.
+
+Its cells, as [`Cell`](@ref)s: `basis(R[n])`, `basis(R)` (the [`GradedBasis`](@ref)),
+`R("2|12")` (from the bar form), `R(G(2), G(1, 2))` (from the letters); the elements of its
+modules, `R(x)`, `R("2×1[2]1 - [1]")` ([`BasedFreeModuleElement`](@ref)); its differential,
+`d = differential(R)`, `d(x)` ([`Differential`](@ref)). At the REPL, its detailed display
+gives the cells of each degree and the boundaries `d(x)`, within the screen (the beginning
+and the end of the list, the boundaries of degree 1, `a[] - []a`, omitted but for a
+reminder); `show(stdout, "text/plain", R)`, or the same into a file, writes all of them.
 """
 struct LCMResolution{G <: AbstractGerm, O <: LCMOrdering, R <: MonoidAlgebra, M <: AbstractModule} <:
        AbstractChainComplex{R, _LCMMatrix}
@@ -143,6 +207,31 @@ The tree of the cells of an lcm resolution, or of one of its extensions of scala
 the bases of its modules.
 """
 cell_tree(R::LCMResolution) = R.tree
+
+"""
+    (C::AbstractChainComplex)(x::Cell)
+
+The generator `[x]` of the module of the degree of the cell `x`, for a complex whose bases are
+cells: `P(x)` is `P[n](x)` for a cell of degree `n`.
+"""
+function (C::AbstractChainComplex)(x::Cell)
+    return C[cell_degree(x)](x)
+end
+
+"""
+    (C::AbstractChainComplex)(letters::GermElement...)
+
+The cell of a complex whose bases are cells (an lcm resolution, or one of its extensions
+of scalars) whose letters are `letters`: `P(G(2), G(1, 2))` is the cell `2|12`, and `P()`
+the cell of degree 0. An `ArgumentError` if the letters are not those of a cell.
+"""
+function (C::AbstractChainComplex)(letters::GermElement...)
+    T = cell_tree(C)
+    for s in letters
+        s.germ === T.germ || throw(ArgumentError("the letters of a cell are elements of the germ of the resolution"))
+    end
+    return _cell_of_letters(T, (s.index for s in letters), join(letters, '|'))
+end
 
 function cell_tree(C::AbstractChainComplex)
     b = basis(C[first(range(C))])

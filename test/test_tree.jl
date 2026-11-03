@@ -161,10 +161,13 @@ end
     end
 
     @testset "Exports" begin
-        for s in (:CellTree, :cell_range, :cell_weight, :cell_letter, :cell_atom,
-                  :cell_degree, :cell_children, :admissible_atoms, :bar_form, :atom_sequence)
+        for s in (:CellTree, :Cell, :cell_range, :cell_letter, :cell_atom,
+                  :cell_children, :admissible_atoms, :bar_form)
             @test Base.ispublic(GarsideHomology, s) && !Base.isexported(GarsideHomology, s)
         end
         @test Base.isexported(GarsideHomology, :ncells)     # also for resolutions (J1.g)
+        for s in (:cell_weight, :cell_degree, :atom_sequence)  # also for a Cell (J1.h)
+            @test Base.isexported(GarsideHomology, s)
+        end
     end
 end

@@ -24,7 +24,7 @@ permuted_atoms(T, perm) = GarsideHomology.TableGerm(right_covers_of(T)[perm, :],
 function is_germ_isomorphism(G, H, φ)
     length(φ) == natoms(G) == natoms(H) || return false
     f = Vector{Int32}(undef, nsimples(G))
-    for s in GarsideHomology.simples(G)
+    for s in GarsideHomology._simple_numbers(G)
         x = GarsideHomology.one(H)
         for a in GarsideHomology.word(G, s)
             x = GarsideHomology.product(H, x, φ[a])
@@ -33,7 +33,7 @@ function is_germ_isomorphism(G, H, φ)
         f[s + 1] = x
     end
     allunique(f) || return false
-    for s in GarsideHomology.simples(G), a in 1:natoms(G)
+    for s in GarsideHomology._simple_numbers(G), a in 1:natoms(G)
         p = GarsideHomology.product(G, s, a)
         q = GarsideHomology.product(H, f[s + 1], φ[a])
         (p === nothing) == (q === nothing) || return false

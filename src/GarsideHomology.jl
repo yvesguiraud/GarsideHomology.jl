@@ -18,7 +18,9 @@ onto the cells ([`LCMProjectionData`](@ref)) and the lcm resolution
 ([`write_snapshot`](@ref)) and its certificate ([`certify`](@ref)), the modules of
 coefficients ([`TrivialModule`](@ref), [`SignModule`](@ref)) and the tensor products by
 them ([`tensor_product`](@ref), `homology(R, M)`), in which a ring stands for its trivial
-module ([`ℤ`](@ref): `homology(R, ℤ)`, `ℤ ⊗ R ⊗ ℤ`).
+module ([`ℤ`](@ref): `homology(R, ℤ)`, `ℤ ⊗ R ⊗ ℤ`; [`ℤε`](@ref) for the sign module). The
+elements of a germ are shown to the user as words in the atoms ([`GermElement`](@ref):
+`G(1, 2, 1)`, `G("121")`), with the settings of the display of [`Notation`](@ref).
 """
 module GarsideHomology
 
@@ -26,7 +28,8 @@ module GarsideHomology
 # else in GarsideHomology, so that it can later become a package of its own.
 include("complexes/Complexes.jl")
 using .Complexes
-using .Complexes: rank, basis, MonoidAlgebra, AbstractMonoid, AbstractModule, AbstractChainComplex
+using .Complexes: rank, basis, MonoidAlgebra, AbstractMonoid, AbstractModule, AbstractChainComplex, GradedBasis,
+                  BasedFreeModuleElement, Differential
 using SparseArrays: nnz, nzrange, rowvals, nonzeros
 import AbstractAlgebra
 using AbstractAlgebra: ZZ
@@ -55,6 +58,7 @@ include("germs/interface.jl")
 include("germs/table.jl")
 include("germs/hurwitz.jl")
 include("germs/coxeter.jl")
+include("germs/elements.jl")
 include("germs/verify.jl")
 include("germs/isomorphism.jl")
 
@@ -62,6 +66,7 @@ include("germs/isomorphism.jl")
 # the tree of the cells.
 include("cells/orderings.jl")
 include("cells/tree.jl")
+include("cells/cell.jl")
 include("cells/chains.jl")
 include("cells/projection.jl")
 
@@ -85,15 +90,23 @@ export FinitelyGeneratedGradedModule, FinitelyGeneratedGradedAbelianGroup
 export labels, differential, extend_scalars, torsion, is_square_zero
 export homology, collapsible_pairs
 export base_ring, nrows, ncols
+export Notation, set_notation!, notation
 # Public, not exported: Chevie exports its own `rank` and `basis` (see Complexes.jl),
-# Oscar a type MonoidAlgebra of its own (J1.e, M5).
-public rank, basis, MonoidAlgebra
+# Oscar a type MonoidAlgebra of its own (J1.e, M5); GradedBasis, BasedFreeModuleElement and
+# Differential, the types of basis(C), of M(x) and of differential(C), are obtained without
+# being named (J1.h).
+public rank, basis, MonoidAlgebra, GradedBasis, BasedFreeModuleElement, Differential
 
 # Interface of germs. Exported: the names an ordinary user types. Public only: the
 # vocabulary of germs and of the construction, and the names exported elsewhere
 # (`product` and `atoms` by Oscar, `word` by Chevie and Oscar).
 export natoms, nsimples, simples, opposite, germ, dual_germ
 public AbstractGerm, StaticBitSet
+# The elements of a germ for the user (J1.h): public, since one gets them by calling the
+# germ (G(1, 2, 1), G("121")) or from simples(G); elements is exported by PermGroups (hence
+# Chevie), FiniteFields, Hecke and Oscar (with Chevie, the extension adds a method to its
+# elements).
+public GermElement, elements
 public product, ldiv, left_descents, lcm_atom, atoms, is_left_divisor, word, isless_lex, isless_deglex
 public TableGerm, tabulate, hurwitz_orbit, CoxeterGerm, nnumbered, verify, count_multichains, GermFingerprint, fingerprint
 # Tool of the developer, public only (is_isomorphic and isomorphism are exported by
@@ -107,10 +120,12 @@ public AbstractLCMPreorder, precedes, extends_divisibility
 
 # Tree of the cells: a tool of the construction, public but not exported, except ncells,
 # which also counts the cells of a resolution (J1.g). Accessors with the prefix cell_, since
-# weight and degree are exported by Oscar, AbstractAlgebra, Chevie.
-export ncells
-public CellTree, cell_range, cell_weight, cell_letter, cell_atom, cell_degree
-public cell_children, admissible_atoms, bar_form, atom_sequence
+# weight and degree are exported by Oscar, AbstractAlgebra, Chevie. The cells for the user
+# (J1.h): Cell, public, obtained from the bases or by P("2|12"); cell_weight, cell_degree and
+# atom_sequence, exported, since they also read a Cell.
+export ncells, cell_weight, cell_degree, atom_sequence
+public CellTree, Cell, cell_range, cell_letter, cell_atom
+public cell_children, admissible_atoms, bar_form
 
 # Projection onto the cells (provisional names, before the theory of the article).
 public ChainTree, BimoduleTerm, LCMProjectionData, lcm_splitting, lcm_projection!, lcm_boundary
@@ -125,7 +140,7 @@ public ResolutionCertificate, is_correct, is_minimal, is_linear
 # exported by Hecke and Oscar, ⊗ by Hecke, Oscar and Chevie): write `using GarsideHomology: ⊗`
 # for the notation, which wins over the exports of those packages; with Chevie loaded, its ⊗
 # also tensors our complexes (package extension).
-export TrivialModule, SignModule, ℤ
+export TrivialModule, SignModule, ℤ, ℤε, ℤϵ
 public AbstractMonoidModule, tensor_product, ⊗
 # The ring of integers of AbstractAlgebra, the same object as ℤ: public, not exported, since
 # Nemo, Hecke and Oscar export a ZZ of their own, another object.
@@ -164,6 +179,19 @@ function _precompile_workload()
         homology(R, ℤ)
         homology(R, SignModule())
         ncells(R)
+    end
+    # The elements, displays and readings of J1.h, on B*(A₂) and B*(I₂(65)).
+    for G in germs[1:2]
+        R = lcm_resolution(G)
+        d = differential(R)
+        x = basis(R[last(range(R))])[1]
+        v = d(x)
+        R(string(v)), R(string(x)), G(string(G(1))), extend_scalars(R)(string(x))
+        sprint(show, MIME"text/plain"(), R; context = :limit => true)
+        sprint(show, MIME"text/plain"(), R)
+        sprint(show, MIME"text/plain"(), basis(R); context = :limit => true)
+        sprint(show, MIME"text/plain"(), v; context = :limit => true)
+        sprint(show, MIME"text/plain"(), d)
     end
     return nothing
 end

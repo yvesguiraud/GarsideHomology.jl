@@ -65,7 +65,7 @@ _drop(ks) = (I, J, L, V) -> (keep = setdiff(eachindex(I), ks); (I[keep], J[keep]
         expected = Dict(Int32[] => 1, Int32[1] => -1, Int32[2] => -1, Int32[1, 2] => 0, Int32[2, 1] => 0,
                         Int32[1, 2, 1] => 1)
         μ = GarsideHomology._mobius_values(G)
-        @test all(μ[s + 1] == expected[GarsideHomology.word(G, s)] for s in simples(G))
+        @test all(μ[s + 1] == expected[GarsideHomology.word(G, s)] for s in GarsideHomology._simple_numbers(G))
         @test sort!(collect(values(GarsideHomology._mobius_crosscut(G)))) == [-1, -1, 1, 1]
         c = certify(lcm_resolution(G))
         @test is_correct(c) && is_minimal(c) && !is_linear(c)
@@ -135,10 +135,10 @@ _drop(ks) = (I, J, L, V) -> (keep = setdiff(eachindex(I), ks); (I[keep], J[keep]
         for G in germs
             v = GarsideHomology._mobius_values(G)
             d = GarsideHomology._mobius_crosscut(G)
-            @test all(v[s + 1] == get(d, s, 0) for s in simples(G)) && all(!iszero, values(d))
+            @test all(v[s + 1] == get(d, s, 0) for s in GarsideHomology._simple_numbers(G)) && all(!iszero, values(d))
         end
         D4 = signed_interval_germ(4, :D, (2, -4, -3, 1))       # B*(D₄): μ(1, Δ) = 20
-        lengths = [length(D4, s) for s in simples(D4)]
+        lengths = [length(D4, s) for s in GarsideHomology._simple_numbers(D4)]
         @test GarsideHomology._mobius_values(D4)[argmax(lengths)] == 20
     end
 

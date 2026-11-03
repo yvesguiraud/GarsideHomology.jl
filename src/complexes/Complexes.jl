@@ -20,9 +20,11 @@ import SparseElementaryDivisors
 using SparseElementaryDivisors: sparse_elementary_divisors
 # The same functions as AbstractAlgebra's: methods are added for our types, so that the
 # names do not clash with AbstractAlgebra, Nemo, Hecke or Oscar. `rank` and `basis` are
-# public but not exported, because Chevie exports a `rank` (rank of a reflection group)
-# and a `basis` of its own: write `GarsideHomology.rank`, or `using GarsideHomology: rank`
-# when Chevie is not loaded, and the same for `basis`.
+# public but not exported, because Chevie exports a `rank` (that of Chevie.Symbols, the
+# rank of a partition) and a `basis` (that of Chevie.Algebras) of its own: with Chevie
+# loaded, the package extension adds methods for our types to those functions, so that
+# `rank(M)` and `basis(M)` work without qualification (J1.h); without Chevie, write
+# `using GarsideHomology: rank, basis`.
 using AbstractAlgebra: base_ring, rank, basis, nrows, ncols
 
 export BasedFreeModule, LabelledSparseMatrix, ChainComplex
@@ -31,15 +33,23 @@ export FinitelyGeneratedGradedModule, FinitelyGeneratedGradedAbelianGroup
 export labels, differential, extend_scalars, torsion, is_square_zero
 export homology, collapsible_pairs
 export base_ring, nrows, ncols
+export Notation, set_notation!, notation
 
 # MonoidAlgebra is public but not exported: Oscar exports a type of its own of that name.
 public rank, basis, MonoidAlgebra, AbstractMonoid, AbstractModule, AbstractChainComplex, label_type, identity_label, check_invariants
+# The graded basis of a complex, basis(C), the elements of the modules and the differential
+# as an object, differential(C) (J1.h).
+public GradedBasis, BasedFreeModuleElement, Differential
 
 include("arithmetic.jl")
+include("notation.jl")
 include("rings.jl")
 include("modules.jl")
 include("labelled.jl")
 include("complex.jl")
+include("graded_basis.jl")
+include("elements.jl")
+include("display.jl")
 include("fg_modules.jl")
 include("homology.jl")
 include("pairs.jl")

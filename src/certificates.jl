@@ -144,12 +144,12 @@ certify(::AbstractChainComplex; kwargs...) =
 function _mobius_method(G::AbstractGerm, mobius::Symbol)
     N = natoms(G)
     if mobius === :auto
-        return N <= _CROSSCUT_AUTO ? :crosscut : applicable(simples, G) ? :layers : :none
+        return N <= _CROSSCUT_AUTO ? :crosscut : applicable(_simple_numbers, G) ? :layers : :none
     elseif mobius === :crosscut
         N <= _CROSSCUT_MAX ||
             throw(ArgumentError("certify: mobius = :crosscut needs the 2^$N sets of atoms; at most $_CROSSCUT_MAX atoms"))
     elseif mobius === :layers
-        applicable(simples, G) ||
+        applicable(_simple_numbers, G) ||
             throw(ArgumentError("certify: mobius = :layers needs a germ that lists its simples (a tabulated germ)"))
     elseif mobius !== :none
         throw(ArgumentError("certify: mobius = :$mobius, expected :auto, :crosscut, :layers or :none"))

@@ -45,6 +45,26 @@ end
 
 SignModule() = SignModule(AbstractAlgebra.ZZ)
 
+"""
+    ℤε
+
+The sign module over the integers, `SignModule()`: every atom acts by −1, so that
+`homology(R, ℤε)` is the homology with coefficients in ℤε (Garnier, table 4), beside
+`homology(R, ℤ)` for the trivial coefficients, and `ℤ ⊗ R ⊗ ℤε` the complex that computes
+it. Typed `\\bbZ` then Tab, then `\\varepsilon` then Tab (ε, U+03B5). The other epsilon,
+`\\epsilon` (ϵ, U+03F5, another character), gives [`ℤϵ`](@ref), the same object.
+"""
+const ℤε = SignModule()
+
+"""
+    ℤϵ
+
+The same object as [`ℤε`](@ref), the sign module over the integers, under the name typed
+with `\\epsilon` (ϵ, U+03F5) rather than `\\varepsilon` (ε, U+03B5), two characters that
+look alike.
+"""
+const ℤϵ = ℤε
+
 const _RankOneModule = Union{TrivialModule, SignModule}
 
 AbstractAlgebra.base_ring(M::_RankOneModule) = M.ring

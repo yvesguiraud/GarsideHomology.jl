@@ -7,7 +7,8 @@ built by `GarsideHomology.germ(M)` and `GarsideHomology.TableGerm(M)`, and `Gars
 builds the germ of a dual braid monoid from the group without building the monoid. Also
 `germ(W)` for a finite Coxeter group (the germ of its classical braid monoid),
 `lcm_resolution(M)` and `homology(M)` for a monoid of Chevie, through its germ, and the
-methods of the `⊗` of Chevie for our complexes.
+methods of the `⊗` of Chevie for our complexes, and of its `word`, `elements`, `basis` and
+`rank` for our objects.
 
 The right covers σ → σa given to `GarsideHomology.tabulate` come from the arithmetic of the group
 alone. An element is identified by the images of the roots of the generators, which
@@ -125,6 +126,22 @@ Chevie.FinitePosets.:⊗(N::GarsideHomology._Coefficients, C::GarsideHomology.Co
     GarsideHomology.tensor_product(N, C)
 Chevie.FinitePosets.:⊗(C::GarsideHomology.Complexes.AbstractChainComplex, M::GarsideHomology._Coefficients) =
     GarsideHomology.tensor_product(C, M)
+
+# Chevie exports four functions with the names of ours, for other objects: word and elements
+# (those of PermGroups, reexported by Chevie), basis (that of Chevie.Algebras) and rank (that
+# of Chevie.Symbols). They get methods for our types, which call ours, so that `word(s)`,
+# `elements(G)`, `basis(M)` and `rank(M)` work without qualification with Chevie loaded
+# (J1.h, point 7a). Our types only: no type piracy; no signature of Chevie is met.
+Chevie.PermGroups.word(s::GarsideHomology.GermElement) = GarsideHomology.word(s)
+Chevie.PermGroups.word(G::GarsideHomology.AbstractGerm, s::Integer) = GarsideHomology.word(G, s)
+Chevie.PermGroups.elements(G::GarsideHomology.AbstractGerm) = GarsideHomology.elements(G)
+Chevie.Algebras.basis(M::GarsideHomology.Complexes.BasedFreeModule) = GarsideHomology.Complexes.basis(M)
+Chevie.Algebras.basis(C::GarsideHomology.Complexes.AbstractChainComplex) = GarsideHomology.Complexes.basis(C)
+Chevie.Symbols.rank(M::GarsideHomology.Complexes.BasedFreeModule) = GarsideHomology.Complexes.rank(M)
+Chevie.Symbols.rank(H::GarsideHomology.Complexes.FinitelyGeneratedModule) = GarsideHomology.Complexes.rank(H)
+# The rank of a module of coefficients is the constant 1 for now: the compiler folds the
+# call, so that the coverage never sees the line (as for the method it calls).
+Chevie.Symbols.rank(M::GarsideHomology.AbstractMonoidModule) = GarsideHomology.Complexes.rank(M)  # COV_EXCL_LINE
 
 # ------------------------------------------------------------------------------------
 # Keys
