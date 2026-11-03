@@ -105,6 +105,19 @@ struct ElementsOtherMonoid <: _EL.AbstractMonoid end
         end
     end
 
+    @testset "Displays" begin
+        M0, M1 = BasedFreeModule(_EL_ZZ, ["p"]), BasedFreeModule(_EL_ZZ, ["a", "b"])
+        C = ChainComplex([M0, M1], [_el_sparse([1 -1])])
+        expected = sprint(show, C) * "\nBasis:\n  0: p\n  1: a, b\nDifferential:\n  d(a) = [p]\n  d(b) = -[p]"
+        @test sprint(show, MIME"text/plain"(), C) == expected
+        @test sprint(show, MIME"text/plain"(), C; context = (:limit => true, :displaysize => (24, 80))) == expected
+        @test sprint(show, MIME"text/plain"(), differential(C)) ==
+              "Differential of " * sprint(show, C) * "\n  d(a) = [p]\n  d(b) = -[p]"
+        single = ChainComplex([M0], typeof(_el_sparse([1 -1]))[])
+        @test sprint(show, MIME"text/plain"(), single) == sprint(show, single) * "\nBasis:\n  0: p"
+        @test sprint(show, MIME"text/plain"(), differential(single)) == "Differential of " * sprint(show, single)
+    end
+
     @testset "Exports" begin
         for s in (:BasedFreeModuleElement, :Differential)
             @test Base.ispublic(GarsideHomology, s) && !Base.isexported(GarsideHomology, s)

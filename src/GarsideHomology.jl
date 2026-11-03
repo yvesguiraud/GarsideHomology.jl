@@ -180,6 +180,19 @@ function _precompile_workload()
         homology(R, SignModule())
         ncells(R)
     end
+    # The elements, displays and readings of J1.h, on B*(A₂) and B*(I₂(65)).
+    for G in germs[1:2]
+        R = lcm_resolution(G)
+        d = differential(R)
+        x = basis(R[last(range(R))])[1]
+        v = d(x)
+        R(string(v)), R(string(x)), G(string(G(1))), extend_scalars(R)(string(x))
+        sprint(show, MIME"text/plain"(), R; context = :limit => true)
+        sprint(show, MIME"text/plain"(), R)
+        sprint(show, MIME"text/plain"(), basis(R); context = :limit => true)
+        sprint(show, MIME"text/plain"(), v; context = :limit => true)
+        sprint(show, MIME"text/plain"(), d)
+    end
     return nothing
 end
 

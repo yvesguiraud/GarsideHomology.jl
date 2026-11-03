@@ -74,6 +74,13 @@ end
 
 Complexes._generator_degree(::CellBasis, x::Cell) = cell_degree(x)
 
+# The detailed displays (display.jl of the complexes layer): the section of the cells, the
+# boundaries of degree 1 (a[] - []a) omitted with :limit, the cells in bar form.
+Complexes._basis_title(::CellBasis) = "Cells"  # COV_EXCL_LINE (a constant, folded by the compiler)
+Complexes._omits_first_boundaries(::CellBasis) = true  # COV_EXCL_LINE (a constant, folded by the compiler)
+Complexes._write_plain_generator(io::IO, w::_CellGenerators, B::CellBasis, i::Integer) =
+    _write_cell(io, w.cells, B.tree, first(cell_range(B.tree, B.degree)) + i - 1)
+
 const _LCMMatrix = LabelledSparseMatrix{NTuple{2, Int32}, Int}
 
 """
@@ -90,7 +97,12 @@ which still know their cells. Functions that need more than a chain complex, suc
 writing of snapshots ([`write_snapshot`](@ref)), have methods for this type.
 
 Its cells, as [`Cell`](@ref)s: `basis(R[n])`, `basis(R)` (the [`GradedBasis`](@ref)),
-`R("2|12")` (from the bar form), `R(G(2), G(1, 2))` (from the letters).
+`R("2|12")` (from the bar form), `R(G(2), G(1, 2))` (from the letters); the elements of its
+modules, `R(x)`, `R("2×1[2]1 - [1]")` ([`BasedFreeModuleElement`](@ref)); its differential,
+`d = differential(R)`, `d(x)` ([`Differential`](@ref)). At the REPL, its detailed display
+gives the cells of each degree and the boundaries `d(x)`, within the screen (the beginning
+and the end of the list, the boundaries of degree 1, `a[] - []a`, omitted but for a
+reminder); `show(stdout, "text/plain", R)`, or the same into a file, writes all of them.
 """
 struct LCMResolution{G <: AbstractGerm, O <: LCMOrdering, R <: MonoidAlgebra, M <: AbstractModule} <:
        AbstractChainComplex{R, _LCMMatrix}

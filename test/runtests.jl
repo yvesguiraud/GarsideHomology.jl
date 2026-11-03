@@ -27,6 +27,7 @@ import Chevie  # loads the package extension GarsideHomologyChevieExt
     include("test_projection.jl")
     include("test_resolution.jl")
     include("test_resolution_elements.jl")
+    include("test_displays.jl")
     include("test_certificates.jl")
     include("test_modules.jl")
     include("test_convenience.jl")

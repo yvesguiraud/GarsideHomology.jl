@@ -321,7 +321,8 @@ Complexes._label_product(G::AbstractGerm, a::Integer, b::Integer) =
     iszero(a) ? Int32(b) : iszero(b) ? Int32(a) : product(G, a, b)
 Complexes._label_value(G::AbstractGerm, l::Int32) = GermElement(G, l; check = false)
 
-function Complexes._label_code(G::AbstractGerm, s::GermElement)
+# Signature line, counted only by some compiled instances in the coverage of Julia (J1.g).
+function Complexes._label_code(G::AbstractGerm, s::GermElement)  # COV_EXCL_LINE
     s.germ === G || throw(ArgumentError("the element $s is not one of the germ of the module"))
     return s.index
 end

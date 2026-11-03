@@ -314,7 +314,7 @@ function _write_element(io::IO, v::BasedFreeModuleElement, w::_ElementWriter)
     return nothing
 end
 
-Base.show(io::IO, v::BasedFreeModuleElement) = _write_element(io, v, _ElementWriter(v.parent, notation(io)))
+# The show methods are in display.jl, with the detailed displays.
 
 # ------------------------------------------------------------------------------------
 # Reading
@@ -498,7 +498,8 @@ element `v` of a module of `C`, an element of `C_n`. For the terms `c×σ[x]τ` 
 over a monoid algebra, `d(v)` is the sum of the `c × σ·d(x)·τ`, an `ArgumentError` if a
 product of elements of the monoid is not a simple. The boundary of an element of the lowest
 degree is 0, in a module of rank 0 below it (whose elements have the boundary 0 too).
-`d(d(x))` checks `d² = 0` on `x`.
+`d(d(x))` checks `d² = 0` on `x`. At the REPL, `d` shows the boundaries of the generators,
+within the screen; `d.(basis(C[n]))` gives those of one degree.
 """
 struct Differential{C <: AbstractChainComplex}
     complex::C
