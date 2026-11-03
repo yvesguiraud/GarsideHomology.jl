@@ -136,6 +136,7 @@ Chevie.PermGroups.word(s::GarsideHomology.GermElement) = GarsideHomology.word(s)
 Chevie.PermGroups.word(G::GarsideHomology.AbstractGerm, s::Integer) = GarsideHomology.word(G, s)
 Chevie.PermGroups.elements(G::GarsideHomology.AbstractGerm) = GarsideHomology.elements(G)
 Chevie.Algebras.basis(M::GarsideHomology.Complexes.BasedFreeModule) = GarsideHomology.Complexes.basis(M)
+Chevie.Algebras.basis(C::GarsideHomology.Complexes.AbstractChainComplex) = GarsideHomology.Complexes.basis(C)
 Chevie.Symbols.rank(M::GarsideHomology.Complexes.BasedFreeModule) = GarsideHomology.Complexes.rank(M)
 Chevie.Symbols.rank(H::GarsideHomology.Complexes.FinitelyGeneratedModule) = GarsideHomology.Complexes.rank(H)
 # The rank of a module of coefficients is the constant 1 for now: the compiler folds the

@@ -79,7 +79,7 @@ function _snapshot_groups(C::LCMResolution, T::CellTree)
     end
     for n in first(range(C)):(last(range(C)) - 1)
         d = differential(C, n)
-        source, target = basis(C[n + 1]), basis(C[n])
+        source, target = cell_range(T, n + 1), cell_range(T, n)
         rows, labs, vals = Complexes.SparseArrays.rowvals(d), labels(d), Complexes.SparseArrays.nonzeros(d)
         a = String[]
         b = String[]

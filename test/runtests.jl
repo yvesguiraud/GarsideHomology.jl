@@ -11,6 +11,7 @@ import Chevie  # loads the package extension GarsideHomologyChevieExt
     end
     include("test_complexes.jl")
     include("test_notation.jl")
+    include("test_graded_basis.jl")
     include("test_germs.jl")
     include("test_table_germ.jl")
     include("test_coxeter_germ.jl")
@@ -21,6 +22,7 @@ import Chevie  # loads the package extension GarsideHomologyChevieExt
     include("test_orderings.jl")
     include("test_snapshots.jl")
     include("test_tree.jl")
+    include("test_cells.jl")
     include("test_projection.jl")
     include("test_resolution.jl")
     include("test_certificates.jl")

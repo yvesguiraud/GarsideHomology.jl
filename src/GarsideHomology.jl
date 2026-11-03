@@ -28,7 +28,7 @@ module GarsideHomology
 # else in GarsideHomology, so that it can later become a package of its own.
 include("complexes/Complexes.jl")
 using .Complexes
-using .Complexes: rank, basis, MonoidAlgebra, AbstractMonoid, AbstractModule, AbstractChainComplex
+using .Complexes: rank, basis, MonoidAlgebra, AbstractMonoid, AbstractModule, AbstractChainComplex, GradedBasis
 using SparseArrays: nnz, nzrange, rowvals, nonzeros
 import AbstractAlgebra
 using AbstractAlgebra: ZZ
@@ -65,6 +65,7 @@ include("germs/isomorphism.jl")
 # the tree of the cells.
 include("cells/orderings.jl")
 include("cells/tree.jl")
+include("cells/cell.jl")
 include("cells/chains.jl")
 include("cells/projection.jl")
 
@@ -90,8 +91,9 @@ export homology, collapsible_pairs
 export base_ring, nrows, ncols
 export Notation, set_notation!, notation
 # Public, not exported: Chevie exports its own `rank` and `basis` (see Complexes.jl),
-# Oscar a type MonoidAlgebra of its own (J1.e, M5).
-public rank, basis, MonoidAlgebra
+# Oscar a type MonoidAlgebra of its own (J1.e, M5); GradedBasis, the type of basis(C), is
+# obtained without being named (J1.h).
+public rank, basis, MonoidAlgebra, GradedBasis
 
 # Interface of germs. Exported: the names an ordinary user types. Public only: the
 # vocabulary of germs and of the construction, and the names exported elsewhere
@@ -116,10 +118,12 @@ public AbstractLCMPreorder, precedes, extends_divisibility
 
 # Tree of the cells: a tool of the construction, public but not exported, except ncells,
 # which also counts the cells of a resolution (J1.g). Accessors with the prefix cell_, since
-# weight and degree are exported by Oscar, AbstractAlgebra, Chevie.
-export ncells
-public CellTree, cell_range, cell_weight, cell_letter, cell_atom, cell_degree
-public cell_children, admissible_atoms, bar_form, atom_sequence
+# weight and degree are exported by Oscar, AbstractAlgebra, Chevie. The cells for the user
+# (J1.h): Cell, public, obtained from the bases or by P("2|12"); cell_weight, cell_degree and
+# atom_sequence, exported, since they also read a Cell.
+export ncells, cell_weight, cell_degree, atom_sequence
+public CellTree, Cell, cell_range, cell_letter, cell_atom
+public cell_children, admissible_atoms, bar_form
 
 # Projection onto the cells (provisional names, before the theory of the article).
 public ChainTree, BimoduleTerm, LCMProjectionData, lcm_splitting, lcm_projection!, lcm_boundary

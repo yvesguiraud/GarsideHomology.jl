@@ -27,9 +27,9 @@ import Chevie
         @test firstindex(C) == 0 && lastindex(C) == 2 && rank(C[end]) == 2
         @test_throws BoundsError C[3]
         @test base_ring(C) == MonoidAlgebra(GarsideHomology.Complexes.AbstractAlgebra.ZZ, cell_tree(C).germ, :both)
-        @test basis(C[1]) isa CellBasis && collect(basis(C[2])) == [5, 6]
-        @test sprint(show, basis(C[1])) == "CellBasis: 3 cells of degree 1"
-        @test sprint(show, MIME"text/plain"(), basis(C[1])) == "CellBasis: 3 cells of degree 1"
+        @test basis(C[1]) isa CellBasis && [c.index for c in basis(C[2])] == [5, 6]
+        @test sprint(show, basis(C[1])) == "CellBasis of degree 1 with 3 cells"
+        @test sprint(show, MIME"text/plain"(), basis(C[1])) == "3-element CellBasis of degree 1:\n 1\n 2\n 3"
         @test sprint(show, C) == "LCMResolution: 6 cells, by degree [1, 3, 2], 14 terms, " *
                                  "germ ExplicitGerm with 3 atoms, LCMOrdering(ComplementDeglex())"
         T = cell_tree(C)

@@ -5,12 +5,13 @@
     CellBasis
 
 The basis of the module of degree `n` of an lcm resolution: the cells of degree `n` of
-its tree, as their numbers `cell_range(T, n)`, in the order of the construction. A
-vector of `Int` that keeps the tree, so that a complex built on such bases, and its
-extensions of scalars, which share them, know their cells ([`cell_tree`](@ref),
-[`atom_sequence`](@ref), [`bar_form`](@ref)).
+its tree, as [`Cell`](@ref)s, in the order of the construction (the numbers
+`cell_range(T, n)`), created on demand. A vector that keeps the tree, so that a complex
+built on such bases, and its extensions of scalars, which share them, know their cells
+([`cell_tree`](@ref)). At the REPL, a vector of cells in bar form, cut in the middle when
+it is long.
 """
-struct CellBasis{T <: CellTree} <: AbstractVector{Int}
+struct CellBasis{T <: CellTree} <: AbstractVector{Cell{T}}
     tree::T
     degree::Int
 end
@@ -19,11 +20,20 @@ Base.size(B::CellBasis) = (ncells(B.tree, B.degree),)
 Base.IndexStyle(::Type{<:CellBasis}) = IndexLinear()
 Base.@propagate_inbounds function Base.getindex(B::CellBasis, i::Int)
     @boundscheck checkbounds(B, i)
-    return first(cell_range(B.tree, B.degree)) + i - 1
+    return Cell(B.tree, Int32(first(cell_range(B.tree, B.degree)) + i - 1))
 end
 
-Base.show(io::IO, B::CellBasis) = print(io, "CellBasis: ", length(B), " cells of degree ", B.degree)
-Base.show(io::IO, ::MIME"text/plain", B::CellBasis) = show(io, B)
+Base.showarg(io::IO, B::CellBasis, toplevel::Bool) = print(io, "CellBasis of degree ", B.degree)
+Base.show(io::IO, B::CellBasis) = print(io, "CellBasis of degree ", B.degree, " with ", length(B), " cells")
+
+# Two bases of cells of the same tree and degree are equal without comparing the cells,
+# which are then the same; otherwise only two empty bases are equal, as vectors.
+Base.:(==)(A::CellBasis, B::CellBasis) =
+    A.tree === B.tree && A.degree == B.degree || isempty(A) && isempty(B)
+
+# A complex whose bases are cells reads its generators as bar forms (P("2|12")).
+Complexes._read_generator(B::CellBasis, ::AbstractChainComplex, text::AbstractString) =
+    _read_cell(B.tree, notation(), text)
 
 const _LCMMatrix = LabelledSparseMatrix{NTuple{2, Int32}, Int}
 
@@ -39,6 +49,9 @@ It implements the interface of `AbstractChainComplex` (`range`, `R[n]`,
 [`CellBasis`](@ref)es; [`extend_scalars`](@ref) gives a `ChainComplex` over ℤ on the same bases,
 which still know their cells. Functions that need more than a chain complex, such as the
 writing of snapshots ([`write_snapshot`](@ref)), have methods for this type.
+
+Its cells, as [`Cell`](@ref)s: `basis(R[n])`, `basis(R)` (the [`GradedBasis`](@ref)),
+`R("2|12")` (from the bar form), `R(G(2), G(1, 2))` (from the letters).
 """
 struct LCMResolution{G <: AbstractGerm, O <: LCMOrdering, R <: MonoidAlgebra, M <: AbstractModule} <:
        AbstractChainComplex{R, _LCMMatrix}
@@ -143,6 +156,21 @@ The tree of the cells of an lcm resolution, or of one of its extensions of scala
 the bases of its modules.
 """
 cell_tree(R::LCMResolution) = R.tree
+
+"""
+    (C::AbstractChainComplex)(letters::GermElement...)
+
+The cell of a complex whose bases are cells (an lcm resolution, or one of its extensions
+of scalars) whose letters are `letters`: `P(G(2), G(1, 2))` is the cell `2|12`, and `P()`
+the cell of degree 0. An `ArgumentError` if the letters are not those of a cell.
+"""
+function (C::AbstractChainComplex)(letters::GermElement...)
+    T = cell_tree(C)
+    for s in letters
+        s.germ === T.germ || throw(ArgumentError("the letters of a cell are elements of the germ of the resolution"))
+    end
+    return _cell_of_letters(T, (s.index for s in letters), join(letters, '|'))
+end
 
 function cell_tree(C::AbstractChainComplex)
     b = basis(C[first(range(C))])
