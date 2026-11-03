@@ -19,7 +19,8 @@ methods of sets (`collect`, comparison and union with other sets, `hash`).
 """
 struct StaticBitSet{K} <: AbstractSet{Int}
     words::NTuple{K, UInt64}
-    function StaticBitSet{K}(::_Words, words::NTuple{K, UInt64}) where {K}
+    # Signature line, counted only by some compiled instances in the coverage of Julia (J1.g).
+    function StaticBitSet{K}(::_Words, words::NTuple{K, UInt64}) where {K}  # COV_EXCL_LINE
         K isa Int && K >= 1 || throw(ArgumentError("StaticBitSet{$K}: K must be an Int ≥ 1"))
         return new{K}(words)
     end

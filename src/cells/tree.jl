@@ -243,7 +243,8 @@ function _path(field::Vector{Int32}, T::CellTree, x::Integer)
     return w
 end
 
-function Base.show(io::IO, T::CellTree)
+# Signature line, counted only by some compiled instances in the coverage of Julia (J1.g).
+function Base.show(io::IO, T::CellTree)  # COV_EXCL_LINE
     print(io, "CellTree: ", ncells(T), " cells, by degree ", _degree_counts(T), ", ")
     show(io, T.ordering)
 end

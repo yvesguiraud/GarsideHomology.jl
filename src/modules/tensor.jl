@@ -51,7 +51,8 @@ without the import.
 
 # The arguments are not reassigned (a module for a ring): the local names left and right
 # keep a single type each.
-function tensor_product(N::_Coefficients, C::AbstractChainComplex{<:MonoidAlgebra})
+# Signature line, counted only by some compiled instances in the coverage of Julia (J1.g).
+function tensor_product(N::_Coefficients, C::AbstractChainComplex{<:MonoidAlgebra})  # COV_EXCL_LINE
     left = _module(N)
     A = base_ring(C)
     _check_coefficients(A, left)
@@ -62,7 +63,8 @@ function tensor_product(N::_Coefficients, C::AbstractChainComplex{<:MonoidAlgebr
     return _one_sided(C, :right, l -> (χ(l[1]), l[2]))
 end
 
-function tensor_product(C::AbstractChainComplex{<:MonoidAlgebra}, M::_Coefficients)
+# Signature line, counted only by some compiled instances in the coverage of Julia (J1.g).
+function tensor_product(C::AbstractChainComplex{<:MonoidAlgebra}, M::_Coefficients)  # COV_EXCL_LINE
     right = _module(M)
     A = base_ring(C)
     _check_coefficients(A, right)
