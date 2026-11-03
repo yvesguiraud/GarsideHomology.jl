@@ -38,7 +38,7 @@ column(header, name) = findfirst(==(name), header)
 function done()
     h, rows = read_csv(CSV)
     isempty(h) && return Set{Tuple{String, String, Int}}()
-    ic, ip, it = column(h, "cas"), column(h, "chemin"), column(h, "tour")
+    ic, ip, it = column(h, "case"), column(h, "path"), column(h, "round")
     return Set((String(r[ic]), String(r[ip]), parse(Int, r[it])) for r in rows)
 end
 
@@ -55,15 +55,15 @@ function campaign()
     mkpath(LOG_DIR)
     finished = done()
     todo = shuffle_rounds!([(c, p, r) for c in CASES, p in PATHS, r in 1:ROUNDS if !((c, p, r) in finished)])
-    println(length(todo), " tours à faire ; CSV : ", CSV)
+    println(length(todo), " rounds to do; CSV: ", CSV)
     script = joinpath(@__DIR__, "construction.jl")
     for (k, (c, p, r)) in enumerate(todo)
         log = joinpath(LOG_DIR, "construction_$(c)_$(p)_$(r).log")
-        print("[$k/$(length(todo))] $c $p tour $r … ")
+        print("[$k/$(length(todo))] $c $p round $r … ")
         flush(stdout)
         cmd = `$(Base.julia_cmd()) --project=$(@__DIR__) --threads=auto $script $MACHINE $c $p $r`
         t = @elapsed ok = open(io -> success(pipeline(cmd; stdout = io, stderr = io)), log, "w")
-        println(ok ? "fait" : "ÉCHEC (voir $log)", " en ", round(t; digits = 1), " s")
+        println(ok ? "done" : "FAILED (see $log)", " in ", round(t; digits = 1), " s")
     end
 end
 
@@ -75,25 +75,26 @@ function summary()
     get_(r, name) = (i = column(h, name); i === nothing || isempty(r[i]) ? NaN : parse(Float64, r[i]))
     hj, rj = read_csv(J0_CSV)
     println()
-    isempty(hj) ? println("Temps de J0 absents ($J0_CSV).") : println("Temps de J0 : ", J0_CSV)
-    println("Minima sur les tours (s, Gio) ; J0 : arbre + différentielle de gauss.jl, Gauss_a")
+    isempty(hj) ? println("No times of J0 ($J0_CSV).") : println("Times of J0: ", J0_CSV)
+    println("Minima over the rounds (s, GiB); J0: tree + differential of gauss.jl, Gauss_a")
     widths = [11, 9, 9, 7, 8, 8, 9, 8, 7, 8, 9, 8, 7, 9, 9]
-    titles = ["cas", "J0 arbre", "J0 diff", "J0 pic", "P1 mon.", "germe", "arbre", "diff", "pic",
-              "P2 germe", "arbre", "diff", "pic", "gain", "gain+g"]
-    println("gain : (arbre + différentielle de J0) / (arbre + différentielle de P1) ; ",
-            "gain+g : la même chose avec le germe de P1 au dénominateur")
+    titles = ["case", "J0 tree", "J0 diff", "J0 peak", "P1 mon.", "germ", "tree", "diff", "peak",
+              "P2 germ", "tree", "diff", "peak", "gain", "gain+g"]
+    println("gain: (tree + differential of J0) / (tree + differential of P1); ",
+            "gain+g: the same with the germ of P1 in the denominator")
     println(rpad(titles[1], widths[1]), " ", join((lpad(t, w) for (t, w) in zip(titles[2:end], widths[2:end])), " "))
     for c in CASES
-        sel(p) = [r for r in rows if r[column(h, "cas")] == c && r[column(h, "chemin")] == p]
+        sel(p) = [r for r in rows if r[column(h, "case")] == c && r[column(h, "path")] == p]
         m(p, name) = minimum_or_nan([get_(r, name) for r in sel(p)])
+        # The CSV of J0 keeps its column names (cas, t_arbre_s, t_diff_s, maxrss_fin_Gio).
         j0_rows = isempty(hj) ? [] : [r for r in rj if r[column(hj, "cas")] == c]
         j(name) = minimum_or_nan([parse(Float64, r[column(hj, name)]) for r in j0_rows])
         j0_time = j("t_arbre_s") + j("t_diff_s")
-        gain = j0_time / (m("P1", "t_arbre_s") + m("P1", "t_diff_s"))
-        gain_germ = j0_time / (m("P1", "t_germe_s") + m("P1", "t_arbre_s") + m("P1", "t_diff_s"))
+        gain = j0_time / (m("P1", "t_tree_s") + m("P1", "t_diff_s"))
+        gain_germ = j0_time / (m("P1", "t_germ_s") + m("P1", "t_tree_s") + m("P1", "t_diff_s"))
         values = [j("t_arbre_s"), j("t_diff_s"), j("maxrss_fin_Gio"),
-                  m("P1", "t_monoide_s"), m("P1", "t_germe_s"), m("P1", "t_arbre_s"), m("P1", "t_diff_s"), m("P1", "maxrss_diff_Gio"),
-                  m("P2", "t_germe_s"), m("P2", "t_arbre_s"), m("P2", "t_diff_s"), m("P2", "maxrss_diff_Gio"),
+                  m("P1", "t_monoid_s"), m("P1", "t_germ_s"), m("P1", "t_tree_s"), m("P1", "t_diff_s"), m("P1", "maxrss_diff_GiB"),
+                  m("P2", "t_germ_s"), m("P2", "t_tree_s"), m("P2", "t_diff_s"), m("P2", "maxrss_diff_GiB"),
                   gain, gain_germ]
         # Times and gains with three significant digits, peaks with two decimals.
         peak = [false, false, true, false, false, false, false, true, false, false, false, true, false, false]

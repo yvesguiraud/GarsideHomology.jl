@@ -224,6 +224,7 @@ _thread_safe(::AbstractGerm) = false  # COV_EXCL_LINE
 
 """
     germ(M)
+    germ(W)
 
 The germ of the monoid `M`, of the type best suited to its size. Methods are added by
 the package extensions: with Chevie loaded, `M` may be a `BraidMonoid` of a finite
@@ -233,6 +234,12 @@ number of simples, computed from the degrees, is at most 5·10⁵. Above, a brai
 gets a lazy [`CoxeterGerm`](@ref), and a dual braid monoid an `ArgumentError` (there is
 no lazy germ for them). `TableGerm(M)` forces the tabulation, `CoxeterGerm(cartan(W))`
 the lazy germ.
+
+For a finite Coxeter group `W` of Chevie (`coxgroup`, `coxsym`, and the groups that `crg`
+builds as Coxeter groups, such as `crg(23)`, which is `coxgroup(:H, 3)`), `germ(W)` is the
+germ of its classical braid monoid, `germ(BraidMonoid(W))`; for another reflection group
+of Chevie (a `PermRootGroup`, such as `crg(4)`), an `ArgumentError`, the dual braid monoid
+being given by [`dual_germ`](@ref).
 """
 function germ end
 
@@ -248,7 +255,10 @@ a message naming it (for G₂₉: `[1, 2, 4, 3]`); an `ArgumentError` if there i
 germ depends on `c` up to isomorphism. The monoid itself is not built: for a real group (2 among the
 degrees), the simples are found by the criterion of Brady and Watt; for a complex group,
 by the Hurwitz orbit of a reduced decomposition of `c` ([`hurwitz_orbit`](@ref)).
-Methods are added by the package extensions (Chevie). The same threshold as for
-[`germ`](@ref) applies.
+Methods are added by the package extensions (Chevie): `W` may be a finite Coxeter group
+(`coxgroup`) or a complex reflection group (`crg`). The same threshold as for
+[`germ`](@ref) applies. For a large complex group, building `DualBraidMonoid(W)` itself
+with Chevie takes minutes (about 4 for G₃₄), where `dual_germ(W)` takes a fraction of a
+second.
 """
 function dual_germ end

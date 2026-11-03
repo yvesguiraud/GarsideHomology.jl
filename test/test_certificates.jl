@@ -29,7 +29,7 @@ function _altered(f, R::LCMResolution, n::Integer)
     end
     I, J, L, V = f(I, J, L, V)
     maps = copy(C.maps)
-    maps[n + 1] = labelled_sparse(I, J, L, V, size(d)...)
+    maps[n + 1] = LabelledSparseMatrix(I, J, L, V, size(d)...)
     return LCMResolution(cell_tree(R), ChainComplex(C.modules, maps))
 end
 
@@ -146,7 +146,7 @@ _drop(ks) = (I, J, L, V) -> (keep = setdiff(eachindex(I), ks); (I[keep], J[keep]
         R = lcm_resolution(dual_dihedral_germ(3))
         @test_throws ArgumentError certify(R; mobius = :other)
         @test_throws ArgumentError certify(R; nworkers = 0)
-        @test_throws ArgumentError certify(specialise(R))
+        @test_throws ArgumentError certify(extend_scalars(R))
         n = certify(R; mobius = :none)
         @test n.mobius_method === :none && n.euler === nothing && n.mobius_sum === nothing && n.split_weights === nothing
         @test !is_correct(n) && is_minimal(n) && first.(n.times) == [:homogeneity, :square_zero]

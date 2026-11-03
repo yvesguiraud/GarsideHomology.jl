@@ -58,7 +58,7 @@ function warm_up(kind, path, K)
     return nothing
 end
 
-gio(x) = round(x / 2^30; digits = 3)
+gib(x) = round(x / 2^30; digits = 3)
 
 # A step: @timed, then the peak and the live memory after a full GC.
 function measure_step(f)
@@ -70,7 +70,7 @@ function measure_step(f)
             bytes = st.bytes, rss = rss, live = live)
 end
 
-const STEPS = ["groupe", "monoide", "germe", "arbre", "diff"]
+const STEPS = ["group", "monoid", "germ", "tree", "diff"]
 
 function append_csv(path, header, row)
     new = !isfile(path)
@@ -92,18 +92,18 @@ function main()
     GC.gc(true)
     rss0 = Sys.maxrss()
     s = Dict{String, Any}()
-    s["groupe"] = measure_step(case.group)
-    W = s["groupe"].value
+    s["group"] = measure_step(case.group)
+    W = s["group"].value
     if path == "P1"
-        s["monoide"] = measure_step(() -> monoid(case.kind, W))
-        M = s["monoide"].value
-        s["germe"] = measure_step(() -> germ(M))
+        s["monoid"] = measure_step(() -> monoid(case.kind, W))
+        M = s["monoid"].value
+        s["germ"] = measure_step(() -> germ(M))
     else
-        s["germe"] = measure_step(() -> germ_p2(case.kind, W))
+        s["germ"] = measure_step(() -> germ_p2(case.kind, W))
     end
-    G = s["germe"].value
-    s["arbre"] = measure_step(() -> CellTree(G))
-    T = s["arbre"].value
+    G = s["germ"].value
+    s["tree"] = measure_step(() -> CellTree(G))
+    T = s["tree"].value
     s["diff"] = measure_step(function ()
         P = LCMProjectionData(T)
         C = lcm_resolution(P)
@@ -111,31 +111,31 @@ function main()
     end)
     C, chains = s["diff"].value
     terms = sum(GarsideHomology.Complexes.SparseArrays.nnz(differential(C, n)) for n in 0:(last(range(C)) - 1); init = 0)
-    fp = applicable(simples, G) ? sprint(show, GarsideHomology.fingerprint(G)) : "germe paresseux"
-    header = ["machine", "julia", "threads", "commit_gauss", "modifs_gauss", "cas", "chemin", "tour",
-              "cellules", "termes", "chaines", "maxrss_debut_Gio"]
+    fp = applicable(simples, G) ? sprint(show, GarsideHomology.fingerprint(G)) : "lazy germ"
+    header = ["machine", "julia", "threads", "commit", "dirty", "case", "path", "round",
+              "cells", "terms", "chains", "maxrss_start_GiB"]
     row = Any[machine, string(VERSION), Threads.nthreads(), git("rev-parse", "--short", "HEAD"),
-              isempty(git("status", "--porcelain", "--untracked-files=no")) ? "non" : "oui",
-              id, path, round_, ncells(T), terms, chains, gio(rss0)]
+              isempty(git("status", "--porcelain", "--untracked-files=no")) ? "no" : "yes",
+              id, path, round_, ncells(T), terms, chains, gib(rss0)]
     for k in STEPS
-        append!(header, ["t_$(k)_s", "gc_$(k)_s", "compil_$(k)_s", "alloc_$(k)_Gio", "maxrss_$(k)_Gio", "vivant_$(k)_Gio"])
+        append!(header, ["t_$(k)_s", "gc_$(k)_s", "compile_$(k)_s", "alloc_$(k)_GiB", "maxrss_$(k)_GiB", "live_$(k)_GiB"])
         if haskey(s, k)
             x = s[k]
             append!(row, [round(x.time; sigdigits = 5), round(x.gc; sigdigits = 4), round(x.compile; sigdigits = 3),
-                          gio(x.bytes), gio(x.rss), gio(x.live)])
+                          gib(x.bytes), gib(x.rss), gib(x.live)])
         else
             append!(row, fill("", 6))
         end
     end
-    append!(header, ["empreinte_germe", "date"])
+    append!(header, ["germ_fingerprint", "date"])
     append!(row, [fp, Libc.strftime("%Y-%m-%dT%H:%M:%S", time())])
     mkpath(OUT_DIR)
     append_csv(joinpath(OUT_DIR, "construction_$(machine).csv"), header, row)
-    println("$id $path, tour $round_ : ",
-            path == "P1" ? "monoïde $(round(s["monoide"].time; digits = 1)) s, " : "",
-            "germe $(round(s["germe"].time; digits = 2)) s, arbre $(round(s["arbre"].time; digits = 2)) s, ",
-            "différentielle $(round(s["diff"].time; digits = 2)) s, pic $(gio(s["diff"].rss)) Gio, ",
-            "$(ncells(T)) cellules, $terms termes")
+    println("$id $path, round $round_: ",
+            path == "P1" ? "monoid $(round(s["monoid"].time; digits = 1)) s, " : "",
+            "germ $(round(s["germ"].time; digits = 2)) s, tree $(round(s["tree"].time; digits = 2)) s, ",
+            "differential $(round(s["diff"].time; digits = 2)) s, peak $(gib(s["diff"].rss)) GiB, ",
+            "$(ncells(T)) cells, $terms terms")
 end
 
 main()

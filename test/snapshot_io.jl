@@ -9,6 +9,7 @@
 
 using GarsideHomology
 using GarsideHomology: MonoidAlgebra    # public, not exported (Oscar exports a MonoidAlgebra)
+using GarsideHomology: basis            # public, not exported (Chevie exports its own `basis`)
 using CodecZlib: GzipCompressorStream, GzipDecompressorStream
 import SHA
 
@@ -88,7 +89,7 @@ function snapshots_equal(a::Snapshot, b::Snapshot)
     a.header == b.header && a.monoid == b.monoid || return false
     A, B = a.complex, b.complex
     range(A) == range(B) || return false
-    all(cells(A[n]) == cells(B[n]) for n in range(A)) || return false
+    all(basis(A[n]) == basis(B[n]) for n in range(A)) || return false
     return all(differential(A, n) == differential(B, n) for n in first(range(A)):(last(range(A)) - 1))
 end
 
@@ -220,8 +221,8 @@ function read_snapshot(io::IO, name::AbstractString)
     maps = SnapshotMatrix[]
     for n in 0:(length(cells) - 2)
         labs = [(renumber[σ], renumber[τ]) for (σ, τ) in L[n + 1]]
-        d = labelled_sparse(I[n + 1], J[n + 1], labs, V[n + 1], length(cells[n + 1]),
-                            length(cells[n + 2]))
+        d = LabelledSparseMatrix(I[n + 1], J[n + 1], labs, V[n + 1], length(cells[n + 1]),
+                                 length(cells[n + 2]))
         _SNAP_SA.nnz(d) == length(V[n + 1]) ||
             _snapshot_error(name, lineno, "repeated terms in d_$n")
         push!(maps, d)
@@ -246,14 +247,14 @@ function foreach_group(f, s::Snapshot)
     C = s.complex
     w = s.monoid.simples
     for n in range(C)
-        cs = cells(C[n])
+        cs = basis(C[n])
         atom_lines = ["C $n $(x.atoms) $(x.bar) $(w[x.weight + 1])" for x in cs]
         bar_lines = ["C $n $(x.bar) $(w[x.weight + 1])" for x in cs]
         f("C", n, sort!(atom_lines), sort!(bar_lines))
     end
     for n in first(range(C)):(last(range(C)) - 1)
         d = differential(C, n)
-        source, target = cells(C[n + 1]), cells(C[n])
+        source, target = basis(C[n + 1]), basis(C[n])
         rows, labs, vals = _SNAP_SA.rowvals(d), labels(d), _SNAP_SA.nonzeros(d)
         atom_lines = Vector{String}(undef, _SNAP_SA.nnz(d))
         bar_lines = Vector{String}(undef, _SNAP_SA.nnz(d))

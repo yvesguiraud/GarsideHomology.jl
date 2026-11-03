@@ -7,7 +7,7 @@ isdefined(Main, :check_germ) || include("explicit_germ.jl")
 isdefined(Main, :read_fingerprints) || include("snapshot_io.jl")
 
 using GarsideHomology
-using GarsideHomology: CellTree, ncells     # public, not exported
+using GarsideHomology: CellTree, ncells     # public, not exported (ncells exported since J1.g)
 using Test
 import Chevie
 
@@ -161,9 +161,10 @@ end
     end
 
     @testset "Exports" begin
-        for s in (:CellTree, :ncells, :cell_range, :cell_weight, :cell_letter, :cell_atom,
+        for s in (:CellTree, :cell_range, :cell_weight, :cell_letter, :cell_atom,
                   :cell_degree, :cell_children, :admissible_atoms, :bar_form, :atom_sequence)
             @test Base.ispublic(GarsideHomology, s) && !Base.isexported(GarsideHomology, s)
         end
+        @test Base.isexported(GarsideHomology, :ncells)     # also for resolutions (J1.g)
     end
 end

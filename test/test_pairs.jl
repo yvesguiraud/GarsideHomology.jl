@@ -19,7 +19,7 @@ struct PairsTestMonoid <: GarsideHomology.Complexes.AbstractMonoid end
 
     @testset "Complexes written by hand" begin
         # ⟨a⟩: ∂[a] = a·[]·e − e·[]·a has no monomial 1·y·1.
-        da = labelled_sparse([1, 1], [1, 1], L2[(1, 0), (0, 1)], [1, -1], 1, 1)
+        da = LabelledSparseMatrix([1, 1], [1, 1], L2[(1, 0), (0, 1)], [1, -1], 1, 1)
         P = ChainComplex([BasedFreeModule(A, 1), BasedFreeModule(A, 1)], [da])
         @test isempty(collapsible_pairs(P))
         @test isempty(identity_monomials(P))
@@ -27,8 +27,8 @@ struct PairsTestMonoid <: GarsideHomology.Complexes.AbstractMonoid end
         # C₁ = ⟨x₁, x₂, x₃⟩ → C₀ = ⟨y₁, y₂⟩ with ∂x₁ = y₁, ∂x₂ = 2·y₁ and
         # ∂x₃ = −y₁ + (1 + σ)·y₂: only (x₁, y₁) and (x₃, y₁) are collapsible. Labels: e = 0,
         # σ = 1.
-        d = labelled_sparse([1, 1, 1, 2, 2], [1, 2, 3, 3, 3],
-                            L2[(0, 0), (0, 0), (0, 0), (0, 0), (1, 0)], [1, 2, -1, 1, 1], 2, 3)
+        d = LabelledSparseMatrix([1, 1, 1, 2, 2], [1, 2, 3, 3, 3],
+                                 L2[(0, 0), (0, 0), (0, 0), (0, 0), (1, 0)], [1, 2, -1, 1, 1], 2, 3)
         C = ChainComplex([BasedFreeModule(A, 2), BasedFreeModule(A, 3)], [d])
         pairs = collapsible_pairs(C)
         @test pairs == [(n = 0, source = 1, target = 1), (n = 0, source = 3, target = 1)]
@@ -37,8 +37,8 @@ struct PairsTestMonoid <: GarsideHomology.Complexes.AbstractMonoid end
         @test pair_counts(monomials) == (3, 4, 2)
         @test count(m -> abs(m.coefficient) != 1, monomials) == 1
 
-        # Over ℤ, after specialisation: entries ±1.
-        @test collapsible_pairs(specialise(C)) ==
+        # Over ℤ, after an extension of scalars: entries ±1.
+        @test collapsible_pairs(extend_scalars(C)) ==
               [(n = 0, source = 1, target = 1), (n = 0, source = 3, target = 1)]
         @test isempty(collapsible_pairs(ChainComplex([_P_SA.spzeros(Int, Int, 1, 1)])))
         rp2 = ChainComplex([_P_SA.spzeros(Int, Int, 1, 1), _P_SA.sparse([1], [1], [2], 1, 1)])

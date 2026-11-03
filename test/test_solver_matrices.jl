@@ -1,4 +1,4 @@
-# Comparison of the specialised differentials of B*(G34), B*(G35), B*(G36) in Gauss_a with
+# Comparison of the differentials over ℤ (trivial coefficients) of B*(G34), B*(G35), B*(G36) in Gauss_a with
 # the matrices of SparseElementaryDivisors (its test/data/G<p>_d<n>.mtx, exported in J0
 # from matrices/G<p>.jld2 of the experiment repository), up to permutation of the bases.
 # The bases of these matrices are given by their bar forms, written by the script
@@ -10,6 +10,7 @@
 isdefined(Main, :read_snapshot) || include("snapshot_io.jl")
 
 using GarsideHomology
+using GarsideHomology: basis
 using Test
 
 const SOLVER_MATRICES = get(ENV, "GARSIDE_HOMOLOGY_SOLVER_MATRICES", "")
@@ -38,13 +39,13 @@ else
         bases_file = joinpath(SOLVER_BASES, "G$(p)_bases.txt")
         @test isfile(snapshot) && isfile(bases_file)
         if isfile(snapshot) && isfile(bases_file)
-            S = specialise(read_snapshot(snapshot).complex)
+            S = extend_scalars(read_snapshot(snapshot).complex)
             solver = read_bases(bases_file)
             @test sort!(collect(keys(solver))) == collect(range(S))
             # Position of each cell in our basis of degree n, from its bar form.
-            position = Dict(n => Dict(x.bar => i for (i, x) in enumerate(cells(S[n]))) for n in range(S))
+            position = Dict(n => Dict(x.bar => i for (i, x) in enumerate(basis(S[n]))) for n in range(S))
             for n in range(S)
-                @test sort(solver[n]) == sort([x.bar for x in cells(S[n])])
+                @test sort(solver[n]) == sort([x.bar for x in basis(S[n])])
             end
             for n in first(range(S)):(last(range(S)) - 1)
                 A = _read_matrix_market(joinpath(SOLVER_MATRICES, "G$(p)_d$(n).mtx"))

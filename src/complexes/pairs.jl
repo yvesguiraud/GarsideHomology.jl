@@ -8,8 +8,8 @@ _is_integer_unit(c::Integer) = c == 1 || c == -1
     collapsible_pairs(C::AbstractChainComplex)
 
 The collapsible pairs of `C`: the triples `(n, source, target)` such that the coefficient
-of the `target`-th cell of `C_n` in the image of the `source`-th cell of `C_{n+1}` by
-`d_n` is a unit, listed by increasing `n`, then `source`, then `target`. The number of
+of the `target`-th basis element of `C_n` in the image of the `source`-th basis element of
+`C_{n+1}` by `d_n` is a unit, listed by increasing `n`, then `source`, then `target`. The number of
 pairs is the length of the list, the numbers of distinct sources and targets those of the
 distinct pairs `(n, source)` and `(n, target)`.
 
@@ -18,7 +18,7 @@ distinct pairs `(n, source)` and `(n, target)`.
   γ is invertible, that is the identity in a Garside monoid; coefficients with several
   monomials are excluded, which loses nothing for homogeneous resolutions, where all the
   monomials of a coefficient have the same total length.
-- Over ℤ: the entry must be ±1. After specialisation this finds many more pairs than in
+- Over ℤ: the entry must be ±1. After an extension of scalars this finds many more pairs than in
   the resolution itself: it is a different notion, useful for the reduction of integer
   matrices rather than of resolutions.
 """

@@ -203,7 +203,8 @@ nsimples(G::CoxeterGerm) = G.order
 nnumbered(G::CoxeterGerm) = length(G.keys)
 Base.length(G::CoxeterGerm, s::Integer) = Int(G.lengths[Int(s) + 1])
 
-function left_descents(G::CoxeterGerm{n}, s::Integer) where {n}
+# Signature line, counted only by some compiled instances in the coverage of Julia (J1.g).
+function left_descents(G::CoxeterGerm{n}, s::Integer) where {n}  # COV_EXCL_LINE
     k = _key(G, s)
     N = G.npositive
     return StaticBitSet{1}(i for i in 1:n if k[i] > N)
@@ -280,7 +281,8 @@ function isless_lex(G::CoxeterGerm{n}, s::Integer, t::Integer) where {n}
     end
 end
 
-function lcm_atom(G::CoxeterGerm{n}, ω::Integer, a::Integer) where {n}
+# Signature line, counted only by some compiled instances in the coverage of Julia (J1.g).
+function lcm_atom(G::CoxeterGerm{n}, ω::Integer, a::Integer) where {n}  # COV_EXCL_LINE
     1 <= a <= n || throw(BoundsError(1:n, a))
     x = Int32(ω)
     _key(G, x)

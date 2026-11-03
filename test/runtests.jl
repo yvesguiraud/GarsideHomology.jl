@@ -2,7 +2,9 @@ using GarsideHomology
 using Test
 import Chevie  # loads the package extension GarsideHomologyChevieExt
 
-@testset "GarsideHomology.jl" begin
+# verbose: the summary shows the time of each file of tests, and of the parts of the
+# longest one, the germs from Chevie (J1.g, task g3).
+@testset "GarsideHomology.jl" verbose = true begin
     @testset "Package skeleton" begin
         @test isdefined(GarsideHomology, :Complexes)
         @test parentmodule(GarsideHomology.Complexes) === GarsideHomology
@@ -21,6 +23,7 @@ import Chevie  # loads the package extension GarsideHomologyChevieExt
     include("test_resolution.jl")
     include("test_certificates.jl")
     include("test_modules.jl")
+    include("test_convenience.jl")
     include("test_homology.jl")
     include("test_expected_values.jl")
     include("test_pairs.jl")

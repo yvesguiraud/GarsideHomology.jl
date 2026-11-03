@@ -9,7 +9,7 @@
 include("snapshot_io.jl")
 
 using GarsideHomology
-using GarsideHomology: rank
+using GarsideHomology: rank, basis
 using Test
 import TOML
 
@@ -71,14 +71,14 @@ _sign_both_sides(m::SnapshotMonoid) = l -> iseven(simple_length(m, l[1]) + simpl
         C = s.complex
         @test range(C) == 0:2
         @test [rank(C[n]) for n in range(C)] == [1, 2, 1]
-        @test cells(C[2]) == [SnapshotCell("1.2", "[1|2]", 3)]
+        @test basis(C[2]) == [SnapshotCell("1.2", "[1|2]", 3)]
         L2 = NTuple{2, Int32}
         @test differential(C, 0) ==
-              labelled_sparse([1, 1, 1, 1], [1, 1, 2, 2], L2[(1, 0), (0, 1), (2, 0), (0, 2)],
-                              [1, -1, 1, -1], 1, 2)
+              LabelledSparseMatrix([1, 1, 1, 1], [1, 1, 2, 2], L2[(1, 0), (0, 1), (2, 0), (0, 2)],
+                                   [1, -1, 1, -1], 1, 2)
         @test differential(C, 1) ==
-              labelled_sparse([1, 1, 2, 2], [1, 1, 1, 1], L2[(2, 0), (0, 2), (1, 0), (0, 1)],
-                              [-1, 1, 1, -1], 2, 1)
+              LabelledSparseMatrix([1, 1, 2, 2], [1, 1, 1, 1], L2[(2, 0), (0, 2), (1, 0), (0, 1)],
+                                   [-1, 1, 1, -1], 2, 1)
 
         # Writing regenerates the same text, hence the same snapshot.
         target = write_snapshot(joinpath(workdir, "copy.txt.gz"), s)
@@ -93,9 +93,9 @@ _sign_both_sides(m::SnapshotMonoid) = l -> iseven(simple_length(m, l[1]) + simpl
         @test fp[1].bar == "daf3904c702a460cb27c19f1c4c5abe0b6e7fa138ebff94515cec5570412127e"
 
         # Specialisations: trivial on both sides, then the sign on the right.
-        @test all(iszero(differential(specialise(C), n)) for n in 0:1)
+        @test all(iszero(differential(extend_scalars(C), n)) for n in 0:1)
         sign_right(l) = isodd(simple_length(s.monoid, l[2])) ? -1 : 1
-        SE = specialise(C, sign_right)
+        SE = extend_scalars(C, sign_right)
         @test differential(SE, 0) == GarsideHomology.Complexes.SparseArrays.sparse([1, 1], [1, 2], [2, 2], 1, 2)
         @test is_square_zero(SE)
     end
@@ -132,8 +132,8 @@ _sign_both_sides(m::SnapshotMonoid) = l -> iseven(simple_length(m, l[1]) + simpl
         target = write_snapshot(joinpath(workdir, name * ".txt.gz"), s)
         @test gunzip_text(target) == gunzip_text(path)
         @test snapshots_equal(read_snapshot(target), s)
-        @test is_square_zero(specialise(s.complex))
-        @test is_square_zero(specialise(s.complex, _sign_both_sides(s.monoid)))
+        @test is_square_zero(extend_scalars(s.complex))
+        @test is_square_zero(extend_scalars(s.complex, _sign_both_sides(s.monoid)))
     end
 
     if isempty(SNAP_DIR)
@@ -178,7 +178,7 @@ _sign_both_sides(m::SnapshotMonoid) = l -> iseven(simple_length(m, l[1]) + simpl
                     rows, _ = read_fingerprints(reference)
                     t_read = @elapsed s = read_snapshot(joinpath(SNAP_DIR, f))
                     @test snapshot_fingerprints(s) == rows
-                    t_homology = @elapsed H = homology(specialise(s.complex))
+                    t_homology = @elapsed H = homology(extend_scalars(s.complex))
                     push!(get!(homologies, case, Pair{String, FinitelyGeneratedGradedAbelianGroup}[]),
                           variant => H)
                     E = expected_homology(case)

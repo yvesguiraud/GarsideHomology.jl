@@ -6,6 +6,7 @@ version = "0.1.0-DEV"
 [deps]
 AbstractAlgebra = "c3fe647b-3220-5bb0-a1ea-a7954cac585d"
 CodecZlib = "944b1d66-785c-5afd-91f1-9de20f533193"
+PrecompileTools = "aea7be01-6a6a-4083-8856-8a6e6704d82a"
 SHA = "ea8e919c-243c-51af-8825-aaa63cd721ce"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 SparseElementaryDivisors = "ae1c1434-3cf1-4e28-ab82-3ca23b97895f"
@@ -20,6 +21,12 @@ GarsideHomologyChevieExt = "Chevie"
 AbstractAlgebra = "0.50, 0.51"
 Chevie = "0.1.15"
 CodecZlib = "0.7"
+# Temporary, for the tests only (J1.g, 3 November 2026): LaurentPolynomials 0.1.11 and
+# PuiseuxPolynomials 0.1.10 both define root(::Integer), so that Chevie no longer
+# precompiles under Julia 1.12 and later. To remove once a fixed PuiseuxPolynomials is
+# registered.
+LaurentPolynomials = "0.1.1 - 0.1.10"
+PrecompileTools = "1"
 SHA = "0.7, 1"
 SparseArrays = "1"
 SparseElementaryDivisors = "0.1"
@@ -29,8 +36,9 @@ julia = "1.11"
 
 [extras]
 Chevie = "367f69f0-ca63-11e8-2372-438b29340c1b"
+LaurentPolynomials = "10b2801c-d482-41ed-a506-4a825c59e3da"
 TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Chevie", "TOML", "Test"]
+test = ["Chevie", "LaurentPolynomials", "TOML", "Test"]

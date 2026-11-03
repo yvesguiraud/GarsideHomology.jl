@@ -66,18 +66,18 @@ end
         # resolution.
         L2 = NTuple{2, Int32}
         B = MonoidAlgebra(GarsideHomology.Complexes.AbstractAlgebra.ZZ, HomologyTestMonoid(["e", "a", "b", "ab"]))
-        d0 = labelled_sparse([1, 1, 1, 1], [1, 1, 2, 2], L2[(1, 0), (0, 1), (2, 0), (0, 2)],
-                             [1, -1, 1, -1], 1, 2)
-        d1 = labelled_sparse([1, 1, 2, 2], [1, 1, 1, 1], L2[(2, 0), (0, 2), (1, 0), (0, 1)],
-                             [-1, 1, 1, -1], 2, 1)
+        d0 = LabelledSparseMatrix([1, 1, 1, 1], [1, 1, 2, 2], L2[(1, 0), (0, 1), (2, 0), (0, 2)],
+                                  [1, -1, 1, -1], 1, 2)
+        d1 = LabelledSparseMatrix([1, 1, 2, 2], [1, 1, 1, 1], L2[(2, 0), (0, 2), (1, 0), (0, 1)],
+                                  [-1, 1, 1, -1], 2, 1)
         T = ChainComplex([BasedFreeModule(B, ["[]"]), BasedFreeModule(B, ["[a]", "[b]"]),
                           BasedFreeModule(B, ["[a|b]"])], [d0, d1])
         @test_throws ArgumentError homology(T)
         @test_throws ArgumentError homology(T, 0)
         # Trivial coefficients: the torus; sign on the right: ℤ/2ℤ, ℤ/2ℤ, 0.
-        @test homology(specialise(T)) == GG([G(1), G(2), G(1)])
+        @test homology(extend_scalars(T)) == GG([G(1), G(2), G(1)])
         lengths = [0, 1, 1, 2]                    # lengths[l + 1] = ℓ(label l)
-        @test homology(specialise(T, l -> isodd(lengths[l[2] + 1]) ? -1 : 1)) ==
+        @test homology(extend_scalars(T, l -> isodd(lengths[l[2] + 1]) ? -1 : 1)) ==
               GG([G(0, [2]), G(0, [2]), G(0)])
     end
 
@@ -89,7 +89,7 @@ end
         for (name, expected) in (("classic_A2_a", braid3), ("dual_A2_a", braid3),
                                  ("dual_B3_a", artinB3))
             s = read_snapshot(joinpath(tiny, name * ".txt.gz"))
-            @test homology(specialise(s.complex)) == expected
+            @test homology(extend_scalars(s.complex)) == expected
         end
     end
 end

@@ -1,11 +1,11 @@
 # Tests of the modules of coefficients and of the tensor products (modules/): TrivialModule
 # and SignModule, B*(A₂) and B*(G₄) by hand, one side and both sides, associativity,
-# agreement with specialise, homology with coefficients, errors, lazy germ, notation.
+# agreement with extend_scalars, homology with coefficients, errors, lazy germ, notation.
 
 isdefined(Main, :check_germ) || include("explicit_germ.jl")
 
 using GarsideHomology
-using GarsideHomology: MonoidAlgebra, AbstractMonoidModule, tensor_product, ⊗, cell_tree
+using GarsideHomology: MonoidAlgebra, AbstractMonoidModule, tensor_product, ⊗, cell_tree, basis
 using Test
 import Chevie
 
@@ -31,6 +31,7 @@ const _M_SA = GarsideHomology.Complexes.SparseArrays
         # The integers by default: those of AbstractAlgebra, GarsideHomology.ZZ (public, not exported).
         @test TrivialModule() == T && SignModule() == S && GarsideHomology.ZZ === _M_ZZ
         @test Base.ispublic(GarsideHomology, :ZZ) && !Base.isexported(GarsideHomology, :ZZ)
+        @test ℤ === _M_ZZ && Base.isexported(GarsideHomology, :ℤ)       # the same ring, exported (J1.g)
         @test homology(R0, SignModule()) == sign3
     end
 
@@ -40,7 +41,7 @@ const _M_SA = GarsideHomology.Complexes.SparseArrays
         # One side: ℤ ⊗ R, labels τ; ∂[a] = [] − []·a, the terms of the same row and label summed.
         L = T ⊗ R
         @test L isa ChainComplex && base_ring(L) == MonoidAlgebra(_M_ZZ, cell_tree(R).germ, :right)
-        @test cells(L[1]) === cells(R[1]) && cell_tree(L) === cell_tree(R)
+        @test basis(L[1]) === basis(R[1]) && cell_tree(L) === cell_tree(R)
         d0 = differential(L, 0)
         @test labels(d0) == Int32[0, 1, 0, 2, 0, 3] && _M_SA.nonzeros(d0) == [1, -1, 1, -1, 1, -1]
         d1 = differential(L, 1)
@@ -63,15 +64,15 @@ const _M_SA = GarsideHomology.Complexes.SparseArrays
         @test homology(R, S) == sign3 && homology(R, S, 1) == G(0, [3]) && homology(R, S, 0) == G(0, [2])
     end
 
-    @testset "Associativity, agreement with specialise" begin
+    @testset "Associativity, agreement with extend_scalars" begin
         for (N, M) in ((T, S), (S, T), (S, S), (T, T)), C in (R, lcm_resolution(dual_dihedral_germ(4), LCMOrdering(TrivialPreorder())))
             g = cell_tree(C).germ
             χ(m, s) = m isa SignModule && isodd(length(g, s)) ? -1 : 1
-            direct = specialise(C, l -> χ(N, l[1]) * χ(M, l[2]))
+            direct = extend_scalars(C, l -> χ(N, l[1]) * χ(M, l[2]))
             for X in ((N ⊗ C) ⊗ M, N ⊗ (C ⊗ M), tensor_product(N, C, M))
                 @test X isa ChainComplex && base_ring(X) === _M_ZZ
                 @test all(differential(X, n) == differential(direct, n) for n in range(C))
-                @test all(cells(X[n]) === cells(C[n]) for n in range(C))
+                @test all(basis(X[n]) === basis(C[n]) for n in range(C))
             end
         end
         # From one side: homology(ℤ ⊗ R, M) = H_*(B; M).
@@ -102,10 +103,11 @@ const _M_SA = GarsideHomology.Complexes.SparseArrays
         @test_throws ArgumentError tensor_product(T, T ⊗ R, S)
         @test_throws ArgumentError homology(R ⊗ S, S)              # complex of left modules
         @test_throws ArgumentError R ⊗ SignModule(_M_AA.QQ)        # not over the integers
-        @test_throws ArgumentError specialise(R) ⊗ S              # not over a monoid algebra
-        @test_throws ArgumentError S ⊗ specialise(R)
-        @test_throws ArgumentError tensor_product(S, specialise(R), S)
-        @test_throws ArgumentError homology(R)                     # still needs a module, or specialise
+        @test_throws ArgumentError extend_scalars(R) ⊗ S              # not over a monoid algebra
+        @test_throws ArgumentError S ⊗ extend_scalars(R)
+        @test_throws ArgumentError tensor_product(S, extend_scalars(R), S)
+        @test_throws ArgumentError homology(R)                     # still needs a module or a ring
+        @test_throws "homology(C, ℤ)" homology(R)                 # which the message suggests
     end
 
     @testset "Exports" begin

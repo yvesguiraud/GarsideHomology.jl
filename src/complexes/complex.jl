@@ -11,7 +11,7 @@ monoid algebra). Convention of GarsideHomology: `d_n : C_{n+1} → C_n` has the 
 Interface, required: `range(C)` (the degrees `lo:hi`), `C[n]` (the module `C_n`, a
 `BoundsError` outside the degrees), [`differential`](@ref)`(C, n)` (the map `d_n`, the zero
 map outside `lo:(hi - 1)`) and `base_ring(C)`. Derived, for every subtype: `firstindex`,
-`lastindex`, [`specialise`](@ref), [`is_square_zero`](@ref), [`homology`](@ref),
+`lastindex`, [`extend_scalars`](@ref), [`is_square_zero`](@ref), [`homology`](@ref),
 [`collapsible_pairs`](@ref). [`ChainComplex`](@ref) is the generic concrete type; a type
 that carries more structure (the lcm resolutions of GarsideHomology, for instance) is a subtype of
 its own, usually wrapping a `ChainComplex`.
@@ -112,20 +112,24 @@ _zero_map(::Type{SparseMatrixCSC{Tv, Ti}}, m, n) where {Tv, Ti} = spzeros(Tv, Ti
 _zero_map(::Type{LabelledSparseMatrix{L, Tv}}, m, n) where {L, Tv} = LabelledSparseMatrix{L, Tv}(m, n)
 
 """
-    specialise(C::AbstractChainComplex)
-    specialise(C::AbstractChainComplex, χ)
+    extend_scalars(C::AbstractChainComplex)
+    extend_scalars(C::AbstractChainComplex, χ)
 
-The [`ChainComplex`](@ref) over the ring of coefficients of the monoid algebra of `C`, with
-the same bases (shared, not copied) and the maps `specialise(d_n)` or `specialise(d_n, χ)`.
-For a resolution of GarsideHomology, the typed interface is `homology(R, M)` and
-`GarsideHomology.tensor_product`, with a module of coefficients `M`.
+The extension of scalars of a complex `C` over a monoid algebra along the character `χ` of
+the monoid (of `M × M^op` for a complex of bimodules), trivial if omitted: for a complex
+of bimodules and the trivial character, `ℤ ⊗_ℤM C ⊗_ℤM ℤ`. The result is the
+[`ChainComplex`](@ref) over the ring of coefficients of the monoid algebra, with the same
+bases (shared, not copied) and the maps `extend_scalars(d_n)` or `extend_scalars(d_n, χ)`.
+For a resolution of GarsideHomology, the same with modules of coefficients:
+`homology(R, M)`, `GarsideHomology.tensor_product` and `⊗`, which also accept a ring for
+its trivial module (`homology(R, ℤ)`, `ℤ ⊗ R ⊗ ℤ`).
 """
-function specialise(C::AbstractChainComplex{<:MonoidAlgebra, LabelledSparseMatrix{L, Tv}},
-                    χ = nothing) where {L, Tv}
+function extend_scalars(C::AbstractChainComplex{<:MonoidAlgebra, LabelledSparseMatrix{L, Tv}},
+                        χ = nothing) where {L, Tv}
     base = base_ring(base_ring(C))
     degrees = range(C)
-    modules = [BasedFreeModule(base, cells(C[n])) for n in degrees]
-    maps = SparseMatrixCSC{Tv, Int}[_specialise(differential(C, n), χ) for n in first(degrees):(last(degrees) - 1)]
+    modules = [BasedFreeModule(base, basis(C[n])) for n in degrees]
+    maps = SparseMatrixCSC{Tv, Int}[_extend_scalars(differential(C, n), χ) for n in first(degrees):(last(degrees) - 1)]
     return ChainComplex(modules, maps; lo = first(degrees))
 end
 
@@ -134,7 +138,8 @@ end
 
 Whether `d_n ∘ d_{n+1} = 0` for every `n`, for a complex of integer matrices, with
 checked arithmetic. Over a monoid algebra this needs products of elements of the monoid:
-specialise the complex first, or use the certificates of the resolution layer.
+extend the scalars first ([`extend_scalars`](@ref)), or use the certificates of the
+resolution layer.
 """
 function is_square_zero(C::AbstractChainComplex{R, D}) where {R, D <: SparseMatrixCSC{<:Integer}}
     degrees = range(C)
@@ -146,7 +151,7 @@ end
 
 is_square_zero(::AbstractChainComplex{R, D}) where {R, D <: LabelledSparseMatrix} =
     throw(ArgumentError("d² = 0 over a monoid algebra needs products of monoid elements: " *
-                        "specialise the complex, or use the certificates of the resolution"))
+                        "extend the scalars first (extend_scalars), or use the certificates of the resolution"))
 
 # Whether A * B = 0, one column of B at a time, with a dense accumulator.
 function _product_is_zero(A::SparseMatrixCSC{Ta}, B::SparseMatrixCSC{Tb}) where {Ta, Tb}

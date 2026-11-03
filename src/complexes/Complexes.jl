@@ -19,20 +19,21 @@ import AbstractAlgebra
 import SparseElementaryDivisors
 using SparseElementaryDivisors: sparse_elementary_divisors
 # The same functions as AbstractAlgebra's: methods are added for our types, so that the
-# names do not clash with AbstractAlgebra, Nemo, Hecke or Oscar. `rank` is public but not
-# exported, because Chevie exports a function `rank` of its own (rank of a reflection
-# group): write `GarsideHomology.rank`, or `using GarsideHomology: rank` when Chevie is not loaded.
-using AbstractAlgebra: base_ring, rank, nrows, ncols
+# names do not clash with AbstractAlgebra, Nemo, Hecke or Oscar. `rank` and `basis` are
+# public but not exported, because Chevie exports a `rank` (rank of a reflection group)
+# and a `basis` of its own: write `GarsideHomology.rank`, or `using GarsideHomology: rank`
+# when Chevie is not loaded, and the same for `basis`.
+using AbstractAlgebra: base_ring, rank, basis, nrows, ncols
 
 export BasedFreeModule, LabelledSparseMatrix, ChainComplex
 export FinitelyGeneratedModule, FinitelyGeneratedAbelianGroup
 export FinitelyGeneratedGradedModule, FinitelyGeneratedGradedAbelianGroup
-export labelled_sparse, cells, labels, differential, specialise, torsion, is_square_zero
+export labels, differential, extend_scalars, torsion, is_square_zero
 export homology, collapsible_pairs
 export base_ring, nrows, ncols
 
 # MonoidAlgebra is public but not exported: Oscar exports a type of its own of that name.
-public rank, MonoidAlgebra, AbstractMonoid, AbstractModule, AbstractChainComplex, label_type, identity_label, check_invariants
+public rank, basis, MonoidAlgebra, AbstractMonoid, AbstractModule, AbstractChainComplex, label_type, identity_label, check_invariants
 
 include("arithmetic.jl")
 include("rings.jl")
