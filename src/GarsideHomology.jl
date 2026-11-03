@@ -18,7 +18,9 @@ onto the cells ([`LCMProjectionData`](@ref)) and the lcm resolution
 ([`write_snapshot`](@ref)) and its certificate ([`certify`](@ref)), the modules of
 coefficients ([`TrivialModule`](@ref), [`SignModule`](@ref)) and the tensor products by
 them ([`tensor_product`](@ref), `homology(R, M)`), in which a ring stands for its trivial
-module ([`ℤ`](@ref): `homology(R, ℤ)`, `ℤ ⊗ R ⊗ ℤ`).
+module ([`ℤ`](@ref): `homology(R, ℤ)`, `ℤ ⊗ R ⊗ ℤ`; [`ℤε`](@ref) for the sign module). The
+elements of a germ are shown to the user as words in the atoms ([`GermElement`](@ref):
+`G(1, 2, 1)`, `G("121")`), with the settings of the display of [`Notation`](@ref).
 """
 module GarsideHomology
 
@@ -55,6 +57,7 @@ include("germs/interface.jl")
 include("germs/table.jl")
 include("germs/hurwitz.jl")
 include("germs/coxeter.jl")
+include("germs/elements.jl")
 include("germs/verify.jl")
 include("germs/isomorphism.jl")
 
@@ -85,6 +88,7 @@ export FinitelyGeneratedGradedModule, FinitelyGeneratedGradedAbelianGroup
 export labels, differential, extend_scalars, torsion, is_square_zero
 export homology, collapsible_pairs
 export base_ring, nrows, ncols
+export Notation, set_notation!, notation
 # Public, not exported: Chevie exports its own `rank` and `basis` (see Complexes.jl),
 # Oscar a type MonoidAlgebra of its own (J1.e, M5).
 public rank, basis, MonoidAlgebra
@@ -94,6 +98,11 @@ public rank, basis, MonoidAlgebra
 # (`product` and `atoms` by Oscar, `word` by Chevie and Oscar).
 export natoms, nsimples, simples, opposite, germ, dual_germ
 public AbstractGerm, StaticBitSet
+# The elements of a germ for the user (J1.h): public, since one gets them by calling the
+# germ (G(1, 2, 1), G("121")) or from simples(G); elements is exported by PermGroups (hence
+# Chevie), FiniteFields, Hecke and Oscar (with Chevie, the extension adds a method to its
+# elements).
+public GermElement, elements
 public product, ldiv, left_descents, lcm_atom, atoms, is_left_divisor, word, isless_lex, isless_deglex
 public TableGerm, tabulate, hurwitz_orbit, CoxeterGerm, nnumbered, verify, count_multichains, GermFingerprint, fingerprint
 # Tool of the developer, public only (is_isomorphic and isomorphism are exported by
@@ -125,7 +134,7 @@ public ResolutionCertificate, is_correct, is_minimal, is_linear
 # exported by Hecke and Oscar, ⊗ by Hecke, Oscar and Chevie): write `using GarsideHomology: ⊗`
 # for the notation, which wins over the exports of those packages; with Chevie loaded, its ⊗
 # also tensors our complexes (package extension).
-export TrivialModule, SignModule, ℤ
+export TrivialModule, SignModule, ℤ, ℤε, ℤϵ
 public AbstractMonoidModule, tensor_product, ⊗
 # The ring of integers of AbstractAlgebra, the same object as ℤ: public, not exported, since
 # Nemo, Hecke and Oscar export a ZZ of their own, another object.

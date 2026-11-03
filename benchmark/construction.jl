@@ -111,7 +111,7 @@ function main()
     end)
     C, chains = s["diff"].value
     terms = sum(GarsideHomology.Complexes.SparseArrays.nnz(differential(C, n)) for n in 0:(last(range(C)) - 1); init = 0)
-    fp = applicable(simples, G) ? sprint(show, GarsideHomology.fingerprint(G)) : "lazy germ"
+    fp = applicable(GarsideHomology._simple_numbers, G) ? sprint(show, GarsideHomology.fingerprint(G)) : "lazy germ"
     header = ["machine", "julia", "threads", "commit", "dirty", "case", "path", "round",
               "cells", "terms", "chains", "maxrss_start_GiB"]
     row = Any[machine, string(VERSION), Threads.nthreads(), git("rev-parse", "--short", "HEAD"),

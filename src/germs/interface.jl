@@ -38,12 +38,15 @@ Required for every germ: [`natoms`](@ref), `length(G, s)` (a method of `Base.len
 [`lcm_atom`](@ref), [`opposite`](@ref). Required for a germ whose simples are all
 numbered (tabulated germ), optional otherwise: [`nsimples`](@ref) (the number of
 simples, a constant, also defined by a lazy germ that knows it without enumerating) and
-[`simples`](@ref). Derived, with a generic method that a germ may replace: `one(G)`,
-`isone(G, s)`, [`atoms`](@ref), [`is_left_divisor`](@ref), [`word`](@ref),
+the internal method `GarsideHomology._simple_numbers(G)`, the range
+`Int32(0):Int32(nsimples(G) - 1)`, from which [`simples`](@ref) and
+[`elements`](@ref) are derived. Derived, with a generic method that a germ may replace:
+`one(G)`, `isone(G, s)`, [`atoms`](@ref), [`is_left_divisor`](@ref), [`word`](@ref),
 [`isless_lex`](@ref), [`isless_deglex`](@ref).
 
 Arguments that are simples accept any integer; simples are returned as `Int32`, lengths
-and counts as `Int`.
+and counts as `Int`. For the user, a germ is also callable and gives its elements as
+[`GermElement`](@ref)s, written as words in the atoms: `G(1, 2, 1)`, `G("121")`, `G()`.
 """
 abstract type AbstractGerm <: AbstractMonoid end
 
@@ -66,13 +69,11 @@ number without enumerating the simples.
 """
 function nsimples end
 
-"""
-    simples(G::AbstractGerm)
-
-The simples of `G`, `Int32(0):Int32(nsimples(G) - 1)`. Defined only by a germ whose
-simples are all numbered (a tabulated germ), never by a lazy germ.
-"""
-function simples end
+# The numbers of the simples of a germ whose simples are all numbered (a tabulated germ),
+# `Int32(0):Int32(nsimples(G) - 1)`: the internal method from which `simples(G)` and
+# `elements(G)` are derived, and through which the construction reads the simples. Never
+# defined by a lazy germ.
+function _simple_numbers end
 
 """
     product(G::AbstractGerm, s, t) -> Union{Int32, Nothing}

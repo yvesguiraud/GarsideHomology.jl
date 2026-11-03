@@ -123,7 +123,7 @@ end
 
 GarsideHomology.natoms(G::ExplicitGerm) = G.natoms
 GarsideHomology.nsimples(G::ExplicitGerm) = length(G.words)
-GarsideHomology.simples(G::ExplicitGerm) = Int32(0):Int32(length(G.words) - 1)
+GarsideHomology._simple_numbers(G::ExplicitGerm) = Int32(0):Int32(length(G.words) - 1)
 Base.length(G::ExplicitGerm, s::Integer) = length(G.words[s + 1])
 GarsideHomology.product(G::ExplicitGerm, s::Integer, t::Integer) = get(G.products, (Int32(s), Int32(t)), nothing)
 GarsideHomology.ldiv(G::ExplicitGerm, s::Integer, t::Integer) = get(G.quotients, (Int32(s), Int32(t)), nothing)
@@ -218,9 +218,9 @@ reported by a warning, so that a single `@test check_germ(G) == 0` covers it.
 function check_germ(G)
     failures = 0
     fail(msg) = (failures += 1; @warn msg; nothing)
-    S = GarsideHomology.simples(G)
+    S = GarsideHomology._simple_numbers(G)
     n, N = nsimples(G), natoms(G)
-    S == 0:(n - 1) || fail("simples(G) = $S")
+    S == 0:(n - 1) || fail("GarsideHomology._simple_numbers(G) = $S")
     one(G) === Int32(0) && isone(G, 0) && !isone(G, 1) || fail("identity")
     GarsideHomology.atoms(G) == 1:N || fail("atoms(G)")
     divides(s, t) = GarsideHomology.ldiv(G, s, t) !== nothing
@@ -291,7 +291,7 @@ The right covers of a germ whose simples are all numbered, in the form taken by
 `GarsideHomology.tabulate`: `R[a, s + 1]` is `sa + 1`, or 0; the identity is numbered 1.
 """
 function right_covers_of(G)
-    S, N = GarsideHomology.simples(G), natoms(G)
+    S, N = GarsideHomology._simple_numbers(G), natoms(G)
     R = zeros(Int32, N, length(S))
     for s in S, a in 1:N
         v = GarsideHomology.product(G, s, a)

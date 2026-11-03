@@ -72,7 +72,8 @@ _sum_elements(s) = (c = 0; for i in s; c += i; end; c)
     @testset "B⁺(A₂), written by hand" begin
         G = classical_dihedral_germ(3)           # e, s, t, st, ts, sts = 0, …, 5
         @test G isa GarsideHomology.AbstractGerm && G isa GarsideHomology.Complexes.AbstractMonoid
-        @test natoms(G) == 2 && nsimples(G) == 6 && simples(G) == 0:5
+        @test natoms(G) == 2 && nsimples(G) == 6 && GarsideHomology._simple_numbers(G) == 0:5
+        @test [s.index for s in simples(G)] == 0:5 && string.(simples(G)) == ["e", "1", "2", "12", "21", "121"]
         @test GarsideHomology.atoms(G) == 1:2 && GarsideHomology.atoms(G) isa UnitRange{Int32}
         @test one(G) === Int32(0) && isone(G, 0) && !isone(G, 3)
         @test [GarsideHomology.word(G, s) for s in 0:5] == [Int32[], [1], [2], [1, 2], [2, 1], [1, 2, 1]]

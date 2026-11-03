@@ -10,8 +10,8 @@ using Test
 
 # Every answer of the interface of T is that of E, types included, for all simples.
 function same_answers(E, T)
-    S, N = GarsideHomology.simples(E), natoms(E)
-    GarsideHomology.simples(T) == S && natoms(T) == N && nsimples(T) == nsimples(E) || return false
+    S, N = GarsideHomology._simple_numbers(E), natoms(E)
+    GarsideHomology._simple_numbers(T) == S && natoms(T) == N && nsimples(T) == nsimples(E) || return false
     for s in S
         length(T, s) === length(E, s) || return false
         GarsideHomology.left_descents(T, s) == GarsideHomology.left_descents(E, s) || return false

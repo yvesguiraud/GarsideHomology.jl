@@ -102,7 +102,7 @@ end
 # The value of the key empreinte_germe: computed from the germ (:compute), given (a
 # GermFingerprint or a string), or omitted (nothing).
 _fingerprint_string(G::AbstractGerm, f::Symbol) =
-    f === :compute ? (applicable(simples, G) ? sprint(show, fingerprint(G)) : "non calculée (germe paresseux)") :
+    f === :compute ? (applicable(_simple_numbers, G) ? sprint(show, fingerprint(G)) : "non calculée (germe paresseux)") :
     throw(ArgumentError("write_snapshot: germ_fingerprint = :$f, expected :compute, nothing, a GermFingerprint or a string"))
 _fingerprint_string(G::AbstractGerm, ::Nothing) = "non calculée"  # COV_EXCL_LINE (constant, folded into its caller)
 _fingerprint_string(G::AbstractGerm, f::GermFingerprint) = sprint(show, f)
