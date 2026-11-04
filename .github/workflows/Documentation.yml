@@ -1,0 +1,43 @@
+# Documentation site, built with Documenter.jl (docs/make.jl) on Ubuntu with the latest Julia.
+# On pull requests, the site is built and checked (missing docstrings, broken
+# cross-references) without being published; on pushes to main, it is published to dev/,
+# and on tags vX.Y.Z to vX.Y.Z/ and stable/ (GitHub Pages, branch gh-pages). Also by hand
+# (Actions tab, "Run workflow").
+name: Documentation
+
+on:
+  push:
+    branches: [main]
+    tags: ['*']
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  # Cancel superseded runs of the same branch or pull request, except on main
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  docs:
+    name: Documentation
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      actions: write    # lets julia-actions/cache delete old caches
+      contents: write   # pushes the site to the branch gh-pages
+      statuses: write   # lets Documenter report the deployment on the commit
+    steps:
+      - uses: actions/checkout@v7
+      - uses: julia-actions/setup-julia@v3
+        with:
+          version: '1'
+      - uses: julia-actions/cache@v3
+      - name: Install the documentation environment
+        run: julia --project=docs --color=yes -e 'using Pkg; Pkg.instantiate()'
+      # Authentication: the deploy key DOCUMENTER_KEY if the secret is set (needed for the
+      # tags created by TagBot), GITHUB_TOKEN otherwise.
+      - name: Build and publish
+        run: julia --project=docs --color=yes docs/make.jl
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}

@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/yvesguiraud/GarsideHomology.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/yvesguiraud/GarsideHomology.jl/actions/workflows/CI.yml)
 [![Coverage](https://codecov.io/gh/yvesguiraud/GarsideHomology.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/yvesguiraud/GarsideHomology.jl)
+[![Documentation](https://img.shields.io/badge/docs-dev-blue.svg)](https://yvesguiraud.github.io/GarsideHomology.jl/dev/)
 
 Small free resolutions of Garside monoids and their homology, in Julia.
 

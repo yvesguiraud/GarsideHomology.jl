@@ -1,0 +1,20 @@
+[deps]
+Chevie = "367f69f0-ca63-11e8-2372-438b29340c1b"
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+GarsideHomology = "8020c2ec-8931-47b1-870e-dab20b57e67e"
+LaurentPolynomials = "10b2801c-d482-41ed-a506-4a825c59e3da"
+TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
+
+# The package itself, from this repository (Julia 1.11 or later for [sources]).
+[sources]
+GarsideHomology = {path = ".."}
+
+[compat]
+Chevie = "0.1.15"
+Documenter = "1"
+# Temporary, as in the test target of ../Project.toml: LaurentPolynomials 0.1.11 and
+# PuiseuxPolynomials 0.1.10 both define root(::Integer), so that Chevie no longer
+# precompiles under Julia 1.12 and later. To remove once a fixed PuiseuxPolynomials is
+# registered.
+LaurentPolynomials = "0.1.1 - 0.1.10"
+TOML = "1"

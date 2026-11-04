@@ -92,14 +92,15 @@ the vectors. The terms are in the order of the basis, then, for bimodules, of `�
 `σ`: the terms `σ[x]` come before the terms `[x]τ`.
 
 Built by calling the module: `M(x)`, the generator `[x]` for an element `x` of the basis (a
-[`Cell`](@ref) for a resolution); `M("2×12[1|21]3 - [2|12]")`, read from its written form
-(a text without brackets is a generator, `M("2|12")`); over a ring, `M(v)` from the vector of
-its coefficients on the basis; `zero(M)`. For a complex, `C(x)` for a cell and
-`C("…")` find the module themselves.
+[`Cell`](@ref GarsideHomology.Cell) for a resolution); `M("2×12[1|21]3 - [2|12]")`, read from
+its written form (a text without brackets is a generator, `M("2|12")`); over a ring, `M(v)`
+from the vector of its coefficients on the basis; `zero(M)`. For a complex, `C(x)` for a
+cell and `C("…")` find the module themselves.
 
 Operations: `+`, `-`, multiples by integers, the actions of the elements of the monoid on
-the sides of the module (`σ * v`, `v * τ`, with [`GermElement`](@ref)s; an `ArgumentError`
-if a product is not a simple), equality and hashing, `iszero`, `parent(v)` (the module);
+the sides of the module (`σ * v`, `v * τ`, with
+[`GermElement`](@ref GarsideHomology.GermElement)s; an `ArgumentError` if a product is not a
+simple), equality and hashing, `iszero`, `parent(v)` (the module);
 `v[x]` (over a ring), `v[σ, x]`, `v[x, τ]` or `v[σ, x, τ]`, the coefficient of a term; the
 iteration over the terms, as tuples `(c, σ, x, τ)` (`nothing` for an absent side);
 `length(v)`, the number of terms. Over a ring, `Vector(v)` and `SparseVector(v)` give the
@@ -493,11 +494,12 @@ end
 
 The differential `d` of a chain complex `C` as a whole, as returned by
 [`differential`](@ref)`(C)`: `d(x)`, or `d[x]`, is the boundary of the generator `x` of
-`C_{n+1}` (a [`Cell`](@ref) of a resolution, which knows its degree), and `d(v)` that of an
-element `v` of a module of `C`, an element of `C_n`. For the terms `c×σ[x]τ` of a module
-over a monoid algebra, `d(v)` is the sum of the `c × σ·d(x)·τ`, an `ArgumentError` if a
-product of elements of the monoid is not a simple. The boundary of an element of the lowest
-degree is 0, in a module of rank 0 below it (whose elements have the boundary 0 too).
+`C_{n+1}` (a [`Cell`](@ref GarsideHomology.Cell) of a resolution, which knows its degree),
+and `d(v)` that of an element `v` of a module of `C`, an element of `C_n`. For the terms
+`c×σ[x]τ` of a module over a monoid algebra, `d(v)` is the sum of the `c × σ·d(x)·τ`, an
+`ArgumentError` if a product of elements of the monoid is not a simple. The boundary of an
+element of the lowest degree is 0, in a module of rank 0 below it (whose elements have the
+boundary 0 too).
 `d(d(x))` checks `d² = 0` on `x`. At the REPL, `d` shows the boundaries of the generators,
 within the screen; `d.(basis(C[n]))` gives those of one degree.
 """
