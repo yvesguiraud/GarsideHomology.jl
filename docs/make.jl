@@ -32,6 +32,15 @@ makedocs(;
     ),
     pages = [
         "Home" => "index.md",
+        "Guide" => [
+            "Getting started" => "guide/getting_started.md",
+            "Background and conventions" => "guide/background.md",
+            "Resolutions, cells and elements" => "guide/resolutions.md",
+            "Display settings" => "guide/display.md",
+            "Coefficients and homology" => "guide/homology.md",
+            "Orderings, certificates and snapshots" => "guide/orderings.md",
+            "Working with other packages" => "guide/interoperability.md",
+        ],
         "Reference" => [
             "Overview" => "reference/overview.md",
             "Germs" => "reference/germs.md",
@@ -42,6 +51,7 @@ makedocs(;
             "Complexes" => "reference/complexes.md",
             "Chevie extension" => "reference/chevie.md",
         ],
+        "References" => "references.md",
     ],
 )
 

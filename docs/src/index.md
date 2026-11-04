@@ -46,7 +46,7 @@ homology(R, TrivialModule())    # ℤ, ℤ, 0 in degrees 0 to 2
 homology(R, SignModule())       # ℤ/2ℤ, ℤ/3ℤ, 0
 ```
 
-The [Reference](reference/overview.md) gathers the docstrings, layer by layer.
+The [Guide](guide/getting_started.md) explains how to use the package, from this example on, and the [Reference](reference/overview.md) gathers the docstrings, layer by layer.
 
 ## Requirements
 
