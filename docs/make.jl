@@ -10,6 +10,9 @@ using Documenter
 using GarsideHomology
 using Chevie   # loads the extension GarsideHomologyChevieExt, documented on its own page
 
+# The tables of the pages Examples, generated from test/data/expected/*.toml.
+include(joinpath(@__DIR__, "examples_tables.jl"))
+
 # The extension module, under a name that the page reference/chevie.md can use.
 const GarsideHomologyChevieExt = Base.get_extension(GarsideHomology, :GarsideHomologyChevieExt)
 
@@ -40,6 +43,12 @@ makedocs(;
             "Coefficients and homology" => "guide/homology.md",
             "Orderings, certificates and snapshots" => "guide/orderings.md",
             "Working with other packages" => "guide/interoperability.md",
+        ],
+        "Examples" => [
+            "Overview" => "examples/overview.md",
+            "Exceptional braid groups" => "examples/exceptional.md",
+            "Spherical Artin groups" => "examples/spherical.md",
+            "Imprimitive braid groups" => "examples/imprimitive.md",
         ],
         "Reference" => [
             "Overview" => "reference/overview.md",

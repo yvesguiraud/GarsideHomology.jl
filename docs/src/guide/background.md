@@ -24,7 +24,7 @@ A cell is written in bar form, its letters being simples: `2|12` in B⁺(A₂); 
 
 ## Homology
 
-For a Garside monoid, as for every monoid that satisfies the Ore conditions, the homology of the monoid with coefficients in a module is that of its group of fractions (Squier; Garnier, for categories). For a resolution `R` by bimodules and a module of coefficients `M`, `homology(R, M)` is the homology over ℤ of the complex `ℤ ⊗ R ⊗ M`, computed from the elementary divisors of its differentials by [SparseElementaryDivisors.jl](https://github.com/yvesguiraud/SparseElementaryDivisors.jl).
+For a Garside monoid, as for every monoid that satisfies the Ore conditions, the homology of the monoid with coefficients in a module is that of its group of fractions (see *Foundations of Garside Theory*, chapter III, and Garnier for categories). For a resolution `R` by bimodules and a module of coefficients `M`, `homology(R, M)` is the homology over ℤ of the complex `ℤ ⊗ R ⊗ M`, computed from the elementary divisors of its differentials by [SparseElementaryDivisors.jl](https://github.com/yvesguiraud/SparseElementaryDivisors.jl).
 
 Conventions:
 - The differential `d_n : C_{n+1} → C_n` is indexed by its target, whereas Hecke and most texts index `d_n : C_n → C_{n−1}` by its source. Then `H_n = ker d_{n−1} / im d_n`, of free rank `rank C_n − rank d_n − rank d_{n−1}`, and its torsion is given by the elementary divisors of `d_n` greater than 1.

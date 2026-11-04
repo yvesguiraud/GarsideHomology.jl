@@ -21,7 +21,7 @@ Some names of GarsideHomology are also exported by other packages, for other obj
 
 ## Limits
 
-- Chevie represents the reflection groups by permutations of their roots, with 16-bit integers by default: the groups with more than 32 767 roots, such as G(29, 29, 7), are out of reach for now.
+- Chevie represents the reflection groups by permutations of their roots, with 16-bit integers by default, and the extension of GarsideHomology stores the images of the roots with 16-bit integers too: the groups with more than 32 767 roots, such as G(29, 29, 7) and its 35 322 roots, are out of reach for now.
 - A tabulated germ ([`TableGerm`](@ref)) takes about 16 bytes per simple and per atom (49 MB for B*(E₈)); above 5·10⁵ simples, `germ` gives a lazy germ for a classical braid monoid, and `dual_germ` an `ArgumentError`.
 - A lazy germ ([`CoxeterGerm`](@ref)) numbers its simples as it meets them: it must not be queried from several threads at once.
 - The products of the monoid beyond the simples, by normal forms, are not supported yet: `s * t` is defined only when it is a simple.
