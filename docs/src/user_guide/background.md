@@ -4,7 +4,7 @@
 CurrentModule = GarsideHomology
 ```
 
-This page recalls the notions used by the package and fixes its conventions. The references are listed on the page [References](../references.md).
+This page recalls the notions used by the package and fixes its conventions. The references are listed on the page [Bibliography](../bibliography.md).
 
 ## Garside monoids and germs
 

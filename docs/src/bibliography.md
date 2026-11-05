@@ -1,4 +1,4 @@
-# References
+# Bibliography
 
 ## Garside theory and resolutions
 
