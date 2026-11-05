@@ -17,4 +17,3 @@ Documenter = "1"
 # precompiles under Julia 1.12 and later. To remove once a fixed PuiseuxPolynomials is
 # registered.
 LaurentPolynomials = "0.1.1 - 0.1.10"
-TOML = "1"

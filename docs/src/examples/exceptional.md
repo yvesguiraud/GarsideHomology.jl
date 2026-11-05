@@ -20,7 +20,7 @@ Main.ExamplesTables.exceptional_homology("sign")
 
 † The value with ℤε for G₃₇ is not computed by the package for now: the coefficients of the elimination outgrow `Int128`, the largest integer type used in these computations. The value given was obtained by computing the elementary divisors of the differentials of the package with Magma.
 
-The eight other exceptional groups, G₇, G₁₁, G₁₂, G₁₃, G₁₅, G₁₉, G₂₂ and G₃₁, are not well-generated: they have no dual braid monoid, and the package does not compute their homology for now. Their homology with ℤ and ℤε is known: see Callegaro and Marin, Marin (*Homology computations for complex braid groups II*) and Garnier (tables 3 and 4), who treats G₃₁ through a Garside category ([References](../references.md)).
+The eight other exceptional groups, G₇, G₁₁, G₁₂, G₁₃, G₁₅, G₁₉, G₂₂ and G₃₁, are not well-generated: they have no dual braid monoid, and the package does not compute their homology for now. Their homology with ℤ and ℤε is known: see Callegaro and Marin, Marin (*Homology computations for complex braid groups II*) and Garnier (tables 3 and 4), who treats G₃₁ through a Garside category ([Bibliography](../bibliography.md)).
 
 Numbers of cells of the reduced lcm resolution:
 

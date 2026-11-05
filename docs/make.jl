@@ -13,7 +13,7 @@ using Chevie   # loads the extension GarsideHomologyChevieExt, documented on its
 # The tables of the pages Examples, generated from test/data/expected/*.toml.
 include(joinpath(@__DIR__, "examples_tables.jl"))
 
-# The extension module, under a name that the page reference/chevie.md can use.
+# The extension module, under a name that the page reference_manual/chevie.md can use.
 const GarsideHomologyChevieExt = Base.get_extension(GarsideHomology, :GarsideHomologyChevieExt)
 
 makedocs(;
@@ -32,17 +32,19 @@ makedocs(;
         prettyurls = get(ENV, "CI", nothing) == "true",
         canonical = "https://yvesguiraud.github.io/GarsideHomology.jl/stable/",
         edit_link = "main",
+        # Hides the headings of the current page in the sidebar (docs/src/assets/custom.css).
+        assets = ["assets/custom.css"],
     ),
     pages = [
         "Home" => "index.md",
-        "Guide" => [
-            "Getting started" => "guide/getting_started.md",
-            "Background and conventions" => "guide/background.md",
-            "Resolutions, cells and elements" => "guide/resolutions.md",
-            "Display settings" => "guide/display.md",
-            "Coefficients and homology" => "guide/homology.md",
-            "Orderings, certificates and snapshots" => "guide/orderings.md",
-            "Working with other packages" => "guide/interoperability.md",
+        "User guide" => [
+            "Getting started" => "user_guide/getting_started.md",
+            "Background and conventions" => "user_guide/background.md",
+            "Resolutions, cells and elements" => "user_guide/resolutions.md",
+            "Display settings" => "user_guide/display.md",
+            "Coefficients and homology" => "user_guide/homology.md",
+            "Orderings, certificates and snapshots" => "user_guide/orderings.md",
+            "Working with other packages" => "user_guide/interoperability.md",
         ],
         "Examples" => [
             "Overview" => "examples/overview.md",
@@ -50,17 +52,17 @@ makedocs(;
             "Spherical Artin groups" => "examples/spherical.md",
             "Imprimitive braid groups" => "examples/imprimitive.md",
         ],
-        "Reference" => [
-            "Overview" => "reference/overview.md",
-            "Germs" => "reference/germs.md",
-            "Orderings" => "reference/orderings.md",
-            "Cells" => "reference/cells.md",
-            "Resolutions and certificates" => "reference/resolutions.md",
-            "Coefficients and homology" => "reference/coefficients.md",
-            "Complexes" => "reference/complexes.md",
-            "Chevie extension" => "reference/chevie.md",
+        "Reference manual" => [
+            "Overview" => "reference_manual/overview.md",
+            "Germs" => "reference_manual/germs.md",
+            "Orderings" => "reference_manual/orderings.md",
+            "Cells" => "reference_manual/cells.md",
+            "Resolutions and certificates" => "reference_manual/resolutions.md",
+            "Coefficients and homology" => "reference_manual/coefficients.md",
+            "Complexes" => "reference_manual/complexes.md",
+            "Chevie extension" => "reference_manual/chevie.md",
         ],
-        "References" => "references.md",
+        "Bibliography" => "bibliography.md",
     ],
 )
 
