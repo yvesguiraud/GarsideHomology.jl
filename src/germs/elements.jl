@@ -1,30 +1,19 @@
-# The elements of a germ for the user (J1.h): a simple with its germ, written as a word in
+# The elements of a germ for the user: a simple with its germ, written as a word in
 # the atoms, built from a word or read from its written form. The construction keeps its
 # numbers (Int32); only what is handed to the user is wrapped.
 
 """
     GermElement
 
-An element of a germ `G` (a simple), for the user: the germ and the number of the simple.
-It is written as a word in the atoms, following the settings of the display
-([`Notation`](@ref)): `121` for B⁺(A₂), `e` for the identity, `1·12·3` in a germ with at
-least 10 atoms.
+An element of a germ `G` (a simple), for the user: the germ and the number of the simple. It is written as a word in the atoms, following the settings of the display ([`Notation`](@ref)): `121` for B⁺(A₂), `e` for the identity, `1·12·3` in a germ with at least 10 atoms.
 
 Built by calling the germ:
-- `G()`, the identity; `G(a)`, the atom `a`; `G(1, 2, 1)`, the product of the atoms of a
-  word, an `ArgumentError` if it is not a simple;
-- `G("121")`, read from its written form, with the settings of the session; spaces, `·`,
-  `⋅` and `.` between the atoms are accepted, and parentheses around the word.
+- `G()`, the identity; `G(a)`, the atom `a`; `G(1, 2, 1)`, the product of the atoms of a word, an `ArgumentError` if it is not a simple;
+- `G("121")`, read from its written form, with the settings of the session; spaces, `·`, `⋅` and `.` between the atoms are accepted, and parentheses around the word.
 
-Also given by [`simples`](@ref)`(G)` and [`elements`](@ref)`(G)`, and by the accessors of
-the cells and of the elements of free modules. Operations: [`word`](@ref)`(s)`, the
-smallest word in the atoms; `length(s)`; `isone(s)`, `one(s)`; `s * t`, the product if it
-is a simple (an `ArgumentError` otherwise: the products of the monoid, by normal forms, are
-not supported yet); `s \\ t`, the left quotient if `s ≼ t`; equality, hashing and the
-degree-lexicographic order (`isless`). A `GermElement` is a scalar for broadcasting.
+Also given by [`simples`](@ref)`(G)` and [`elements`](@ref)`(G)`, and by the accessors of the cells and of the elements of free modules. Operations: [`word`](@ref)`(s)`, the smallest word in the atoms; `length(s)`; `isone(s)`, `one(s)`; `s * t`, the product if it is a simple (an `ArgumentError` otherwise: the products of the monoid, by normal forms, are not supported yet); `s \\ t`, the right complement (the `u` such that `su = t`) if `s ≼ t`; equality, hashing and the degree-lexicographic order (`isless`). A `GermElement` is a scalar for broadcasting.
 
-`GermElement(G, s)` wraps the number `s` of a simple of `G` (checked against the simples
-numbered by `G`): a tool of the developer.
+`GermElement(G, s)` wraps the number `s` of a simple of `G` (checked against the simples numbered by `G`): a tool of the developer.
 """
 struct GermElement{G <: AbstractGerm}
     germ::G
@@ -103,8 +92,7 @@ end
 """
     word(s::GermElement) -> Vector{Int32}
 
-The smallest reduced word of `s` in the atoms of its germ, for the lexicographic order:
-`word(s.germ, s.index)`. Empty for the identity.
+The smallest reduced word of `s` in the atoms of its germ, for the lexicographic order: `word(s.germ, s.index)`. Empty for the identity.
 """
 word(s::GermElement) = word(s.germ, s.index)
 
@@ -125,7 +113,7 @@ end
 function Base.:\(s::GermElement, t::GermElement)
     _same_germ(s, t, "\\")
     q = ldiv(s.germ, s.index, t.index)
-    q === nothing && throw(ArgumentError("$s \\ $t: $s does not left-divide $t"))
+    q === nothing && throw(ArgumentError("$s \\ $t: $s is not a left divisor of $t"))
     return GermElement(s.germ, q; check = false)
 end
 
@@ -157,10 +145,7 @@ Base.showarg(io::IO, v::_GermElements, toplevel::Bool) = print(io, "simples of "
 """
     simples(G::AbstractGerm)
 
-The simples of `G`, as [`GermElement`](@ref)s, in the numbering of `G` (the canonical
-order for a tabulated germ: by length, then smallest word, so that the last one is Δ).
-Defined for a germ whose simples are all numbered (a tabulated germ); an `ArgumentError`
-for a lazy germ, which does not list its simples. The same as [`elements`](@ref)`(G)`.
+The simples of `G`, as [`GermElement`](@ref)s, in the numbering of `G` (the canonical order for a tabulated germ: by length, then smallest word, so that the last one is Δ). Defined for a germ whose simples are all numbered (a tabulated germ); an `ArgumentError` for a lazy germ, which does not list its simples. The same as [`elements`](@ref)`(G)`.
 """
 function simples(G::AbstractGerm)
     applicable(_simple_numbers, G) ||
@@ -171,11 +156,7 @@ end
 """
     elements(G::AbstractGerm)
 
-The elements of the germ `G`, as [`GermElement`](@ref)s: the same as
-[`simples`](@ref)`(G)`, under the name of the germs, which need not come from a Garside
-structure. Public, not exported (PermGroups, hence Chevie, and FiniteFields, Hecke and Oscar
-export an `elements` of their own): with Chevie loaded, the `elements` of Chevie has a
-method for germs (package extension), and `elements(G)` works without qualification.
+The elements of the germ `G`, as [`GermElement`](@ref)s: the same as [`simples`](@ref)`(G)`, under the name of the germs, which need not come from a Garside structure. Public, not exported (PermGroups, hence Chevie, and FiniteFields, Hecke and Oscar export an `elements` of their own): with Chevie loaded, the `elements` of Chevie has a method for germs (package extension), and `elements(G)` works without qualification.
 """
 elements(G::AbstractGerm) = simples(G)
 
@@ -307,7 +288,7 @@ function _atom_of(index::Dict{String, Int}, names::Vector{String}, tok::Abstract
 end
 
 # ------------------------------------------------------------------------------------
-# The germs as monoids of the modules of the complexes layer (J1.h): their elements are the
+# The germs as monoids of the modules of the complexes layer: their elements are the
 # labels of the terms, written as words, read from their written form, multiplied in the
 # germ (a product that is not a simple is not a label), and handed to the user as
 # GermElements, which act on the sides of the elements of the modules.
@@ -321,7 +302,7 @@ Complexes._label_product(G::AbstractGerm, a::Integer, b::Integer) =
     iszero(a) ? Int32(b) : iszero(b) ? Int32(a) : product(G, a, b)
 Complexes._label_value(G::AbstractGerm, l::Int32) = GermElement(G, l; check = false)
 
-# Signature line, counted only by some compiled instances in the coverage of Julia (J1.g).
+# Signature line, counted only by some compiled instances in the coverage of Julia.
 function Complexes._label_code(G::AbstractGerm, s::GermElement)  # COV_EXCL_LINE
     s.germ === G || throw(ArgumentError("the element $s is not one of the germ of the module"))
     return s.index

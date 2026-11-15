@@ -4,7 +4,7 @@
 CurrentModule = GarsideHomology
 ```
 
-A germ gives the simples of a Garside monoid, numbered by integers, with their products and their left complements.
+A germ gives the simples of a Garside monoid, numbered by integers, and, for simples `s`, `t` and an atom `a`: the product `st` when it is simple, the right complement `s \ t` (the simple `u` such that `su = t`) when `s ≼ t`, and the right least common multiple (right lcm) `s ∨ a`.
 
 Exported: `natoms`, `nsimples`, `simples`, `opposite`, `germ`, `dual_germ`. The other names are public only. With Chevie loaded, `word` and `elements` are written without qualification: the extension adds methods to the functions of Chevie that have these names.
 

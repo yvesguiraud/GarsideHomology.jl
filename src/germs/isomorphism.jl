@@ -4,24 +4,11 @@
     germ_isomorphism(G::AbstractGerm, H::AbstractGerm; limit = 10^6)
         -> Union{Vector{Int32}, Nothing}
 
-An isomorphism of germs from `G` to `H`, given by the images of the atoms: `φ[a]` is the
-atom of `H` image of the atom `a` of `G`; `nothing` when the germs are not isomorphic. An
-isomorphism is a bijection of the atoms that extends to a bijection of the simples with
-φ(σ·a) = φ(σ)·φ(a), the product being defined in `G` exactly when it is defined in `H`;
-it then preserves the lengths, the divisibility, the lcms and Δ.
+An isomorphism of germs from `G` to `H`, given by the images of the atoms: `φ[a]` is the atom of `H` image of the atom `a` of `G`; `nothing` when the germs are not isomorphic. An isomorphism is a bijection of the atoms that extends to a bijection of the simples with φ(σ·a) = φ(σ)·φ(a), the product being defined in `G` exactly when it is defined in `H`; it then preserves the lengths, the divisibility, the lcms and Δ.
 
-The search is a backtracking on the atoms of `G`, taken by decreasing number of defined
-products a·b of two atoms (the atom of smaller number first on a tie), an atom being sent only to
-an atom of `H` with the same numbers of defined products on the right and on the left.
-The images of the products of two atoms already placed are kept consistent along the way,
-which imposes the relations ab = cd. Once all the atoms are placed, the map is extended
-to the simples along the right covers, from the identity, and checked on all of them.
-`limit` bounds the number of trials of an image of an atom: an `ArgumentError` is thrown
-when it is reached, so that `nothing` always means that the germs are not isomorphic.
+The search is a backtracking on the atoms of `G`, taken by decreasing number of defined products a·b of two atoms (the atom of smaller number first on a tie), an atom being sent only to an atom of `H` with the same numbers of defined products on the right and on the left. The images of the products of two atoms already placed are kept consistent along the way, which imposes the relations ab = cd. Once all the atoms are placed, the map is extended to the simples along the right covers, from the identity, and checked on all of them. `limit` bounds the number of trials of an image of an atom: an `ArgumentError` is thrown when it is reached, so that `nothing` always means that the germs are not isomorphic.
 
-Germs with different numbers of atoms or of simples are told apart without search. Every
-simple of `G` and `H` is visited by products with the atoms: for a lazy germ such as
-[`CoxeterGerm`](@ref), all its simples get numbered.
+Germs with different numbers of atoms or of simples are told apart without search. Every simple of `G` and `H` is visited by products with the atoms: for a lazy germ such as [`CoxeterGerm`](@ref), all its simples get numbered.
 """
 function germ_isomorphism(G::AbstractGerm, H::AbstractGerm; limit::Integer = 10^6)
     limit >= 1 || throw(ArgumentError("germ_isomorphism: limit = $limit < 1"))
