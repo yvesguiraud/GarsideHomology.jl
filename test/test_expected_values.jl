@@ -1,13 +1,9 @@
 # Tests of the expected values of data/expected/ (f5 of J1.f): the three files checked
 # without computation (format, alternating sums, links between the files, formulas), a
-# small selection recomputed from the germs (2 or 3 cases per file), and, when the
+# small selection recomputed from the germs (2 to 4 cases per file), and, when the
 # environment variable GARSIDE_HOMOLOGY_LONG_TESTS is set, every entry recomputed.
 #
-# GARSIDE_HOMOLOGY_LONG_TESTS = "all" recomputes every entry, any other value is a regular expression
-# on the names of the tables ('^(B[2-4]|G\(3,3,.\))$', say). The long tests need a solver
-# that widens its integers (SparseElementaryDivisors 0.1.1, where DEFAULT_VALUE_TYPES is
-# defined); with an older one they are skipped. Until the version 0.1.1 is registered, they
-# run in an environment where the solver is developed, such as CatLab/j1:
+# GARSIDE_HOMOLOGY_LONG_TESTS = "all" recomputes every entry, any other value is a regular expression on the names of the tables ('^(B[2-4]|G\(3,3,.\))$', say). The solver widens the integers, up to Int128 in the long tests. The long tests run with the other tests (Pkg.test() with the variable set), or alone in an environment that has the test dependencies, such as CatLab/j1:
 #     julia --project=j1 -t 16 <path of GarsideHomology.jl>/test/test_expected_values.jl
 # About 1 h 45 min for all the entries on a machine like N9 (estimate from J1.f).
 
@@ -54,7 +50,7 @@ ev_betti(e, r, k) = k in (0, 1) ? 1 : (iseven(e) && iseven(r) && k in (r - 1, r)
 
 # The cells by degree and the homologies of a germ, against an entry. `skip_sign`: ℤε not
 # recomputed (a value that needs more than the integers allowed, or not computed in J1).
-function ev_check_germ(G, entry; value_type, cells = get(entry, "cells_minimal", nothing),
+function ev_check_germ(G, entry; value_type = :auto, cells = get(entry, "cells_minimal", nothing),
                        skip_sign = false)
     R = lcm_resolution(G)
     T = cell_tree(R)
@@ -222,29 +218,29 @@ const EV_PROVENANCE_KEYS = Set(["run", "description", "script", "data", "catlab"
         @test n_unknown == 29
     end
 
-    # A small selection recomputed: rank 2, 3 and 4 exceptional groups (G32: the erratum on
-    # H₄), the classical and dual monoids of B₃ and D₄ (no published value), I₂(5), G(e, e, r)
-    # for e and r odd, then even (the longer Poincaré polynomial), and G(3, 1, 3) against
-    # B₃. ℤε with value_type = Int64, accepted by SparseElementaryDivisors 0.1.0 and 0.1.1
-    # (the version 0.1.0 starts in Int32 and does not widen; all these cases hold in Int64).
-    # The isomorphisms of germs between Chevie's presentations (crg(1, 1, 3) and A₂, crg(2,
-    # 2, 4) and D₄, ...) are tested in test_chevie_germs.jl.
+    # A small selection recomputed, with the default value_type of the solver (Int32 first, then wider types after an overflow): rank 2, 3 and 4 exceptional groups (G32: the erratum on H₄), the classical and dual monoids of B₃ and D₄ (no published value), I₂(5), G(e, e, r) for e and r odd, then even (the longer Poincaré polynomial), and G(3, 1, 3) against B₃. The isomorphisms of germs between Chevie's presentations (crg(1, 1, 3) and A₂, crg(2, 2, 4) and D₄, ...) are tested in test_chevie_germs.jl.
     @testset "Recomputed: $name" for name in ("G4", "G27", "G32")
-        ev_check_germ(dual_germ(Chevie.crg(parse(Int, name[2:end]))), EV_EXCEPTIONAL[name]; value_type = Int64)
+        ev_check_germ(dual_germ(Chevie.crg(parse(Int, name[2:end]))), EV_EXCEPTIONAL[name])
     end
     @testset "Recomputed: $name" for name in ("B3", "D4", "I2(5)")
         n, W = ev_coxeter(name)
         entry = EV_SPHERICAL[name]
-        ev_check_germ(dual_germ(W), entry; value_type = Int64)
+        ev_check_germ(dual_germ(W), entry)
         name == "I2(5)" ||
-            ev_check_germ(germ(Chevie.BraidMonoid(W)), entry; value_type = Int64, cells = [binomial(n, k) for k in 0:n])
+            ev_check_germ(germ(Chevie.BraidMonoid(W)), entry; cells = [binomial(n, k) for k in 0:n])
     end
     @testset "Recomputed: $name" for name in ("G(3,3,3)", "G(4,4,4)")
-        ev_check_germ(dual_germ(Chevie.crg(ev_mpn(name)...)), EV_IMPRIMITIVE[name]; value_type = Int64)
+        ev_check_germ(dual_germ(Chevie.crg(ev_mpn(name)...)), EV_IMPRIMITIVE[name])
     end
     @testset "Recomputed: G(3,1,3)" begin
         type = EV_IMPRIMITIVE["G(3,1,3)"]["dual_germ_isomorphic_to"]
         @test germ_isomorphism(dual_germ(Chevie.crg(3, 1, 3)), dual_germ(last(ev_coxeter(type)))) !== nothing
+    end
+    # The widening of the integers through GarsideHomology: ℤε on B*(G34) overflows Int32, and the default value_type of the solver widens it.
+    @testset "Widening of the integers: G34" begin
+        R = lcm_resolution(dual_germ(Chevie.crg(34)))
+        @test_throws SparseElementaryDivisors.CoefficientOverflowError homology(R, ℤε; value_type = Int32)
+        @test homology(R, ℤε) == ev_graded(EV_EXCEPTIONAL["G34"]["sign"])
     end
 end
 
@@ -265,9 +261,6 @@ end
 if isempty(EV_LONG)
     @info "Long tests of the expected values skipped: set GARSIDE_HOMOLOGY_LONG_TESTS to all, or to a " *
           "regular expression on the names of the tables."
-elseif !isdefined(SparseElementaryDivisors, :DEFAULT_VALUE_TYPES)
-    @info "Long tests of the expected values skipped: the solver does not widen its integers " *
-          "(SparseElementaryDivisors 0.1.1 needed)."
 else
     @testset "Expected values, long tests" begin
         pattern = EV_LONG == "all" ? r"" : Regex(EV_LONG)
