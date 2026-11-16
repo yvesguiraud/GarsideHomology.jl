@@ -25,7 +25,7 @@ With the atoms written as numbers, the marker `×` separates a coefficient from 
 A `Notation` under the key `:notation` of an `IOContext` applies to one display, and wins over the session:
 
 ```julia
-show(IOContext(stdout, :notation => Notation(coefficient_style = :parentheses)), 2 * P(P("2")))   # 2([2])
+show(IOContext(stdout, :notation => Notation(coefficient_style = :parentheses)), 2 * P("2"))      # 2([2])
 show(IOContext(stdout, :notation => Notation(empty_cell_in_module = "[e]")), d(P("1")))           # 1[e] - [e]1
 ```
 

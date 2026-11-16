@@ -18,14 +18,14 @@ struct PairsTestMonoid <: GarsideHomology.Complexes.AbstractMonoid end
     A = MonoidAlgebra(GarsideHomology.Complexes.AbstractAlgebra.ZZ, PairsTestMonoid())
 
     @testset "Complexes written by hand" begin
-        # ⟨a⟩: ∂[a] = a·[]·e − e·[]·a has no monomial 1·y·1.
+        # ⟨a⟩: d[a] = a·[]·e − e·[]·a has no monomial 1[y]1.
         da = LabelledSparseMatrix([1, 1], [1, 1], L2[(1, 0), (0, 1)], [1, -1], 1, 1)
         P = ChainComplex([BasedFreeModule(A, 1), BasedFreeModule(A, 1)], [da])
         @test isempty(collapsible_pairs(P))
         @test isempty(identity_monomials(P))
 
-        # C₁ = ⟨x₁, x₂, x₃⟩ → C₀ = ⟨y₁, y₂⟩ with ∂x₁ = y₁, ∂x₂ = 2·y₁ and
-        # ∂x₃ = −y₁ + (1 + σ)·y₂: only (x₁, y₁) and (x₃, y₁) are collapsible. Labels: e = 0,
+        # C₁ = ⟨x₁, x₂, x₃⟩ → C₀ = ⟨y₁, y₂⟩ with dx₁ = y₁, dx₂ = 2·y₁ and
+        # dx₃ = −y₁ + (1 + σ)·y₂: only (x₁, y₁) and (x₃, y₁) are collapsible. Labels: e = 0,
         # σ = 1.
         d = LabelledSparseMatrix([1, 1, 1, 2, 2], [1, 2, 3, 3, 3],
                                  L2[(0, 0), (0, 0), (0, 0), (0, 0), (1, 0)], [1, 2, -1, 1, 1], 2, 3)

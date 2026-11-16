@@ -1,15 +1,11 @@
-# The lcm resolution of a germ, as a chain complex of free bimodules (J1.d, task d4; type
-# of its own since J1.e).
+# The lcm resolution of a germ, as a chain complex of free bimodules.
 
 """
     CellBasis
 
-The basis of the module of degree `n` of an lcm resolution: the cells of degree `n` of
-its tree, as [`Cell`](@ref)s, in the order of the construction (the numbers
-`cell_range(T, n)`), created on demand. A vector that keeps the tree, so that a complex
-built on such bases, and its extensions of scalars, which share them, know their cells
-([`cell_tree`](@ref)). At the REPL, a vector of cells in bar form, cut in the middle when
-it is long.
+The basis of the module of degree `n` of an lcm resolution: the cells of degree `n` of its tree, as [`Cell`](@ref)s, in the order of the construction, that is, the numbers `cell_range(T, n)`. The cells are created on demand.
+
+A `CellBasis` is a vector that keeps the tree, so that a complex built on such bases, and its extensions of scalars, which share them, know their cells ([`cell_tree`](@ref)). At the REPL, it is shown as a vector of cells in bar form, cut in the middle when it is long.
 """
 struct CellBasis{T <: CellTree} <: AbstractVector{Cell{T}}
     tree::T
@@ -31,9 +27,9 @@ Base.show(io::IO, B::CellBasis) = print(io, "CellBasis of degree ", B.degree, " 
 Base.:(==)(A::CellBasis, B::CellBasis) =
     A.tree === B.tree && A.degree == B.degree || isempty(A) && isempty(B)
 
-# The hooks of the bases of the complexes layer for the cells (J1.h): a cell is written in
-# bar form between brackets, [] for the cell of degree 0; it is found from itself or from its
-# bar form, and it knows its degree.
+# The hooks of the bases of the complexes layer for the cells: a cell is written in bar form
+# between brackets, [] for the cell of degree 0; it is found from itself or from its bar
+# form, and it knows its degree.
 
 struct _CellGenerators{W <: _CellWriter}
     cells::W
@@ -65,7 +61,7 @@ Complexes._find_in_basis(B::CellBasis, N::Notation, text::AbstractString, ::Abst
 
 Complexes._basis_degree(B::CellBasis) = B.degree
 
-# A complex whose bases are cells reads its generators as bar forms (P("2|12")).
+# A complex whose bases are cells reads its generators as bar forms (P("2|12") is [2|12]).
 function Complexes._find_generator(B::CellBasis, ::AbstractChainComplex, N::Notation, text::AbstractString)
     c = _written_cell(B.tree, N, text)
     n = cell_degree(c)
@@ -86,23 +82,16 @@ const _LCMMatrix = LabelledSparseMatrix{NTuple{2, Int32}, Int}
 """
     LCMResolution <: GarsideHomology.Complexes.AbstractChainComplex
 
-The lcm resolution of a germ for an ordering, as returned by [`lcm_resolution`](@ref): a
-chain complex of free bimodules over `MonoidAlgebra(ZZ, G, :both)`, which keeps the tree
-of its cells ([`cell_tree`](@ref)), hence the germ and the ordering.
+The lcm resolution of a germ for an ordering, as returned by [`lcm_resolution`](@ref). It is a chain complex of free bimodules over `MonoidAlgebra(ZZ, G, :both)`, which keeps the tree of its cells ([`cell_tree`](@ref)), hence the germ and the ordering.
 
-It implements the interface of `AbstractChainComplex` (`range`, `R[n]`,
-[`differential`](@ref), `base_ring`) through the `ChainComplex` it wraps, whose bases are
-[`CellBasis`](@ref)es; [`extend_scalars`](@ref) gives a `ChainComplex` over ℤ on the same bases,
-which still know their cells. Functions that need more than a chain complex, such as the
-writing of snapshots ([`write_snapshot`](@ref)), have methods for this type.
+It implements the interface of `AbstractChainComplex` (`range`, `R[n]`, [`differential`](@ref), `base_ring`) through the `ChainComplex` that it wraps, whose bases are [`CellBasis`](@ref)es. The extension of scalars [`extend_scalars`](@ref) gives a `ChainComplex` over ℤ on the same bases, which still know their cells. The functions that need more than a chain complex, such as the writing of snapshots ([`write_snapshot`](@ref)), have methods for this type.
 
-Its cells, as [`Cell`](@ref)s: `basis(R[n])`, `basis(R)` (the [`GradedBasis`](@ref)),
-`R("2|12")` (from the bar form), `R(G(2), G(1, 2))` (from the letters); the elements of its
-modules, `R(x)`, `R("2×1[2]1 - [1]")` ([`BasedFreeModuleElement`](@ref)); its differential,
-`d = differential(R)`, `d(x)` ([`Differential`](@ref)). At the REPL, its detailed display
-gives the cells of each degree and the boundaries `d(x)`, within the screen (the beginning
-and the end of the list, the boundaries of degree 1, `a[] - []a`, omitted but for a
-reminder); `show(stdout, "text/plain", R)`, or the same into a file, writes all of them.
+The cells, the elements and the differential of `R` are obtained as follows:
+- its cells, as [`Cell`](@ref)s: `basis(R[n])`, `basis(R)` (the [`GradedBasis`](@ref)), `Cell(R, "2|12")` (from the bar form) and `Cell(R, G(2), G(1, 2))` (from the letters);
+- the elements of its modules ([`BasedFreeModuleElement`](@ref)): `R(x)`, the generator `[x]` of a cell `x`, which is also written `R("2|12")` or `R(G(2), G(1, 2))`, and `R("2×1[2]1 - [1]")`, read from its written form;
+- its differential: `d = differential(R)`, and `d(x)` for a cell or an element `x` ([`Differential`](@ref)).
+
+At the REPL, the detailed display of `R` gives the cells of each degree and the boundaries `d(x)`, within the screen: it shows the beginning and the end of the list, and omits the boundaries of degree 1, `a[] - []a`, but for a reminder. `show(stdout, "text/plain", R)`, or the same into a file, writes all of them.
 """
 struct LCMResolution{G <: AbstractGerm, O <: LCMOrdering, R <: MonoidAlgebra, M <: AbstractModule} <:
        AbstractChainComplex{R, _LCMMatrix}
@@ -140,28 +129,18 @@ end
     lcm_resolution(G::AbstractGerm, ordering::LCMOrdering = LCMOrdering())
     lcm_resolution(P::LCMProjectionData)
 
-The lcm resolution of the germ `G` for the ordering `ordering`: the free resolution of
-the monoid algebra `ℤ[M]` by `ℤ[M]`-bimodules obtained from the Garside complex by the
-matching of the cells (see [`LCMOrdering`](@ref), [`CellTree`](@ref),
-[`LCMProjectionData`](@ref)), as an [`LCMResolution`](@ref), a chain complex over
-`MonoidAlgebra(ZZ, G, :both)`.
+The lcm resolution of the germ `G` for the ordering `ordering`, as an [`LCMResolution`](@ref), a chain complex over `MonoidAlgebra(ZZ, G, :both)`. It is the free resolution of the monoid algebra `ℤ[M]` by `ℤ[M]`-bimodules obtained from the Garside complex by the matching of the cells (see [`LCMOrdering`](@ref), [`CellTree`](@ref) and [`LCMProjectionData`](@ref)).
 
-Its module of degree `n` has for basis the cells of degree `n` ([`CellBasis`](@ref)), and
-`differential(R, n)`, from degree `n + 1` to degree `n`, is a `LabelledSparseMatrix` whose
-column `j` is the boundary of the `j`-th cell of degree `n + 1`, with labels `(σ, τ)` for
-the terms `coef · σ y τ`. Its tensor products by modules of coefficients
-(`homology(R, M)`, `homology(R, ℤ)`, `ℤ ⊗ R ⊗ ℤ`, [`extend_scalars`](@ref)) compute the
-homology of the monoid, that of its group of fractions.
+The basis of its module of degree `n` is made of the cells of degree `n` ([`CellBasis`](@ref)). The matrix `differential(R, n)`, from degree `n + 1` to degree `n`, is a `LabelledSparseMatrix` whose column `j` is the boundary of the `j`-th cell of degree `n + 1`, with the labels `(σ, τ)` for the terms `c·σ[y]τ`.
 
-- `lcm_resolution(G)`: the reduced resolution ([`ComplementDeglex`](@ref)).
-- `lcm_resolution(G, LCMOrdering(TrivialPreorder(); root_order = p))`: the order
-  resolution of Dehornoy and Lafont for the order `p` of the atoms.
-- With Chevie loaded, `lcm_resolution(M, ordering)` for a `BraidMonoid` or a
-  `DualBraidMonoid` `M` of Chevie is that of its germ, `lcm_resolution(germ(M), ordering)`
-  ([`germ`](@ref)).
+Its tensor products by modules of coefficients (`homology(R, M)`, `homology(R, ℤ)`, `ℤ ⊗ R ⊗ ℤ`, [`extend_scalars`](@ref)) compute the homology of the monoid. Since the monoid is a Garside monoid, this homology is also that of its enveloping group, with the same coefficients; this does not hold for a general monoid (see the page Background and conventions of the User guide).
 
-The first form drops the memo of the projection at the end. The second one reads the
-boundaries from data `P` built by the caller, who keeps its memo.
+The main uses are:
+- `lcm_resolution(G)`, the reduced resolution ([`ComplementDeglex`](@ref));
+- `lcm_resolution(G, LCMOrdering(TrivialPreorder(); root_order = p))`, the order resolution of Dehornoy and Lafont for the order `p` of the atoms;
+- with Chevie loaded, `lcm_resolution(M, ordering)` for a `BraidMonoid` or a `DualBraidMonoid` `M` of Chevie, which is the resolution of its germ, `lcm_resolution(germ(M), ordering)` ([`germ`](@ref)).
+
+The method with a germ drops the memo of the projection at the end. The method with data `P` reads the boundaries from these data, built by the caller, who keeps the memo.
 """
 lcm_resolution(G::AbstractGerm, ordering::LCMOrdering = LCMOrdering()) =
     lcm_resolution(LCMProjectionData(CellTree(G, ordering)))
@@ -203,16 +182,14 @@ end
     cell_tree(R::LCMResolution) -> CellTree
     cell_tree(C::AbstractChainComplex) -> CellTree
 
-The tree of the cells of an lcm resolution, or of one of its extensions of scalars, read from
-the bases of its modules.
+The tree of the cells of an lcm resolution, or of one of its extensions of scalars, read from the bases of its modules. An `ArgumentError` is thrown if the bases of `C` are not cells.
 """
 cell_tree(R::LCMResolution) = R.tree
 
 """
     (C::AbstractChainComplex)(x::Cell)
 
-The generator `[x]` of the module of the degree of the cell `x`, for a complex whose bases are
-cells: `P(x)` is `P[n](x)` for a cell of degree `n`.
+The generator `[x]` of the module of the degree of the cell `x`, for a complex whose bases are cells: `P(x)` is `P[n](x)` for a cell `x` of degree `n`.
 """
 function (C::AbstractChainComplex)(x::Cell)
     return C[cell_degree(x)](x)
@@ -221,11 +198,21 @@ end
 """
     (C::AbstractChainComplex)(letters::GermElement...)
 
-The cell of a complex whose bases are cells (an lcm resolution, or one of its extensions
-of scalars) whose letters are `letters`: `P(G(2), G(1, 2))` is the cell `2|12`, and `P()`
-the cell of degree 0. An `ArgumentError` if the letters are not those of a cell.
+The generator `[x]` of the cell `x` whose letters are `letters`, for a complex whose bases are cells (an lcm resolution, or one of its extensions of scalars). For instance, `P(G(2), G(1, 2))` is the generator `[2|12]`, and `P()` is the generator `[]` of the cell of degree 0. An `ArgumentError` is thrown if the letters are not those of a cell. The cell itself is given by [`Cell`](@ref)`(P, G(2), G(1, 2))`.
 """
-function (C::AbstractChainComplex)(letters::GermElement...)
+(C::AbstractChainComplex)(letters::GermElement...) = C(Cell(C, letters...))
+
+"""
+    Cell(C::AbstractChainComplex, text::AbstractString)
+    Cell(C::AbstractChainComplex, letters::GermElement...)
+
+The cell of a complex whose bases are cells (an lcm resolution, or one of its extensions of scalars), found from its bar form `text`, read with the settings of the session, or from its letters. For instance, `Cell(P, "2|12")` and `Cell(P, G(2), G(1, 2))` are the cell `2|12`, and `Cell(P, "e")` and `Cell(P)` are the cell of degree 0. An `ArgumentError` is thrown if the text or the letters do not give a cell of the complex.
+
+Calling the complex instead gives the generator of the cell: `P("2|12")` and `P(G(2), G(1, 2))` are the generator `[2|12]`.
+"""
+Cell(C::AbstractChainComplex, text::AbstractString) = _read_cell(cell_tree(C), notation(), text)
+
+function Cell(C::AbstractChainComplex, letters::GermElement...)
     T = cell_tree(C)
     for s in letters
         s.germ === T.germ || throw(ArgumentError("the letters of a cell are elements of the germ of the resolution"))

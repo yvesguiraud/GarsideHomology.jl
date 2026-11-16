@@ -9,7 +9,7 @@ A cell of an lcm resolution, for the user. It holds the tree of the cells ([`Cel
 
 A cell is written in bar form, `x₁|⋯|xₙ`, where the letters are written as words in the atoms ([`GermElement`](@ref)), and the cell of degree 0 is written `e`; the display follows the settings of [`Notation`](@ref). For instance, `2|12` is a cell of degree 2 of the reduced resolution of B⁺(A₂).
 
-The bases of the modules of a resolution ([`basis`](@ref)`(P[n])`, a [`CellBasis`](@ref)) and of its extensions of scalars are made of cells. A cell can also be given by its bar form, as in `P("2|12")`, or by its letters, as in `P(G(2), G(1, 2))`; `P()` is the cell of degree 0.
+The bases of the modules of a resolution ([`basis`](@ref)`(P[n])`, a [`CellBasis`](@ref)) and of its extensions of scalars are made of cells. A cell can also be found from its bar form, as in `Cell(P, "2|12")`, or from its letters, as in `Cell(P, G(2), G(1, 2))`; `Cell(P)` is the cell of degree 0. Calling the resolution gives the generator `[x]` of a cell `x` in the module of its degree: `P(x)`, or directly `P("2|12")` and `P(G(2), G(1, 2))`.
 
 A cell reads as the sequence of its letters:
 - `c[i]` is the `i`-th letter of `c`, a `GermElement`, and `c[end]` is the last one;

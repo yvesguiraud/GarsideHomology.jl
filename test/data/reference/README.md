@@ -25,7 +25,7 @@ repository (the snapshots of G37, dual_E8, heavier, are kept outside git):
 
 `collapsible_pairs.csv` gives, for each snapshot, the counts of collapsible pairs recorded
 in J0 by the experiment repository (script B3), extracted by its script
-`j1/b4_collapsible_reference.jl`: the number of cells x such that ∂x has a term 1·y·1
+`j1/b4_collapsible_reference.jl`: the number of cells x such that dx has a term 1[y]1
 (`sources`), the number of such pairs (x, y) (`pairs`) and the number of distinct cells y
 (`targets`). Columns: `case,variant,sources,pairs,targets`.
 

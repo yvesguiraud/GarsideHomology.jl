@@ -119,12 +119,13 @@ export LCMOrdering, ComplementDeglex, TrivialPreorder, FunctionPreorder
 public AbstractLCMPreorder, precedes, extends_divisibility
 
 # Tree of the cells: a tool of the construction, public but not exported, except ncells,
-# which also counts the cells of a resolution (J1.g). Accessors with the prefix cell_, since
-# weight and degree are exported by Oscar, AbstractAlgebra, Chevie. The cells for the user
-# (J1.h): Cell, public, obtained from the bases or by P("2|12"); cell_weight, cell_degree and
-# atom_sequence, exported, since they also read a Cell.
-export ncells, cell_weight, cell_degree, atom_sequence
-public CellTree, Cell, cell_range, cell_letter, cell_atom
+# which also counts the cells of a resolution. Accessors with the prefix cell_, since
+# weight and degree are exported by Oscar, AbstractAlgebra, Chevie. The cells for the user:
+# Cell, exported, obtained from the bases or by Cell(P, "2|12") (no Cell is exported by
+# Oscar, Hecke, AbstractAlgebra or Chevie); cell_weight, cell_degree and atom_sequence,
+# exported, since they also read a Cell.
+export Cell, ncells, cell_weight, cell_degree, atom_sequence
+public CellTree, cell_range, cell_letter, cell_atom
 public cell_children, admissible_atoms, bar_form
 
 # Projection onto the cells (provisional names, before the theory of the article).
@@ -186,7 +187,7 @@ function _precompile_workload()
         d = differential(R)
         x = basis(R[last(range(R))])[1]
         v = d(x)
-        R(string(v)), R(string(x)), G(string(G(1))), extend_scalars(R)(string(x))
+        R(string(v)), R(string(x)), Cell(R, string(x)), G(string(G(1))), extend_scalars(R)(string(x))
         sprint(show, MIME"text/plain"(), R; context = :limit => true)
         sprint(show, MIME"text/plain"(), R)
         sprint(show, MIME"text/plain"(), basis(R); context = :limit => true)

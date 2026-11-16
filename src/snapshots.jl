@@ -1,7 +1,5 @@
-# Lines of the snapshots, format version 1 (test/data/reference/FORMAT.md). The lines of
-# the cells (C) come with the cell tree (J1.d, task d2), those of the differential (D)
-# with the projection (task d3); the header and the writing of the files come with the
-# resolution (task d4).
+# Lines of the snapshots, format version 1 (test/data/reference/FORMAT.md): the lines of
+# the cells (C) and of the differential (D), the header, and the writing of the files.
 
 # A simple by its smallest word, the atoms separated by dots; the identity is "e".
 _simple_string(G::AbstractGerm, s::Integer) = iszero(s) ? "e" : join(word(G, s), '.')
@@ -9,9 +7,7 @@ _simple_string(G::AbstractGerm, s::Integer) = iszero(s) ? "e" : join(word(G, s),
 """
     _cell_lines(T::CellTree, n; bar = false) -> Vector{String}
 
-The lines `C <degree> <atom sequence> <bar form> <weight>` of the cells of degree `n` of
-`T`, in the order of the cells (to be sorted by bytes for the fingerprints); with
-`bar = true`, the lines `C <degree> <bar form> <weight>` of the fingerprints in bar form.
+The lines `C <degree> <atom sequence> <bar form> <weight>` of the cells of degree `n` of `T`, in the order of the cells (to be sorted by bytes for the fingerprints); with `bar = true`, the lines `C <degree> <bar form> <weight>` of the fingerprints in bar form.
 """
 function _cell_lines(T::CellTree, n::Integer; bar::Bool = false)
     G = T.germ
@@ -34,12 +30,7 @@ end
 """
     _differential_lines(P::LCMProjectionData, n; bar = false) -> Vector{String}
 
-The lines `D <n> <source> <coef> <σ> <target> <τ>` of the differential `dₙ`, from the
-cells of degree `n + 1` to those of degree `n`: one line for each term `coef · σ [target] τ`
-of the boundary of a source, the cells named by their atom sequences (`-` for the cell of
-degree 0), or by their bar forms with `bar = true`; the coefficient with its sign (`+1`,
-`-2`), the simples by their smallest words. In the order of the cells (to be sorted by
-bytes for the fingerprints).
+The lines `D <n> <source> <coef> <σ> <target> <τ>` of the differential `dₙ`, from the cells of degree `n + 1` to those of degree `n`: one line for each term `coef · σ [target] τ` of the boundary of a source, the cells named by their atom sequences (`-` for the cell of degree 0), or by their bar forms with `bar = true`; the coefficient with its sign (`+1`, `-2`), the simples by their smallest words. In the order of the cells (to be sorted by bytes for the fingerprints).
 """
 function _differential_lines(P::LCMProjectionData, n::Integer; bar::Bool = false)
     T = P.tree
@@ -60,7 +51,7 @@ function _differential_lines(P::LCMProjectionData, n::Integer; bar::Bool = false
 end
 
 # ------------------------------------------------------------------------------------
-# Writing (task d4)
+# Writing
 
 _coefficient_string(c::Integer) = c > 0 ? "+$c" : "-$(-c)"
 
@@ -140,27 +131,20 @@ function _sha_lines(lines::Vector{String})
 end
 
 """
-    write_snapshot(path, R::LCMResolution; case = "", extra = Pair{String, String}[],
-                   fingerprints = true, germ_fingerprint = :compute)
+    write_snapshot(path::AbstractString, R::LCMResolution; case::AbstractString = "",
+                   extra = Pair{String, String}[], fingerprints::Bool = true,
+                   germ_fingerprint = :compute)
 
-Write the lcm resolution `R` ([`lcm_resolution`](@ref)) as a snapshot of format version
-1, gzip-compressed, at `path`, which must end with `.txt.gz`: the header, then the lines
-of the cells by increasing degree and those of the differential by increasing `n`, sorted
-by bytes within each group (test/data/reference/FORMAT.md). With `fingerprints = true`,
-also write the fingerprints at the same place, with the extension `.sha.csv` (FORMAT.md,
-section 5). For another complex, an `ArgumentError`.
+Write the lcm resolution `R` ([`lcm_resolution`](@ref)) as a snapshot of format version 1, compressed by gzip, at `path`, which must end with `.txt.gz`. The snapshot contains the header, then the lines of the cells by increasing degree, and those of the differential by increasing `n`, sorted by bytes within each group (test/data/reference/FORMAT.md). With `fingerprints = true`, the fingerprints are also written at the same place, with the extension `.sha.csv` (FORMAT.md, section 5). For another complex, an `ArgumentError` is thrown.
 
-The header gives the format, `case` (if not empty), the ordering, the side convention,
-the number of atoms and the fingerprint of the germ ([`fingerprint`](@ref)), then the
-pairs `key => value` of `extra` (what only the caller knows: label, construction,
-machine, commits), then the versions of GarsideHomology and Julia, the date and the numbers of
-cells and terms (FORMAT.md, section 7). It does not enter the fingerprints.
+The header gives, in this order (FORMAT.md, section 7):
+- the format, `case` (if not empty), the ordering, the side convention, the number of atoms and the fingerprint of the germ ([`fingerprint`](@ref));
+- the pairs `key => value` of `extra`, for what only the caller knows: label, construction, machine, commits;
+- the versions of GarsideHomology and Julia, the date, and the numbers of cells and of terms.
 
-The fingerprint of the germ can cost most of the writing for a large tabulated germ (such
-as B⁺(A₈), whose 362 880 simples are tabulated): `germ_fingerprint` takes it
-already computed (a `GermFingerprint` or a string), for instance once for the snapshots
-of several orderings of the same germ, or `nothing` to omit it; by default (`:compute`),
-it is computed if the germ lists its simples, and omitted for a lazy germ.
+The header does not enter the fingerprints.
+
+The fingerprint of the germ can cost most of the writing for a large tabulated germ, such as B⁺(A₈), whose 362 880 simples are tabulated. The keyword `germ_fingerprint` gives it already computed (a `GermFingerprint` or a string), for instance once for the snapshots of several orderings of the same germ, or `nothing` to omit it. By default (`:compute`), it is computed if the germ lists its simples, and omitted for a lazy germ.
 """
 function write_snapshot(path::AbstractString, R::LCMResolution; case::AbstractString = "",
                         extra = Pair{String, String}[], fingerprints::Bool = true,

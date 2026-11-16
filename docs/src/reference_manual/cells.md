@@ -6,7 +6,7 @@ CurrentModule = GarsideHomology
 
 The cells of an lcm resolution are the nodes of a tree, numbered by integers. A [`Cell`](@ref) holds a number together with its tree.
 
-Exported: `ncells`, `cell_weight`, `cell_degree`, `atom_sequence`. The other names are public only.
+Exported: `Cell`, `ncells`, `cell_weight`, `cell_degree`, `atom_sequence`. The other names are public only.
 
 ## Cells
 

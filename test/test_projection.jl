@@ -1,7 +1,7 @@
 # Tests of the projection onto the cells (cells/chains.jl, cells/projection.jl) and of the
 # D lines of the snapshots: the tree of the chains, the splitting, the projection and the
-# boundary on B⁺(A₂) and B*(A₂) by hand, ∂² = 0, and the fingerprints of the D lines of
-# small cases of J0 (strict for Gauss_a and Gauss_d, bar form for Gauss_c, ∂² = 0 only for
+# boundary on B⁺(A₂) and B*(A₂) by hand, d² = 0, and the fingerprints of the D lines of
+# small cases of J0 (strict for Gauss_a and Gauss_d, bar form for Gauss_c, d² = 0 only for
 # Gauss_b and for Gauss_a of the classical monoids).
 
 isdefined(Main, :TREE_VARIANTS) || include("test_tree.jl")
@@ -28,7 +28,7 @@ function reference_d_fingerprints(case, variant)
     return Dict(parse(Int, r.n) => (r.lines, r.atoms, r.bar) for r in rows if r.section == "D")
 end
 
-# ∂∂x = 0 for every cell x: ∂(λ σ [y] τ) = λ σ ∂(y) τ.
+# d(d(x)) = 0 for every cell x: d(λ σ[y]τ) = λ σ·d(y)·τ.
 function square_zero(P)
     T = P.tree
     G = T.germ
@@ -87,7 +87,7 @@ end
         @test square_zero(P)
     end
 
-    @testset "Explicit germs: ∂² = 0" begin
+    @testset "Explicit germs: d² = 0" begin
         for G in (classical_dihedral_germ(5), dual_dihedral_germ(6), signed_interval_germ(4, :D, (2, -4, -3, 1)))
             for (v, (S, _)) in TREE_VARIANTS
                 @test square_zero(LCMProjectionData(CellTree(G, S)))
@@ -115,7 +115,7 @@ end
             @test square_zero(P)
             # The witness of the check of the certificates, which reads the matrices.
             @test is_square_zero(lcm_resolution(P))
-            # Gauss_a of the classical monoids and Gauss_b: ∂² = 0 only (decision of 23 October).
+            # Gauss_a of the classical monoids and Gauss_b: d² = 0 only (decision of 23 October).
             (classical && v == "a" || form === :counts) && continue
             mine, ref = d_fingerprints(P), reference_d_fingerprints(case, v)
             @test sort(collect(keys(mine))) == sort(collect(keys(ref)))

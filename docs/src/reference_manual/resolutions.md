@@ -15,7 +15,7 @@ CellBasis
 cell_tree
 ```
 
-The elements of a resolution `P` are built by `P(x)` for a cell `x`, `P(G(2), G(1, 2))` from germ elements, and `P("2|12")` from their written form: these methods are documented with [`AbstractChainComplex`](@ref), on the page [Complexes](complexes.md), as is the differential.
+A cell of a resolution `P` is given by its written form, `Cell(P, "2|12")`, or by its letters, `Cell(P, G(2), G(1, 2))` (see [`Cell`](@ref)). Calling the resolution gives the elements of its modules: `P(x)` is the generator `[x]` of a cell `x`, `P("2|12")` and `P(G(2), G(1, 2))` are the generator `[2|12]`, and `P("2×1[2]1 - [1]")` reads an element from its written form. These methods, and the differential, are documented with [`AbstractChainComplex`](@ref), on the page [Complexes](complexes.md).
 
 ## Certificates
 
@@ -27,7 +27,7 @@ is_minimal
 is_linear
 ```
 
-The check of ∂² = 0 alone, [`is_square_zero`](@ref), is on the page [Complexes](complexes.md).
+The check of d² = 0 alone, [`is_square_zero`](@ref), is documented on the page [Complexes](complexes.md).
 
 ## For developers
 

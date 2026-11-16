@@ -19,7 +19,7 @@ A germ is called to give its elements, as [`GermElement`](@ref)s: `A2(1, 2)` is 
 
 ## Cells
 
-The cells of degree `n` are the basis of the module `P[n]`: `basis(P[1])` holds the cells `1` and `2`, and `basis(P)` all the cells, degree by degree. A cell is also given by its bar form, `x = P("2|12")`, or by its letters, `P(A2(2), A2(1, 2))`; `P()` is the cell of degree 0. A [`Cell`](@ref) reads as the sequence of its letters (`x[1]`, `x[end]`, `length(x)`), with its weight `cell_weight(x)`, here `121`, its degree `cell_degree(x)` and its name in the snapshots, `atom_sequence(x)`.
+The cells of degree `n` are the basis of the module `P[n]`: `basis(P[1])` holds the cells `1` and `2`, and `basis(P)` all the cells, degree by degree. A cell is also given by its bar form, `x = Cell(P, "2|12")`, or by its letters, `Cell(P, A2(2), A2(1, 2))`; `Cell(P)` is the cell of degree 0. A [`Cell`](@ref) reads as the sequence of its letters (`x[1]`, `x[end]`, `length(x)`), with its weight `cell_weight(x)`, here `121`, its degree `cell_degree(x)` and its name in the snapshots, `atom_sequence(x)`.
 
 At the REPL, the resolution shows its cells and boundaries (abridged here):
 
@@ -42,9 +42,9 @@ Differential:
 The elements of the modules are sums of terms `c×σ[x]τ`: a cell `x`, an integer `c` and simples `σ` and `τ` acting on the two sides ([`BasedFreeModuleElement`](@ref)). They are built from cells, read from their written form, and combined:
 
 ```julia
-y = P(P("1"))                    # the generator [1]
+y = P("1")                       # the generator [1]
 P("2×1[2]1 - [1]")               # written -[1] + 2×1[2]1
-A2(1) * P(P("2")) == P("1[2]")   # the action on the left
+A2(1) * P("2") == P("1[2]")      # the action on the left
 y * A2(2) == P("[1]2")           # and on the right
 ```
 
@@ -63,4 +63,4 @@ iszero(d(d(x)))                  # true
 
 ## Extensions of scalars
 
-`E = extend_scalars(P)` is the complex over ℤ obtained by letting the simples act by 1 on both sides, `ℤ ⊗ P ⊗ ℤ`; its bases are the same cells, and its matrices are `SparseMatrixCSC`s. Its elements are written without simples (`E(P("1"))` is `[1]`), and `Vector(differential(E)(x))` gives the column of `x`. The other tensor products, with ℤε for instance, are on the page [Coefficients and homology](homology.md).
+`E = extend_scalars(P)` is the complex over ℤ obtained by letting the simples act by 1 on both sides, `ℤ ⊗ P ⊗ ℤ`; its bases are the same cells, and its matrices are `SparseMatrixCSC`s. Its elements are written without simples (`E("1")` is `[1]`), and `Vector(differential(E)(x))` gives the column of `x`. The other tensor products, with ℤε for instance, are on the page [Coefficients and homology](homology.md).

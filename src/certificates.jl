@@ -1,35 +1,30 @@
-# Certificates of the lcm resolutions (J1.e, task e1): homogeneity of the terms, ∂² = 0 in
-# the bimodules and Euler characteristic by weight (correctness); no term 1·y·1, cells of
-# each weight in a single degree, lengths of the labels (properties).
+# Certificates of the lcm resolutions: homogeneity of the terms, d² = 0 in the bimodules
+# and Euler characteristic by weight (correctness); no term 1[y]1, cells of each weight in a
+# single degree, lengths of the labels (properties).
 
 """
     ResolutionCertificate
 
-The report of [`certify`](@ref) on a resolution of bimodules over a germ. Each check gives
-a number of failures, `0` when it passes, or `nothing` when it was not done.
+The report of [`certify`](@ref) on a resolution of bimodules over a germ. Each check gives a number of failures: `0` when it passes, or `nothing` when it was not done.
 
-Correctness, which must hold for every ordering, minimal or not:
-- `homogeneity`: the terms `σ y τ` of a boundary `∂x` with `σ·π(y)·τ ≠ π(x)`, `π` being the
-  weight of a cell;
-- `square_zero`: the columns of `d_n ∘ d_{n+1}` that are not zero, computed in the
-  bimodules with the products of the germ (`nothing` with `square_zero = false`);
-- `euler`: the simples `ω` where the Euler characteristic of the cells of weight `ω`,
-  `Σₙ (−1)ⁿ cₙ(ω)`, differs from `μ(1, ω)` (`nothing` without the Möbius function).
+The checks of correctness must pass for every ordering, minimal or not:
+- `homogeneity`: the number of terms `σ[y]τ` of a boundary `dx` such that `σ·π(y)·τ ≠ π(x)`, where `π` is the weight of a cell;
+- `square_zero`: the number of columns of `d_n ∘ d_{n+1}` that are not zero, computed in the bimodules with the products of the germ (`nothing` with `square_zero = false`);
+- `euler`: the number of simples `ω` where the Euler characteristic of the cells of weight `ω`, `Σₙ (−1)ⁿ cₙ(ω)`, differs from `μ(1, ω)` (`nothing` without the Möbius function).
 
-Properties, never failures of the resolution:
-- `identity_terms[n + 1]`: the terms `1·y·1` of `d_n`, which a minimal resolution has none;
-- `split_weights`: the weights whose cells lie in several degrees (`nothing` without μ);
-  with the Euler characteristic, none means `cₙ(ω) = |μ(1, ω)|` in a single degree;
-- `mobius_sum`: `Σ_ω |μ(1, ω)|`, the number of cells of such a resolution;
-- `max_label_length[n + 1]`: the largest `ℓ(σ) + ℓ(τ)` over the terms of `d_n` (0 if there
-  are none).
+The properties are never failures of the resolution:
+- `identity_terms[n + 1]`: the number of terms `1[y]1` of `d_n`, of which a minimal resolution has none;
+- `split_weights`: the number of weights whose cells lie in several degrees (`nothing` without μ); together with the Euler characteristic, the absence of such weights means that `cₙ(ω) = |μ(1, ω)|` in a single degree;
+- `mobius_sum`: the sum `Σ_ω |μ(1, ω)|`, which is the number of cells of such a resolution;
+- `max_label_length[n + 1]`: the largest `ℓ(σ) + ℓ(τ)` over the terms of `d_n` (0 if there are none).
 
-Also: `cells[n + 1]` and `terms[n + 1]`, the numbers of cells of degree `n` and of terms of
-`d_n`; `mobius_method`, how μ was computed (`:crosscut`, `:layers` or `:none`);
-`failures`, the first failure of each failed check, in words (degree, cell named by its
-atom sequence as in the snapshots, term or weight); `times`, the seconds of each step.
+The other fields are:
+- `cells[n + 1]` and `terms[n + 1]`, the numbers of cells of degree `n` and of terms of `d_n`;
+- `mobius_method`, the way μ was computed (`:crosscut`, `:layers` or `:none`);
+- `failures`, the first failure of each failed check, in words: degree, cell named by its atom sequence as in the snapshots, term or weight;
+- `times`, the seconds taken by each step.
 
-Read it with [`is_correct`](@ref), [`is_minimal`](@ref) and [`is_linear`](@ref).
+The functions [`is_correct`](@ref), [`is_minimal`](@ref) and [`is_linear`](@ref) read the report.
 """
 struct ResolutionCertificate
     cells::Vector{Int}
@@ -49,25 +44,21 @@ end
 """
     is_correct(c::ResolutionCertificate) -> Bool
 
-Whether the three checks of correctness were done and passed: homogeneity, ∂² = 0 and the
-Euler characteristic by weight. A check that was not done gives `false`: the resolution is
-then not certified.
+Whether the three checks of correctness were done and passed: homogeneity, d² = 0, and the Euler characteristic by weight. A check that was not done gives `false`: the resolution is then not certified.
 """
 is_correct(c::ResolutionCertificate) = c.homogeneity == 0 && c.square_zero === 0 && c.euler === 0
 
 """
     is_minimal(c::ResolutionCertificate) -> Bool
 
-Whether the differential has no term `1·y·1`: the criterion of minimality of a resolution
-graded by the weight.
+Whether the differential has no term `1[y]1`, which is the criterion of minimality of a resolution graded by the weight.
 """
 is_minimal(c::ResolutionCertificate) = all(iszero, c.identity_terms)
 
 """
     is_linear(c::ResolutionCertificate) -> Bool
 
-Whether every term `σ y τ` of the differential has `ℓ(σ) + ℓ(τ) = 1`: no term `1·y·1` and
-at most 1 in each degree.
+Whether every term `σ[y]τ` of the differential has `ℓ(σ) + ℓ(τ) = 1`, that is, whether the differential has no term `1[y]1` and the largest `ℓ(σ) + ℓ(τ)` is at most 1 in each degree.
 """
 is_linear(c::ResolutionCertificate) = is_minimal(c) && all(<=(1), c.max_label_length)
 
@@ -77,27 +68,17 @@ const _CROSSCUT_AUTO = 16
 const _CROSSCUT_MAX = 24
 
 """
-    certify(R::LCMResolution; square_zero = true, mobius = :auto,
-            nworkers = Threads.nthreads()) -> ResolutionCertificate
+    certify(R::LCMResolution; square_zero::Bool = true, mobius::Symbol = :auto,
+            nworkers::Integer = Threads.nthreads()) -> ResolutionCertificate
 
-Check the lcm resolution `R` ([`lcm_resolution`](@ref)) and return the report, a
-[`ResolutionCertificate`](@ref); a failed check is a field of the report, never an
-exception.
+Check the lcm resolution `R` ([`lcm_resolution`](@ref)) and return the report, a [`ResolutionCertificate`](@ref). A failed check is recorded in a field of the report, and never throws an exception.
 
-- Homogeneity, terms `1·y·1` and lengths of the labels: one pass over the terms.
-- ∂² = 0 in the bimodules: each column of `d_{n+1}` composed with the columns of `d_n`, the
-  products of simples read in the germ, then put in normal form. With `nworkers > 1` and a
-  germ safe for concurrent reads (a `TableGerm`), the columns are split between `nworkers`
-  tasks; a lazy germ stays on one thread. `square_zero = false` skips this check, the
-  costliest.
-- The Möbius function μ(1, ω), for the Euler characteristic and the degrees by weight:
-  `mobius = :crosscut` by the crosscut theorem of Rota (2^N lcms, any germ, at most 24
-  atoms), `:layers` by a pass over the intervals (a germ that lists its simples), `:none`
-  to skip; `:auto` takes the crosscut up to 16 atoms (the braid monoids of Coxeter groups,
-  even lazy), the layers above (the dual braid monoids).
+The checks are done as follows:
+- the homogeneity, the terms `1[y]1` and the lengths of the labels are found in one pass over the terms;
+- d² = 0 is checked in the bimodules: each column of `d_{n+1}` is composed with the columns of `d_n`, with the products of simples read in the germ, then put in normal form. With `nworkers > 1` and a germ safe for concurrent reads (a `TableGerm`), the columns are split between `nworkers` tasks; a lazy germ stays on one thread. `square_zero = false` skips this check, which is the costliest;
+- the Möbius function μ(1, ω), for the Euler characteristic and the degrees by weight, is computed according to `mobius`: `:crosscut` uses the crosscut theorem of Rota (2^N lcms, any germ, at most 24 atoms), `:layers` makes a pass over the intervals (for a germ that lists its simples), and `:none` skips this check; `:auto` takes the crosscut up to 16 atoms (the braid monoids of Coxeter groups, even lazy) and the layers above (the dual braid monoids).
 
-The arithmetic of the coefficients is checked: an overflow throws an `OverflowError`
-rather than a wrong report.
+The arithmetic of the coefficients is checked: an overflow throws an `OverflowError` rather than give a wrong report.
 """
 function certify(R::LCMResolution; square_zero::Bool = true, mobius::Symbol = :auto,
                  nworkers::Integer = Threads.nthreads())
@@ -174,10 +155,10 @@ _term_string(G::AbstractGerm, T::CellTree, c::Integer, σ::Integer, y::Integer, 
     string(c > 0 ? "+$c" : "$c", " ", _simple_string(G, σ), " [", _cell_string(T, y), "] ", _simple_string(G, τ))
 
 # ------------------------------------------------------------------------------------
-# Homogeneity, terms 1·y·1, lengths of the labels
+# Homogeneity, terms 1[y]1, lengths of the labels
 
-# One pass over the terms of the differential: the number of terms σ y τ of ∂x with
-# σ·π(y)·τ ≠ π(x), the terms 1·y·1 and the largest ℓ(σ) + ℓ(τ) of each d_n, the first
+# One pass over the terms of the differential: the number of terms σ[y]τ of dx with
+# σ·π(y)·τ ≠ π(x), the terms 1[y]1 and the largest ℓ(σ) + ℓ(τ) of each d_n, the first
 # inhomogeneous term in words (or nothing).
 function _homogeneity(R::LCMResolution, T::CellTree)
     G = T.germ
@@ -214,7 +195,7 @@ function _homogeneity(R::LCMResolution, T::CellTree)
 end
 
 # ------------------------------------------------------------------------------------
-# ∂² = 0 in the bimodules
+# d² = 0 in the bimodules
 
 # The columns of d_n ∘ d_{n+1} that are not zero, over all n, for a complex of bimodules
 # over the germ G: their number and the first one in the order (n, column), as
@@ -283,7 +264,7 @@ function _square_zero_columns(A, B, G, cols, buffer)
     return count, first_j, first_info
 end
 
-# The column j of A ∘ B in normal form in buffer: c·c′·(σσ′) z (τ′τ) for each term c σ y τ
+# The column j of A ∘ B in normal form in buffer: c·c′·(σσ′)[z](τ′τ) for each term c·σ[y]τ
 # of the column j of B and each term c′ σ′ z τ′ of the column y of A. Returns nothing if it
 # is zero, its first term otherwise, or the pair of simples whose product is not simple.
 function _compose_column!(buffer::Vector{BimoduleTerm}, A::LabelledSparseMatrix,
@@ -320,11 +301,9 @@ function _square_zero_message(T::CellTree, f)
 end
 
 """
-    is_square_zero(C::AbstractChainComplex; nworkers = Threads.nthreads())
+    is_square_zero(C::AbstractChainComplex; nworkers::Integer = Threads.nthreads())
 
-For a complex of bimodules over a germ (an lcm resolution, for instance): whether
-`d_n ∘ d_{n+1} = 0` for every `n`, computed in the bimodules with the products of the germ,
-as by [`certify`](@ref), with `nworkers` tasks for a germ safe for concurrent reads.
+For a complex of bimodules over a germ, such as an lcm resolution: whether `d_n ∘ d_{n+1} = 0` for every `n`. The compositions are computed in the bimodules with the products of the germ, as by [`certify`](@ref), with `nworkers` tasks for a germ safe for concurrent reads.
 """
 function Complexes.is_square_zero(C::AbstractChainComplex{A, _LCMMatrix};
                                   nworkers::Integer = Threads.nthreads()) where {A <: MonoidAlgebra{<:Any, <:AbstractGerm}}
@@ -380,9 +359,9 @@ function _correctness_summary(c::ResolutionCertificate)
     parts = String[]
     c.homogeneity > 0 && push!(parts, _plural(c.homogeneity, "inhomogeneous term"))
     if c.square_zero === nothing
-        push!(parts, "∂² not checked")
+        push!(parts, "d² not checked")
     elseif c.square_zero > 0
-        push!(parts, "∂² ≠ 0 on " * _plural(c.square_zero, "column"))
+        push!(parts, "d² ≠ 0 on " * _plural(c.square_zero, "column"))
     end
     if c.euler === nothing
         push!(parts, "Euler not checked")
@@ -394,12 +373,12 @@ function _correctness_summary(c::ResolutionCertificate)
 end
 
 _minimality_summary(c::ResolutionCertificate) =
-    is_minimal(c) ? "minimal" : "not minimal (" * _plural(sum(c.identity_terms), "term") * " 1·y·1)"
+    is_minimal(c) ? "minimal" : "not minimal (" * _plural(sum(c.identity_terms), "term") * " 1[y]1)"
 
 function _linearity_summary(c::ResolutionCertificate)
     is_linear(c) && return "linear"
     m = maximum(c.max_label_length; init = 0)
-    return m <= 1 ? "not linear (terms 1·y·1)" : "not linear (max ℓ(σ) + ℓ(τ) = $m)"
+    return m <= 1 ? "not linear (terms 1[y]1)" : "not linear (max ℓ(σ) + ℓ(τ) = $m)"
 end
 
 Base.show(io::IO, c::ResolutionCertificate) =
@@ -425,13 +404,13 @@ function Base.show(io::IO, ::MIME"text/plain", c::ResolutionCertificate)
     print(io, "\n  correct: ", is_correct(c) ? "yes" : "no: " * _correctness_summary(c))
     _check_line(io, c, :homogeneity, "homogeneity",
                 c.homogeneity == 0 ? "ok" : _plural(c.homogeneity, "term"))
-    _check_line(io, c, :square_zero, "∂² = 0 (bimodules)",
+    _check_line(io, c, :square_zero, "d² = 0 (bimodules)",
                 c.square_zero === nothing ? "not checked" : c.square_zero == 0 ? "ok" : _plural(c.square_zero, "column"))
     _check_line(io, c, :euler, "Euler by weight",
                 c.euler === nothing ? "not checked" :
                     (c.euler == 0 ? "ok" : _plural(c.euler, "weight")) * " (μ by $(c.mobius_method))", :mobius)
-    print(io, "\n  minimal: ", is_minimal(c) ? "yes (no term 1·y·1)" :
-              "no (" * _plural(sum(c.identity_terms), "term") * " 1·y·1, by degree " * join(c.identity_terms, ", ") * ")")
+    print(io, "\n  minimal: ", is_minimal(c) ? "yes (no term 1[y]1)" :
+              "no (" * _plural(sum(c.identity_terms), "term") * " 1[y]1, by degree " * join(c.identity_terms, ", ") * ")")
     print(io, "\n    ", rpad("one degree per weight", 24))
     if c.split_weights === nothing
         print(io, "not checked")

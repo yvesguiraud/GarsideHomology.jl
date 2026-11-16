@@ -52,7 +52,7 @@ _drop(ks) = (I, J, L, V) -> (keep = setdiff(eachindex(I), ks); (I[keep], J[keep]
         @test sprint(show, c) == "ResolutionCertificate: correct, minimal, linear"
         text = sprint(show, MIME"text/plain"(), c)
         @test startswith(text, "ResolutionCertificate: 6 cells, 14 terms\n  correct: yes")
-        @test occursin("(μ by crosscut)", text) && occursin("minimal: yes (no term 1·y·1)", text)
+        @test occursin("(μ by crosscut)", text) && occursin("minimal: yes (no term 1[y]1)", text)
         @test occursin("one degree per weight   yes (Σ|μ| = 6, 6 cells)", text)
         @test endswith(text, "linear: yes (max ℓ(σ) + ℓ(τ) by degree: 1, 1)")
         @test _report(certify(R; mobius = :layers))[[1:4; 6:end]] == _report(c)[[1:4; 6:end]]
@@ -89,9 +89,9 @@ _drop(ks) = (I, J, L, V) -> (keep = setdiff(eachindex(I), ks); (I[keep], J[keep]
         @test is_correct(d) && !is_minimal(d) && !is_linear(d)
         @test sum(d.cells) == 40 && d.mobius_sum == 38 && d.split_weights == 1
         @test sum(d.terms) == 167 && sum(d.identity_terms) == 2 && d.max_label_length == [1, 2, 1]
-        @test sprint(show, d) == "ResolutionCertificate: correct, not minimal (2 terms 1·y·1), not linear (max ℓ(σ) + ℓ(τ) = 2)"
+        @test sprint(show, d) == "ResolutionCertificate: correct, not minimal (2 terms 1[y]1), not linear (max ℓ(σ) + ℓ(τ) = 2)"
         text = sprint(show, MIME"text/plain"(), d)
-        @test occursin("minimal: no (2 terms 1·y·1, by degree ", text)
+        @test occursin("minimal: no (2 terms 1[y]1, by degree ", text)
         @test occursin("no, 1 weight in several degrees (Σ|μ| = 38, 40 cells)", text)
         @test !occursin("note:", text)
         @test GarsideHomology._mobius_values(GB)[end] == -10 == GarsideHomology._mobius_crosscut(GB)[Int32(nsimples(GB) - 1)]
@@ -100,15 +100,15 @@ _drop(ks) = (I, J, L, V) -> (keep = setdiff(eachindex(I), ks); (I[keep], J[keep]
     @testset "Altered resolutions" begin
         G = dual_dihedral_germ(3)
         R = lcm_resolution(G)
-        # A term removed (the first of the column of the cell 2.1 in d₁): ∂² ≠ 0, still homogeneous.
+        # A term removed (the first of the column of the cell 2.1 in d₁): d² ≠ 0, still homogeneous.
         c = certify(_altered(_drop([1]), R, 1))
         @test c.square_zero == 1 && c.homogeneity == 0 && c.euler == 0 && !is_correct(c)
         @test first.(c.failures) == [:square_zero]
         @test startswith(last(only(c.failures)), "d_0 ∘ d_1, cell 2.1: remaining term ")
-        @test sprint(show, c) == "ResolutionCertificate: not correct (∂² ≠ 0 on 1 column), minimal, linear"
+        @test sprint(show, c) == "ResolutionCertificate: not correct (d² ≠ 0 on 1 column), minimal, linear"
         @test occursin("\n      first: d_0 ∘ d_1, cell 2.1", sprint(show, MIME"text/plain"(), c))
         @test !is_square_zero(_altered(_drop([1]), R, 1))
-        # A coefficient changed: ∂² ≠ 0.
+        # A coefficient changed: d² ≠ 0.
         flip = (I, J, L, V) -> (W = copy(V); W[end] = -W[end]; (I, J, L, W))
         @test certify(_altered(flip, R, 1)).square_zero == 1
         # A label changed, a₁·[] into a₂·[] in the boundary of [a₁]: one inhomogeneous term.
@@ -154,9 +154,9 @@ _drop(ks) = (I, J, L, V) -> (keep = setdiff(eachindex(I), ks); (I[keep], J[keep]
         @test occursin("one degree per weight   not checked", sprint(show, MIME"text/plain"(), n))
         s = certify(R; square_zero = false)
         @test s.square_zero === nothing && !is_correct(s) && s.euler == 0
-        @test sprint(show, s) == "ResolutionCertificate: not certified (∂² not checked), minimal, linear"
+        @test sprint(show, s) == "ResolutionCertificate: not certified (d² not checked), minimal, linear"
         @test sprint(show, certify(R; square_zero = false, mobius = :none)) ==
-              "ResolutionCertificate: not certified (∂² not checked, Euler not checked), minimal, linear"
+              "ResolutionCertificate: not certified (d² not checked, Euler not checked), minimal, linear"
         # 25 atoms: layers by default, crosscut refused.
         B5 = lcm_resolution(dual_germ(Chevie.coxgroup(:B, 5)))
         @test natoms(cell_tree(B5).germ) == 25
