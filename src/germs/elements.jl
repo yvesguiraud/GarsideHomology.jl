@@ -5,15 +5,25 @@
 """
     GermElement
 
-An element of a germ `G` (a simple), for the user: the germ and the number of the simple. It is written as a word in the atoms, following the settings of the display ([`Notation`](@ref)): `121` for B⁺(A₂), `e` for the identity, `1·12·3` in a germ with at least 10 atoms.
+An element of a germ `G`, that is, a simple, for the user. It holds the germ and the number of the simple. It is written as a word in the atoms, following the settings of the display ([`Notation`](@ref)): for instance `121` in B⁺(A₂), `e` for the identity, and `1·12·3` in a germ with at least 10 atoms.
 
-Built by calling the germ:
-- `G()`, the identity; `G(a)`, the atom `a`; `G(1, 2, 1)`, the product of the atoms of a word, an `ArgumentError` if it is not a simple;
-- `G("121")`, read from its written form, with the settings of the session; spaces, `·`, `⋅` and `.` between the atoms are accepted, and parentheses around the word.
+A `GermElement` is built by calling the germ:
+- `G()` is the identity, and `G(a)` is the atom `a`;
+- `G(1, 2, 1)` is the product of the atoms of a word, and an `ArgumentError` is thrown if this product is not a simple;
+- `G("121")` is read from its written form, with the settings of the session; spaces, `·`, `⋅` and `.` are accepted between the atoms, and parentheses around the word.
 
-Also given by [`simples`](@ref)`(G)` and [`elements`](@ref)`(G)`, and by the accessors of the cells and of the elements of free modules. Operations: [`word`](@ref)`(s)`, the smallest word in the atoms; `length(s)`; `isone(s)`, `one(s)`; `s * t`, the product if it is a simple (an `ArgumentError` otherwise: the products of the monoid, by normal forms, are not supported yet); `s \\ t`, the right complement (the `u` such that `su = t`) if `s ≼ t`; equality, hashing and the degree-lexicographic order (`isless`). A `GermElement` is a scalar for broadcasting.
+Elements are also given by [`simples`](@ref)`(G)` and [`elements`](@ref)`(G)`, and by the accessors of the cells and of the elements of free modules.
 
-`GermElement(G, s)` wraps the number `s` of a simple of `G` (checked against the simples numbered by `G`): a tool of the developer.
+The operations on elements are:
+- [`word`](@ref)`(s)`, the smallest word in the atoms, and `length(s)`;
+- `isone(s)` and `one(s)`;
+- `s * t`, the product if it is a simple; an `ArgumentError` is thrown otherwise, since the products of the monoid, by normal forms, are not supported yet;
+- `s \\ t`, the right complement, that is, the element `u` such that `su = t`, if `s ≼ t`;
+- equality, hashing, and the degree-lexicographic order (`isless`).
+
+A `GermElement` is treated as a scalar by broadcasting.
+
+`GermElement(G, s)` wraps the number `s` of a simple of `G`, checked against the simples numbered by `G`; it is a tool of the developer.
 """
 struct GermElement{G <: AbstractGerm}
     germ::G
@@ -92,7 +102,7 @@ end
 """
     word(s::GermElement) -> Vector{Int32}
 
-The smallest reduced word of `s` in the atoms of its germ, for the lexicographic order: `word(s.germ, s.index)`. Empty for the identity.
+The smallest reduced word of `s` in the atoms of its germ, for the lexicographic order, that is, `word(s.germ, s.index)`. The word of the identity is empty.
 """
 word(s::GermElement) = word(s.germ, s.index)
 
@@ -145,7 +155,7 @@ Base.showarg(io::IO, v::_GermElements, toplevel::Bool) = print(io, "simples of "
 """
     simples(G::AbstractGerm)
 
-The simples of `G`, as [`GermElement`](@ref)s, in the numbering of `G` (the canonical order for a tabulated germ: by length, then smallest word, so that the last one is Δ). Defined for a germ whose simples are all numbered (a tabulated germ); an `ArgumentError` for a lazy germ, which does not list its simples. The same as [`elements`](@ref)`(G)`.
+The simples of `G`, as [`GermElement`](@ref)s, in the numbering of `G`. For a tabulated germ, this is the canonical order, by length, then by smallest word, so that the last simple is Δ. The function is defined for a germ whose simples are all numbered, such as a tabulated germ; for a lazy germ, which does not list its simples, it throws an `ArgumentError`. It is the same as [`elements`](@ref)`(G)`.
 """
 function simples(G::AbstractGerm)
     applicable(_simple_numbers, G) ||
@@ -156,7 +166,9 @@ end
 """
     elements(G::AbstractGerm)
 
-The elements of the germ `G`, as [`GermElement`](@ref)s: the same as [`simples`](@ref)`(G)`, under the name of the germs, which need not come from a Garside structure. Public, not exported (PermGroups, hence Chevie, and FiniteFields, Hecke and Oscar export an `elements` of their own): with Chevie loaded, the `elements` of Chevie has a method for germs (package extension), and `elements(G)` works without qualification.
+The elements of the germ `G`, as [`GermElement`](@ref)s. This is the same as [`simples`](@ref)`(G)`, under the name used for germs in general, which need not come from a Garside structure.
+
+The name is public but not exported, since PermGroups (hence Chevie), FiniteFields, Hecke and Oscar export an `elements` of their own. With Chevie loaded, the `elements` of Chevie has a method for germs (package extension), so that `elements(G)` works without qualification.
 """
 elements(G::AbstractGerm) = simples(G)
 

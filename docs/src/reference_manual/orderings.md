@@ -4,7 +4,7 @@
 CurrentModule = GarsideHomology
 ```
 
-An ordering of the lcms chooses the resolution: the reduced one with `ComplementDeglex()` (the default), that of Dehornoy and Lafont with `TrivialPreorder()`.
+An ordering of the lcms chooses the resolution: `ComplementDeglex()`, the default, gives the reduced resolution, and `TrivialPreorder()` gives that of Dehornoy and Lafont.
 
 Exported: `LCMOrdering`, `ComplementDeglex`, `TrivialPreorder`, `FunctionPreorder`. Public only: the names of the section For developers.
 
@@ -24,7 +24,7 @@ FunctionPreorder
 
 ## For developers
 
-The vocabulary for writing a new preorder.
+These names serve to write a new preorder.
 
 ```@docs
 AbstractLCMPreorder

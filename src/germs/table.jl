@@ -3,9 +3,16 @@
 """
     TableGerm{K} <: AbstractGerm
 
-A germ all of whose simples are numbered in the canonical order (identity `0`, atoms `1:N`, then by length and smallest word), with dense tables of size `N × n` (`N` atoms, `n` simples): the right covers `sa`, the right complements `a \\ s` of atoms in simples and the lcms `s ∨ a` with their complements; the left descents (a [`StaticBitSet{K}`](@ref)), the lengths and the lexicographic ranks of the smallest words. Products and left divisions of any two simples are computed along the smallest word of one of them, in `ℓ` steps, with direct answers for the identity and the atoms. The memory is linear in `n·N`: about 16 bytes per simple and atom, 49 MB for B*(E₈).
+A germ all of whose simples are numbered in the canonical order: the identity is `0`, the atoms are `1:N`, and the other simples follow by length, then by smallest word. With `N` atoms and `n` simples, the germ stores dense tables of size `N × n`:
+- the right covers `sa`;
+- the right complements `a \\ s` of atoms in simples;
+- the lcms `s ∨ a`, with their complements.
 
-Built by [`tabulate`](@ref) or `TableGerm(R, identity)` from the right covers, or by `TableGerm(G)` from any germ whose simples are all numbered. The tables are written only by the constructor, so that a `TableGerm` can be read by several threads at once.
+It also stores, for each simple, its left descents (a [`StaticBitSet{K}`](@ref)), its length, and the lexicographic rank of its smallest word.
+
+The products and left divisions of any two simples are computed along the smallest word of one of them, in `ℓ` steps, with direct answers for the identity and the atoms. The memory is linear in `n·N`: about 16 bytes per simple and atom, that is, 49 MB for B*(E₈).
+
+A `TableGerm` is built by [`tabulate`](@ref) or by `TableGerm(R, identity)` from the right covers, or by `TableGerm(G)` from any germ whose simples are all numbered. The tables are written only by the constructor, so that a `TableGerm` can be read by several threads at once.
 """
 struct TableGerm{K} <: AbstractGerm
     natoms::Int
@@ -106,9 +113,20 @@ _tab_error(msg) = throw(ArgumentError("tabulate: " * msg))
 """
     tabulate(R::AbstractMatrix{<:Integer}, identity::Integer) -> (G, renumber)
 
-The [`TableGerm`](@ref) `G` of the germ given by its right covers, and the numbering of its simples. The simples are numbered `1:n` in any order (a provisional numbering), `identity` being the identity; `R` is an `N × n` matrix of integers whose entry `R[a, σ]` is the simple `σa` if it is simple, `0` otherwise, so that the atoms are the `R[a, identity]`, in the order of the rows. `renumber[p]` is the number in `G` of the simple numbered `p` in `R`; the inverse numbering is `sortperm(renumber)`.
+The [`TableGerm`](@ref) `G` of the germ given by its right covers, together with the numbering of its simples.
 
-The construction checks (and throws an `ArgumentError` naming the provisional simples otherwise): the entries and the atoms; that every simple is reached from the identity; homogeneity (each cover adds 1 to the length, lengths at most 255); right and left cancellation; associativity; that the germ is bounded (a single simple without right cover); that each simple has a common multiple with each atom, the smallest of which is unique among the common multiples of its length. The full lattice property and the numbers of simples and of intervals are checked separately.
+The simples are numbered `1:n` in any order (a provisional numbering), and `identity` is the number of the identity. The entry `R[a, σ]` of the matrix `R`, of size `N × n`, is the simple `σa` if it is simple, and `0` otherwise; the atoms are thus the entries `R[a, identity]`, in the order of the rows. In the result, `renumber[p]` is the number in `G` of the simple numbered `p` in `R`, and the inverse numbering is `sortperm(renumber)`.
+
+The construction checks the following properties, and throws an `ArgumentError` naming the provisional simples if one of them fails:
+- the entries of `R` and the atoms are valid;
+- every simple is reached from the identity;
+- homogeneity: each cover adds 1 to the length, and the lengths are at most 255;
+- right and left cancellation;
+- associativity;
+- the germ is bounded: there is a single simple without right cover;
+- each simple has a common multiple with each atom, the smallest of which is unique among the common multiples of its length.
+
+The full lattice property and the numbers of simples and of intervals are checked separately (see [`verify`](@ref) and [`fingerprint`](@ref)).
 """
 tabulate(R0::AbstractMatrix{<:Integer}, identity::Integer) = _tabulate(R0, identity, nothing)
 
@@ -366,7 +384,7 @@ end
     TableGerm(R::AbstractMatrix{<:Integer}, identity::Integer)
     TableGerm(G::AbstractGerm)
 
-The tabulated germ given by its right covers (see [`tabulate`](@ref)), or the tabulation of a germ `G` whose simples are all numbered (see `tabulate(G)`).
+The first method returns the tabulated germ given by its right covers (see [`tabulate`](@ref)). The second one returns the tabulation of a germ `G` whose simples are all numbered (see `tabulate(G)`).
 """
 TableGerm(R::AbstractMatrix{<:Integer}, identity::Integer) = first(tabulate(R, identity))
 TableGerm(G::AbstractGerm) = first(tabulate(G))
@@ -387,14 +405,14 @@ end
 """
     tabulate(G::AbstractGerm) -> (T, renumber)
 
-The [`TableGerm`](@ref) `T` of a germ `G` whose simples are all numbered (`simples(G)` is defined), built from its right covers, and the numbering: `renumber[s + 1]` is the number in `T` of the simple `s` of `G` (the identity if `G` is in the canonical order).
+The [`TableGerm`](@ref) `T` of a germ `G` whose simples are all numbered (that is, for which `simples(G)` is defined), built from its right covers, together with the numbering: `renumber[s + 1]` is the number in `T` of the simple `s` of `G`. If `G` is already in the canonical order, this numbering is the identity.
 """
 tabulate(G::AbstractGerm) = tabulate(_covers(G), 1)
 
 """
     opposite(G::AbstractGerm)
 
-Generic method for a germ whose simples are all numbered: the [`TableGerm`](@ref) of the opposite monoid, built from the left covers `a·s` of `G`, which are the right covers of `Mᵒᵖ`. It is recomputed at each call.
+Generic method for a germ whose simples are all numbered: it returns the [`TableGerm`](@ref) of the opposite monoid, built from the left covers `a·s` of `G`, which are the right covers of `Mᵒᵖ`. The result is recomputed at each call.
 """
 opposite(G::AbstractGerm) = TableGerm(_covers(G; left = true), 1)
 
