@@ -1,54 +1,33 @@
 # Orderings of the lcm resolutions: the preorders on the lcms that fix the cells of the
 # resolution and their matching, with the order of the atoms at the root; read by the
-# construction of the cell tree (J1.d, task d2).
+# construction of the cell tree.
 
 """
     AbstractLCMPreorder
 
-Supertype of the preorders of a [`LCMOrdering`](@ref): for each simple `ω`, a total
-preorder on the right lcms `ω ∨ a` of `ω` with the atoms, read in the interval `[ω, Δ]`,
-that is through their complements `ω \\ (ω ∨ a)`.
+Supertype of the preorders of an [`LCMOrdering`](@ref): for each simple `ω`, a total preorder on the right lcms `ω ∨ a` of `ω` with the atoms, read in the interval `[ω, Δ]`, that is through their right complements `ω \\ (ω ∨ a)`.
 
-A preorder is given by [`precedes`](@ref)`(P, G, ω, x, y)`, where `x` and `y` are results
-of [`lcm_atom`](@ref)`(G, ω, a)`: whether `x` comes strictly before `y`. It must be a
-strict weak order on these results (irreflexive and transitive, incomparability being
-transitive too). Two results neither of which precedes the other are tied: the
-construction then keeps the inherited order.
+A preorder is given by [`precedes`](@ref)`(P, G, ω, x, y)`, where `x` and `y` are results of [`lcm_atom`](@ref)`(G, ω, a)`: whether `x` comes strictly before `y`. It must be a strict weak order on these results (irreflexive and transitive, incomparability being transitive too). Two results neither of which precedes the other are tied: the construction then keeps the inherited order.
 
-The preorder is *compatible with divisibility* at `ω` when, for atoms `a` and `b`, a
-strict divisibility `ω ∨ a ≺ ω ∨ b` implies that `ω ∨ a` precedes `ω ∨ b`. With a
-compatible preorder, the construction keeps exactly one atom for each minimal lcm (the
-reduced construction); see [`extends_divisibility`](@ref).
+The preorder is *compatible with divisibility* at `ω` when, for atoms `a` and `b`, a strict divisibility `ω ∨ a ≺ ω ∨ b` implies that `ω ∨ a` precedes `ω ∨ b`. With a compatible preorder, the construction keeps exactly one atom for each minimal lcm (the reduced construction); see [`extends_divisibility`](@ref).
 
-Methods of GarsideHomology: [`ComplementDeglex`](@ref) (the default), [`TrivialPreorder`](@ref)
-and [`FunctionPreorder`](@ref). A new preorder is a subtype with a method of `precedes`.
+Methods of GarsideHomology: [`ComplementDeglex`](@ref) (the default), [`TrivialPreorder`](@ref) and [`FunctionPreorder`](@ref). A new preorder is a subtype with a method of `precedes`.
 """
 abstract type AbstractLCMPreorder end
 
 """
     precedes(P::AbstractLCMPreorder, G::AbstractGerm, ω, x, y) -> Bool
 
-Whether `x` comes strictly before `y` for the preorder `P` at the simple `ω`, where `x`
-and `y` are results `(lcm = ω ∨ a, complement = ω \\ (ω ∨ a))` of
-[`lcm_atom`](@ref)`(G, ω, a)` for atoms `a` that do not divide `ω`.
+Whether `x` comes strictly before `y` for the preorder `P` at the simple `ω`, where `x` and `y` are results `(lcm = ω ∨ a, complement = ω \\ (ω ∨ a))` of [`lcm_atom`](@ref)`(G, ω, a)` for atoms `a` that do not divide `ω`.
 """
 function precedes end
 
 """
     ComplementDeglex() <: AbstractLCMPreorder
 
-The degree-lexicographic order of the complements: `x` precedes `y` when
-[`isless_deglex`](@ref)`(G, x.complement, y.complement)`, the shorter complement first,
-then the smallest word of the complement in the lexicographic order. The default
-preorder of a [`LCMOrdering`](@ref).
+The degree-lexicographic order of the right complements: `x` precedes `y` when [`isless_deglex`](@ref)`(G, x.complement, y.complement)`, the shorter complement first, then the smallest word of the complement in the lexicographic order. The default preorder of an [`LCMOrdering`](@ref).
 
-Lengths add, `ℓ(ω ∨ a) = ℓ(ω) + ℓ(ω \\ (ω ∨ a))`, so that the preorder is compatible with
-divisibility; two atoms are tied only if they have the same lcm, so that the inherited
-order only chooses which atom represents an lcm. It gives the reduced resolution, Gauss_a
-of the preliminary implementation (`filter = true, lex = true`), on the cases of J0.
-Comparing the lcms themselves in the degree-lexicographic order would not do: the
-smallest word of `ω ∨ a` often starts with `a`, so that this order follows that of the
-atoms rather than the shape of `[ω, Δ]`.
+Lengths add, `ℓ(ω ∨ a) = ℓ(ω) + ℓ(ω \\ (ω ∨ a))`, so that the preorder is compatible with divisibility; two atoms are tied only if they have the same lcm, so that the inherited order only chooses which atom represents an lcm. It gives the reduced resolution. Comparing the lcms themselves in the degree-lexicographic order would not do: the smallest word of `ω ∨ a` often starts with `a`, so that this order follows that of the atoms rather than the shape of `[ω, Δ]`.
 """
 struct ComplementDeglex <: AbstractLCMPreorder end
 
@@ -58,12 +37,7 @@ precedes(::ComplementDeglex, G::AbstractGerm, ω::Integer, x, y) =
 """
     TrivialPreorder() <: AbstractLCMPreorder
 
-The preorder in which all the lcms are tied: the construction keeps the order of the
-root everywhere. With the order `p` of the atoms at the root,
-`LCMOrdering(TrivialPreorder(); root_order = p)` is the order resolution of Dehornoy and
-Lafont for `p`, Gauss_d of the preliminary implementation (`filter = false,
-lex = false`). It is compatible with divisibility only where no two lcms `ω ∨ a`, `ω ∨ b`
-are strictly comparable.
+The preorder in which all the lcms are tied: the construction keeps the order of the root everywhere. With the order `p` of the atoms at the root, `LCMOrdering(TrivialPreorder(); root_order = p)` is the order resolution of Dehornoy and Lafont for `p`. It is compatible with divisibility only where no two lcms `ω ∨ a`, `ω ∨ b` are strictly comparable.
 """
 struct TrivialPreorder <: AbstractLCMPreorder end
 
@@ -74,13 +48,7 @@ precedes(::TrivialPreorder, G::AbstractGerm, ω::Integer, x, y) = false  # COV_E
 """
     FunctionPreorder(lt) <: AbstractLCMPreorder
 
-The preorder given by a function: `x` precedes `y` when `lt(G, ω, x, y)`, which must
-return a `Bool` and be a strict weak order (see [`AbstractLCMPreorder`](@ref)). For the
-exploration of other preorders; the lexicographic order of the complements, for
-instance, is `FunctionPreorder((G, ω, x, y) -> GarsideHomology.isless_lex(G, x.complement,
-y.complement))`. A preorder that is not compatible with divisibility gives a resolution
-that is not reduced; the result is to be checked (∂² = 0, Euler characteristic of each
-weight).
+The preorder given by a function: `x` precedes `y` when `lt(G, ω, x, y)`, which must return a `Bool` and be a strict weak order (see [`AbstractLCMPreorder`](@ref)). For the exploration of other preorders; the lexicographic order of the right complements, for instance, is `FunctionPreorder((G, ω, x, y) -> GarsideHomology.isless_lex(G, x.complement, y.complement))`. A preorder that is not compatible with divisibility gives a resolution that is not reduced; the result is to be checked, for instance by [`certify`](@ref) (∂² = 0, Euler characteristic of each weight).
 """
 struct FunctionPreorder{F} <: AbstractLCMPreorder
     lt::F
@@ -94,27 +62,14 @@ precedes(P::FunctionPreorder, G::AbstractGerm, ω::Integer, x, y) = P.lt(G, ω, 
 """
     LCMOrdering(preorder = ComplementDeglex(); root_order = nothing)
 
-The ordering of the lcm resolution of a germ, the data that fix its cells and their
-matching: a preorder
-on the lcms ([`AbstractLCMPreorder`](@ref)) and the order of the atoms at the root, a
-permutation given as the list of the atoms in increasing order (`nothing`: the order of
-the germ, `1:N`).
+The ordering of the lcm resolution of a germ, the data that fix its cells and their matching: a preorder on the lcms ([`AbstractLCMPreorder`](@ref)) and the order of the atoms at the root, a permutation given as the list of the atoms in increasing order (`nothing`: the order of the germ, `1:N`).
 
-The construction of the cells reads them as follows. At a node of weight `ω` whose list
-`I` of admissible atoms is in the inherited order (the order of the root, at the root),
-it sorts `I` by the preorder at `ω`, ties keeping the inherited order; it keeps an atom
-`j` if no atom placed before `j` divides `ω ∨ aⱼ`; the `k`-th atom kept gives the child
-of weight `ω ∨ a` whose last letter is the complement `ω \\ (ω ∨ a)` and whose list is
-formed of the `k − 1` atoms kept before it, in that order. The same order serves the
-matching of the cells.
+The construction of the cells reads them as follows. At a node of weight `ω` whose list `I` of admissible atoms is in the inherited order (the order of the root, at the root), it sorts `I` by the preorder at `ω`, ties keeping the inherited order; it keeps an atom `a` if no atom placed before `a` divides `ω ∨ a`; the `k`-th atom kept gives the child of weight `ω ∨ a` whose last letter is the right complement `ω \\ (ω ∨ a)` and whose list is formed of the `k − 1` atoms kept before it, in that order. The same order serves the matching of the cells.
 
 - `LCMOrdering()`: the reduced resolution ([`ComplementDeglex`](@ref)), the default.
-- `LCMOrdering(TrivialPreorder(); root_order = p)`: the order resolution of Dehornoy and
-  Lafont for the order `p` of the atoms ([`TrivialPreorder`](@ref)).
+- `LCMOrdering(TrivialPreorder(); root_order = p)`: the order resolution of Dehornoy and Lafont for the order `p` of the atoms ([`TrivialPreorder`](@ref)).
 
-The order of the root acts only through the ties of the preorder. With
-`ComplementDeglex`, ties join atoms with the same lcm, and the order of the root only
-changes which atom represents it.
+The order of the root acts only through the ties of the preorder. With `ComplementDeglex`, ties join atoms with the same lcm, and the order of the root only changes which atom represents it.
 """
 struct LCMOrdering{P <: AbstractLCMPreorder}
     preorder::P
@@ -164,15 +119,9 @@ end
 """
     extends_divisibility(P::AbstractLCMPreorder, G::AbstractGerm, ωs = _simple_numbers(G)) -> Bool
 
-Whether the preorder `P` is compatible with divisibility at each simple of `ωs`: for all
-atoms `a` and `b` that do not divide `ω`, if `ω ∨ a` strictly divides `ω ∨ b`, then
-`ω ∨ a` precedes `ω ∨ b`. An ordering whose preorder is compatible keeps exactly one atom
-for each minimal lcm. The test does not depend on the tree of the construction: an
-incompatible preorder may still give a reduced resolution, when the pairs that break the
-condition never meet in the same list.
+Whether the preorder `P` is compatible with divisibility at each simple of `ωs` (by default, all the simples of `G`): for all atoms `a` and `b` that do not divide `ω`, if `ω ∨ a` strictly divides `ω ∨ b`, then `ω ∨ a` precedes `ω ∨ b`. An ordering whose preorder is compatible keeps exactly one atom for each minimal lcm. The test does not depend on the tree of the construction: an incompatible preorder may still give a reduced resolution, when the pairs that break the condition never meet in the same list.
 
-By brute force, in `N²` comparisons for each simple (`N` atoms): a tool of the developer.
-For a lazy germ, which does not list its simples, give them as `ωs`.
+By brute force, in `N²` comparisons for each simple (`N` atoms): a tool of the developer. For a lazy germ, which does not list its simples, give them as `ωs`.
 """
 function extends_divisibility(P::AbstractLCMPreorder, G::AbstractGerm, ωs = _simple_numbers(G))
     N = natoms(G)
