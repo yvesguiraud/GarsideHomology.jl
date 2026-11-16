@@ -48,28 +48,28 @@ function nsimples end
 function _simple_numbers end
 
 """
-    product(G::AbstractGerm, s, t) -> Union{Int32, Nothing}
+    product(G::AbstractGerm, s::Integer, t::Integer) -> Union{Int32, Nothing}
 
 The simple `st` if the product of the simples `s` and `t` is simple, `nothing` otherwise. Where the product is known to exist, write `product(G, s, t)::Int32`: the assertion documents the invariant and checks it.
 """
 function product end
 
 """
-    ldiv(G::AbstractGerm, s, t) -> Union{Int32, Nothing}
+    ldiv(G::AbstractGerm, s::Integer, t::Integer) -> Union{Int32, Nothing}
 
 The simple `s \\ t`, the right complement of `s` in `t`, that is the `u` such that `su = t`, if `s ≼ t`; `nothing` otherwise.
 """
 function ldiv end
 
 """
-    left_descents(G::AbstractGerm, s) -> AbstractSet{Int}
+    left_descents(G::AbstractGerm, s::Integer) -> AbstractSet{Int}
 
 The atoms `a` such that `a ≼ s`, iterated in increasing order, with a fast `in`. The germs of GarsideHomology return a [`StaticBitSet`](@ref).
 """
 function left_descents end
 
 """
-    lcm_atom(G::AbstractGerm, ω, a) -> NamedTuple{(:lcm, :complement), NTuple{2, Int32}}
+    lcm_atom(G::AbstractGerm, ω::Integer, a::Integer) -> NamedTuple{(:lcm, :complement), NTuple{2, Int32}}
 
 The right lcm `ω ∨ a` of the simple `ω` and the atom `a`, and the right complement `τ = ω \\ (ω ∨ a)`, that is the `τ` such that `ωτ = ω ∨ a`: `(lcm = ω ∨ a, complement = τ)`, which destructures as `ωa, τ = lcm_atom(G, ω, a)`. If `a ≼ ω`, the result is `(lcm = ω, complement = 0)`.
 """
@@ -93,7 +93,7 @@ The identity of `G`, the simple `0`.
 Base.one(::AbstractGerm) = Int32(0)
 
 """
-    isone(G::AbstractGerm, s) -> Bool
+    isone(G::AbstractGerm, s::Integer) -> Bool
 
 Whether the simple `s` is the identity.
 """
@@ -107,7 +107,7 @@ The atoms of `G`, `Int32(1):Int32(natoms(G))`.
 atoms(G::AbstractGerm) = Int32(1):Int32(natoms(G))
 
 """
-    is_left_divisor(G::AbstractGerm, s, t) -> Bool
+    is_left_divisor(G::AbstractGerm, s::Integer, t::Integer) -> Bool
 
 Whether `s ≼ t`. The generic method answers without division when `s` is the identity, equal to `t`, an atom (by [`left_descents`](@ref)) or not shorter than `t`, and otherwise asks [`ldiv`](@ref).
 """
@@ -120,7 +120,7 @@ function is_left_divisor(G::AbstractGerm, s::Integer, t::Integer)
 end
 
 """
-    word(G::AbstractGerm, s) -> Vector{Int32}
+    word(G::AbstractGerm, s::Integer) -> Vector{Int32}
 
 The smallest reduced word of the simple `s` in the atoms, for the lexicographic order: at each step, the smallest left descent. Empty for the identity.
 """
@@ -140,7 +140,7 @@ function word(G::AbstractGerm, s::Integer)
 end
 
 """
-    isless_lex(G::AbstractGerm, s, t) -> Bool
+    isless_lex(G::AbstractGerm, s::Integer, t::Integer) -> Bool
 
 Whether the smallest word of `s` comes strictly before that of `t` in the lexicographic order, a prefix coming first. The generic method compares the words letter by letter, without allocating; a tabulated germ compares precomputed ranks.
 """
@@ -159,7 +159,7 @@ function isless_lex(G::AbstractGerm, s::Integer, t::Integer)
 end
 
 """
-    isless_deglex(G::AbstractGerm, s, t) -> Bool
+    isless_deglex(G::AbstractGerm, s::Integer, t::Integer) -> Bool
 
 Whether `s` comes strictly before `t` in the degree-lexicographic order: the shorter first, then by smallest words in the lexicographic order ([`isless_lex`](@ref)). It is the canonical order of the simples of a tabulated germ, whose method compares their numbers.
 """
@@ -179,8 +179,10 @@ _thread_safe(::AbstractGerm) = false  # COV_EXCL_LINE
 # Entry point
 
 """
-    germ(M)
-    germ(W)
+    germ(M::BraidMonoid)
+    germ(M::DualBraidMonoid)
+    germ(W::FiniteCoxeterGroup)
+    germ(W::PermRootGroup)
 
 The germ of the monoid `M`, of the type best suited to its size. Methods are added by the package extensions: with Chevie loaded, `M` may be a `BraidMonoid` of a finite Coxeter group or a `DualBraidMonoid` (of a Coxeter group, or of a well-generated irreducible complex reflection group), and the result is a [`TableGerm`](@ref) if the number of simples, computed from the degrees, is at most 5·10⁵. Above, a braid monoid gets a lazy [`CoxeterGerm`](@ref), and a dual braid monoid an `ArgumentError` (there is no lazy germ for them). `TableGerm(M)` forces the tabulation, `CoxeterGerm(cartan(W))` the lazy germ.
 
@@ -189,7 +191,7 @@ For a finite Coxeter group `W` of Chevie (`coxgroup`, `coxsym`, and the groups t
 function germ end
 
 """
-    dual_germ(W; c = nothing)
+    dual_germ(W::ReflectionGroup; c = nothing)
 
 The germ of the dual braid monoid of the well-generated irreducible reflection group `W` for the Coxeter element `c`, given as a word in the generators of `W`. By default (`c = nothing`), `c` is their product in order, `1:n`, if it is a regular element of order h (Springer's criterion: its eigenspace for ``e^{2i\\pi/h}`` is a line outside the reflecting hyperplanes); otherwise, the first order of the generators that is, in the lexicographic order, with a message naming it (for G₂₉: `[1, 2, 4, 3]`); an `ArgumentError` if there is none. The germ depends on `c` up to isomorphism. The monoid itself is not built: for a real group (2 among the degrees), the simples are found by the criterion of Brady and Watt; for a complex group, by the Hurwitz orbit of a reduced decomposition of `c` ([`hurwitz_orbit`](@ref)). Methods are added by the package extensions (Chevie): `W` may be a finite Coxeter group (`coxgroup`) or a complex reflection group (`crg`). The same threshold as for [`germ`](@ref) applies. For a large complex group, building `DualBraidMonoid(W)` itself with Chevie takes minutes (about 4 for G₃₄), whereas `dual_germ(W)` takes a fraction of a second.
 """

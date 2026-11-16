@@ -2,7 +2,7 @@
 # the group elements.
 
 """
-    hurwitz_orbit(start::NTuple{n, <:Integer}, conjugate; limit = 10^8) -> Vector
+    hurwitz_orbit(start::NTuple{n, <:Integer}, conjugate; limit::Integer = 10^8) -> Vector
 
 The orbit of the tuple `start` under the Hurwitz action of the braid group on `n` strands: the generator σₖ replaces the entries `(x, y)` at the positions `k, k + 1` by `(x y x⁻¹, x)`, which preserves the product of the tuple. The entries are indices of group elements, and `conjugate(i, j)` must return the index of xᵢ xⱼ xᵢ⁻¹.
 

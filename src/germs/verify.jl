@@ -34,7 +34,7 @@ function _foreach_interval(f, G::AbstractGerm)
 end
 
 """
-    count_multichains(G::AbstractGerm, m) -> Int
+    count_multichains(G::AbstractGerm, m::Integer) -> Int
 
 The number of multichains σ₁ ≼ σ₂ ≼ ⋯ ≼ σₘ of `m` simples of `G` (repetitions allowed), whose simples must all be numbered: the number of simples for `m = 1`, of pairs σ ≼ ν for `m = 2`. For the dual braid monoid of a well-generated group, this is the Fuss–Catalan number Π (dᵢ + m·h)/dᵢ. Computed by m − 1 passes over the intervals, in O(n) memory; an `OverflowError` is thrown rather than a wrong count.
 """
@@ -56,7 +56,7 @@ function _multichain_step(G::AbstractGerm, f::Vector{Int})
 end
 
 """
-    verify(G::AbstractGerm; full = false)
+    verify(G::AbstractGerm; full::Bool = false)
 
 Check the consistency of the tables of a germ whose simples are all numbered (a tabulated germ, a germ of the tests, a germ read from a file), and throw an `ArgumentError` naming the first defect. Checked, in O(n·N) operations of the interface:
 - the identity and the atoms (lengths 0 and 1, words, descents);

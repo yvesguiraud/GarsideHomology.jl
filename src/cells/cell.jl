@@ -1,25 +1,24 @@
-# The cells for the user (J1.h): a cell of the tree, written in bar form x₁|⋯|xₙ, read as the
+# The cells for the user: a cell of the tree, written in bar form x₁|⋯|xₙ, read as the
 # sequence of its letters, and found again from its letters or its written form. The tree
 # keeps its numbers (Int32); only what is handed to the user is wrapped.
 
 """
     Cell
 
-A cell of an lcm resolution, for the user: the tree of the cells ([`CellTree`](@ref)) and
-the number of the cell in it. It is written in bar form, `x₁|⋯|xₙ`, its letters being
-written as words in the atoms ([`GermElement`](@ref)), and `e` for the cell of degree 0,
-following the settings of the display ([`Notation`](@ref)): `2|12` in B⁺(A₂).
+A cell of an lcm resolution, for the user. It holds the tree of the cells ([`CellTree`](@ref)) and the number of the cell in this tree.
 
-The elements of the bases of the modules of a resolution
-([`basis`](@ref)`(P[n])`, a [`CellBasis`](@ref)), and of its extensions of scalars. A cell
-is also given by its bar form, `P("2|12")`, or by its letters, `P(G(2), G(1, 2))`.
+A cell is written in bar form, `x₁|⋯|xₙ`, where the letters are written as words in the atoms ([`GermElement`](@ref)), and the cell of degree 0 is written `e`; the display follows the settings of [`Notation`](@ref). For instance, `2|12` is a cell of degree 2 of the reduced resolution of B⁺(A₂).
 
-A cell reads as the sequence of its letters: `c[i]` is the `i`-th letter (a
-`GermElement`), `c[end]` the last one, `length(c)` the degree, and `collect(c)` and the
-iteration give the letters. Also [`cell_weight`](@ref)`(c)` (the product of the letters),
-[`cell_degree`](@ref)`(c)` and [`atom_sequence`](@ref)`(c)` (the atoms that created the
-cell, its name in the snapshots). Two cells are equal if they are the same cell of the same
-tree; `isless` is the order of the construction. A `Cell` is a scalar for broadcasting.
+The bases of the modules of a resolution ([`basis`](@ref)`(P[n])`, a [`CellBasis`](@ref)) and of its extensions of scalars are made of cells. A cell can also be given by its bar form, as in `P("2|12")`, or by its letters, as in `P(G(2), G(1, 2))`; `P()` is the cell of degree 0.
+
+A cell reads as the sequence of its letters:
+- `c[i]` is the `i`-th letter of `c`, a `GermElement`, and `c[end]` is the last one;
+- `length(c)` is the degree of `c`;
+- `collect(c)` and the iteration over `c` give the letters.
+
+The functions [`cell_weight`](@ref)`(c)`, [`cell_degree`](@ref)`(c)` and [`atom_sequence`](@ref)`(c)` give the weight of `c` (the product of its letters), its degree, and the atoms that created it (its name in the snapshots).
+
+Two cells are equal if they are the same cell of the same tree, and `isless` is the order of the construction. A `Cell` is treated as a scalar by broadcasting.
 """
 struct Cell{T <: CellTree}
     tree::T
@@ -48,7 +47,7 @@ Base.broadcastable(c::Cell) = Ref(c)
 """
     cell_weight(c::Cell) -> GermElement
 
-The weight of the cell `c`, the product of its letters, as an element of the germ.
+The weight of the cell `c`, that is, the product of its letters, as an element of the germ.
 """
 cell_weight(c::Cell) = GermElement(c.tree.germ, cell_weight(c.tree, c.index); check = false)
 
@@ -62,8 +61,7 @@ cell_degree(c::Cell) = cell_degree(c.tree, c.index)
 """
     atom_sequence(c::Cell) -> Vector{GermElement}
 
-The atoms that created the cell `c` and its ancestors, from the first, as elements of the
-germ: the name of the cell in the snapshots (`7.3.12`).
+The atoms that created the cell `c` and its ancestors, from the first one, as elements of the germ. This sequence is the name of the cell in the snapshots (for instance `7.3.12`).
 """
 atom_sequence(c::Cell) = [GermElement(c.tree.germ, a; check = false) for a in atom_sequence(c.tree, c.index)]
 

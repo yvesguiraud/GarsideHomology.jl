@@ -1,14 +1,12 @@
 # The projection of the Garside complex onto the cells: the splitting of the chains whose
-# parent is a cell (the matching), the memoized projection p and the boundary of the cells
-# (J1.d, task d3). Names provisional: the theory of the normalising homotopies of the
-# article will fix the point of view.
+# parent is a cell (the matching), the memoised projection p and the boundary of the cells.
+# Names provisional: the theory of the normalising homotopies of the article will fix the
+# point of view.
 
 """
-    BimoduleTerm(cell, left, right, coef)
+    BimoduleTerm(cell::Int32, left::Int32, right::Int32, coef::Int64)
 
-A term `coef · left · [cell] · right` of a free bimodule over the monoid algebra of a
-germ: the number of a cell (or of a chain), two simples (`0`, the identity, when there is
-no multiplier) and an integer coefficient.
+A term `coef · left · [cell] · right` of a free `ℤ[M]`-bimodule, where `M` is the monoid of a germ. The cell (or the chain) is given by its number, the two multipliers are simples (`0`, the identity, when there is no multiplier), and the coefficient is an integer.
 """
 struct BimoduleTerm
     cell::Int32
@@ -49,17 +47,14 @@ end
 end
 
 """
-    lcm_splitting(T::CellTree, h, σ) -> (y, z)
+    lcm_splitting(T::CellTree, h::Integer, σ::Integer) -> (y, z)
 
-The splitting of the last letter of the chain `h|σ`, for a cell `h` of weight `ω` and a
-simple `σ ≠ 1` with `ωσ` simple: `σ = y·z`, where `y` is the letter of the first child of
-`h`, in the order given by the ordering, whose atom divides `ωσ` (so that `ωy = ω ∨ a`), and
-`(0, σ)` (the identity for `y`) if no child of `h` has an atom dividing `ωσ`.
+The splitting of the last letter of the chain `h|σ`, where `h` is a cell of weight `ω` and `σ ≠ 1` is a simple such that `ωσ` is simple. It returns the factorisation `σ = yz`, where `y` is the letter of the first child of `h`, in the order given by the ordering, whose atom `a` divides `ωσ` (so that `ωy = ω ∨ a`). If no child of `h` has an atom dividing `ωσ`, it returns `(0, σ)`, where `0` stands for the identity.
 
-It classifies the chain `x = h|σ`: if `y = σ`, `x` is the corresponding child of `h`, a
-cell; if `y` is the identity, `x` is collapsible and its projection is zero; otherwise `x`
-is redundant, matched with the chain `h|y|z` of degree one more. The `filtfact` of the
-preliminary implementation.
+The splitting classifies the chain `x = h|σ`:
+- if `y = σ`, then `x` is the corresponding child of `h`, a cell;
+- if `y` is the identity, then `x` is collapsible, and its projection is zero;
+- otherwise, `x` is redundant, matched with the chain `h|y|z` of degree one more.
 """
 function lcm_splitting(T::CellTree, h::Integer, σ::Integer)
     G = T.germ
@@ -81,17 +76,17 @@ end
 """
     LCMProjectionData(T::CellTree)
 
-The data of the projection `p` of the Garside complex onto the cells of `T`, which
-[`lcm_projection!`](@ref) computes and memoizes: the tree of the cells, the tree of the
-chains visited ([`ChainTree`](@ref)), and the memo, the normal form of `p(x)` for each
-chain `x` visited, stored as an interval of a single arena of [`BimoduleTerm`](@ref)s.
-The boundary of the cells, [`lcm_boundary`](@ref), is read from it.
+The data of the projection `p` of the Garside complex onto the cells of `T`, which [`lcm_projection!`](@ref) computes and memoises. These data are:
+- the tree of the cells;
+- the tree of the chains visited ([`ChainTree`](@ref));
+- the memo, which stores the normal form of `p(x)` for each chain `x` visited, as an interval of a single arena of [`BimoduleTerm`](@ref)s.
 
-The projection follows the matching of [`lcm_splitting`](@ref): `p(x) = x` for a cell;
-for `x = h|σ` with `h` a cell, `p(x) = 0` if `x` is collapsible and, if `x` is redundant,
-matched with `ϕx = h|y|z` of degree `n + 1`, `p(x) = (−1)ⁿ⁺¹ Σᵢ (−1)ⁱ σᵢ p(dᵢϕx) τᵢ`, the
-sum over the faces of `ϕx` but the `n`-th, which is `x`; for `x = h|σ` with `h` not a
-cell, `p(x) = Σ λ s p(c | t·σ)` over the terms `λ s [c] t` of `p(h)`.
+The boundary of the cells, [`lcm_boundary`](@ref), is read from these data.
+
+The projection follows the matching given by [`lcm_splitting`](@ref). If the chain `x` of degree `n` is a cell, then `p(x) = [x]`. Otherwise, `x = h|σ`, where `σ` is its last letter, and:
+- if `h` is a cell and `x` is collapsible, then `p(x) = 0`;
+- if `h` is a cell and `x` is redundant, matched with the chain `ϕx = h|y|z` of degree `n + 1`, then `p(x) = (−1)ⁿ⁺¹ Σᵢ (−1)ⁱ p(dᵢϕx)`, where the sum runs over the faces of `ϕx` (see [`lcm_boundary`](@ref)) except the `n`-th one, which is `[x]`;
+- if `h` is not a cell, then `p(x) = Σ λ s·p(c|tσ)`, where the sum runs over the terms `λ s[c]t` of `p(h)`.
 """
 struct LCMProjectionData{G <: AbstractGerm, O <: LCMOrdering}
     tree::CellTree{G, O}
@@ -146,13 +141,12 @@ end
 @inline _phi(hl, y::Int32, z::Int32, k::Int) = k <= length(hl) ? hl[k] : (k == length(hl) + 1 ? y : z)
 
 """
-    lcm_projection!(P::LCMProjectionData, x) -> AbstractVector{BimoduleTerm}
+    lcm_projection!(P::LCMProjectionData, x::Integer) -> AbstractVector{BimoduleTerm}
+    lcm_projection!(P::LCMProjectionData, letters::AbstractVector{<:Integer}) -> AbstractVector{BimoduleTerm}
 
-The projection `p(x)` of the chain `x` of the Garside complex onto the cells, in normal
-form (sorted, equal terms summed, no zero): its terms are cells of the degree of `x`, with
-their left and right simples. The chain `x` is a node of `P.chains` or the list of its
-letters. The result is a view of the memo, valid until the next call; the memo and the
-tree of the chains grow on the way.
+The projection `p(x)` of a chain `x` of the Garside complex onto the cells, in normal form: its terms are sorted, equal terms are summed, and no term is zero. The terms are cells of the degree of `x`, with their left and right simples. The chain is given by its number `x` in the tree of the chains `P.chains`, or by the list of its letters.
+
+The result is a view of the memo, valid until the next call. The memo and the tree of the chains grow on the way.
 """
 function lcm_projection!(P::LCMProjectionData, x::Integer)
     _project!(P, Int32(x), 1)
@@ -214,16 +208,16 @@ function _project_redundant!(buf, P::LCMProjectionData, h::Int32, y::Int32, z::I
         λ = isodd(i) ? -sign : sign
         a = Int32(0)
         b = Int32(0)
-        if i == 0                       # ϕ₁ · [ϕ₂|…|ϕₙ₊₁]
+        if i == 0                       # ϕ₁[ϕ₂|⋯|ϕₙ₊₁]
             a = _phi(hl, y, z, 1)
             node = Int32(1)
             for k in 2:(n + 1)
                 node = _child!(C, node, _phi(hl, y, z, k))
             end
-        elseif i == n + 1               # [ϕ₁|…|ϕₙ] · ϕₙ₊₁, that is the child h|y, times z
+        elseif i == n + 1               # [ϕ₁|⋯|ϕₙ]ϕₙ₊₁, that is the child h|y, times z
             node = _child!(C, h, y)
             b = z
-        else                            # 1 ≤ i ≤ n − 1: [ϕ₁|…|ϕᵢϕᵢ₊₁|…|ϕₙ₊₁]
+        else                            # 1 ≤ i ≤ n − 1: [ϕ₁|⋯|ϕᵢϕᵢ₊₁|⋯|ϕₙ₊₁]
             node = _child!(C, pre[i], _mul(G, _phi(hl, y, z, i), _phi(hl, y, z, i + 1)))
             for k in (i + 2):(n + 1)
                 node = _child!(C, node, _phi(hl, y, z, k))
@@ -237,12 +231,9 @@ function _project_redundant!(buf, P::LCMProjectionData, h::Int32, y::Int32, z::I
 end
 
 """
-    lcm_boundary(P::LCMProjectionData, x) -> Vector{BimoduleTerm}
+    lcm_boundary(P::LCMProjectionData, x::Integer) -> Vector{BimoduleTerm}
 
-The boundary of the cell `x` of degree `n ≥ 1` in the resolution: the projection of its
-boundary in the Garside complex, `∂x = Σᵢ (−1)ⁱ σᵢ p(dᵢx) τᵢ`, a combination of cells of
-degree `n − 1` in normal form; empty for the cell of degree 0. The column of `x` in the
-matrix of the differential.
+The boundary of the cell `x = x₁|⋯|xₙ` of degree `n ≥ 1` in the lcm resolution: it is defined as the projection of the boundary of `x` in the Garside complex, `dx = Σᵢ (−1)ⁱ p(dᵢx)`, where the faces of `x` are `d₀x = x₁[x₂|⋯|xₙ]`, `dᵢx = [x₁|⋯|xᵢxᵢ₊₁|⋯|xₙ]` for `1 ≤ i ≤ n − 1`, and `dₙx = [x₁|⋯|xₙ₋₁]xₙ`, and where `p` is extended by bilinearity: `p(s[y]t) = s·p(y)·t`. The result is a combination of cells of degree `n − 1` in normal form: the column of `x` in the matrix of the differential of the lcm resolution from degree `n` to degree `n − 1`. It is empty for the unique cell of degree 0.
 """
 lcm_boundary(P::LCMProjectionData, x::Integer) = _boundary!(BimoduleTerm[], P, x)
 
@@ -260,13 +251,13 @@ function _boundary!(out::Vector{BimoduleTerm}, P::LCMProjectionData, x::Integer)
         λ = isodd(i) ? Int64(-1) : Int64(1)
         a = Int32(0)
         b = Int32(0)
-        if i == 0                       # x₁ · [x₂|…|xₙ]
+        if i == 0                       # x₁[x₂|⋯|xₙ]
             a = xl[1]
             node = _extend!(C, 1, xl, 2:n)
-        elseif i == n                   # [x₁|…|xₙ₋₁] · xₙ, the parent of x
+        elseif i == n                   # [x₁|⋯|xₙ₋₁]xₙ, the parent of x
             node = C.parent[x]
             b = xl[n]
-        else                            # [x₁|…|xᵢxᵢ₊₁|…|xₙ]
+        else                            # [x₁|⋯|xᵢxᵢ₊₁|⋯|xₙ]
             node = _child!(C, pre[i], _mul(G, xl[i], xl[i + 1]))
             node = _extend!(C, node, xl, (i + 2):n)
         end

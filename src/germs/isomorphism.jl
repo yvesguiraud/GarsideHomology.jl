@@ -1,7 +1,7 @@
 # Isomorphisms of germs: a bijection of the atoms extending to the simples.
 
 """
-    germ_isomorphism(G::AbstractGerm, H::AbstractGerm; limit = 10^6)
+    germ_isomorphism(G::AbstractGerm, H::AbstractGerm; limit::Integer = 10^6)
         -> Union{Vector{Int32}, Nothing}
 
 An isomorphism of germs from `G` to `H`, given by the images of the atoms: `φ[a]` is the atom of `H` image of the atom `a` of `G`; `nothing` when the germs are not isomorphic. An isomorphism is a bijection of the atoms that extends to a bijection of the simples with φ(σ·a) = φ(σ)·φ(a), the product being defined in `G` exactly when it is defined in `H`; it then preserves the lengths, the divisibility, the lcms and Δ.

@@ -16,7 +16,7 @@ Methods of GarsideHomology: [`ComplementDeglex`](@ref) (the default), [`TrivialP
 abstract type AbstractLCMPreorder end
 
 """
-    precedes(P::AbstractLCMPreorder, G::AbstractGerm, ω, x, y) -> Bool
+    precedes(P::AbstractLCMPreorder, G::AbstractGerm, ω::Integer, x, y) -> Bool
 
 Whether `x` comes strictly before `y` for the preorder `P` at the simple `ω`, where `x` and `y` are results `(lcm = ω ∨ a, complement = ω \\ (ω ∨ a))` of [`lcm_atom`](@ref)`(G, ω, a)` for atoms `a` that do not divide `ω`.
 """
@@ -48,7 +48,7 @@ precedes(::TrivialPreorder, G::AbstractGerm, ω::Integer, x, y) = false  # COV_E
 """
     FunctionPreorder(lt) <: AbstractLCMPreorder
 
-The preorder given by a function: `x` precedes `y` when `lt(G, ω, x, y)`, which must return a `Bool` and be a strict weak order (see [`AbstractLCMPreorder`](@ref)). For the exploration of other preorders; the lexicographic order of the right complements, for instance, is `FunctionPreorder((G, ω, x, y) -> GarsideHomology.isless_lex(G, x.complement, y.complement))`. A preorder that is not compatible with divisibility gives a resolution that is not reduced; the result is to be checked, for instance by [`certify`](@ref) (∂² = 0, Euler characteristic of each weight).
+The preorder given by a function: `x` precedes `y` when `lt(G, ω, x, y)`, which must return a `Bool` and be a strict weak order (see [`AbstractLCMPreorder`](@ref)). For the exploration of other preorders; the lexicographic order of the right complements, for instance, is `FunctionPreorder((G, ω, x, y) -> GarsideHomology.isless_lex(G, x.complement, y.complement))`. A preorder that is not compatible with divisibility gives a resolution that is not reduced; the result is to be checked, for instance by [`certify`](@ref) (d² = 0, Euler characteristic of each weight).
 """
 struct FunctionPreorder{F} <: AbstractLCMPreorder
     lt::F
@@ -60,7 +60,7 @@ precedes(P::FunctionPreorder, G::AbstractGerm, ω::Integer, x, y) = P.lt(G, ω, 
 # Orderings
 
 """
-    LCMOrdering(preorder = ComplementDeglex(); root_order = nothing)
+    LCMOrdering(preorder::AbstractLCMPreorder = ComplementDeglex(); root_order = nothing)
 
 The ordering of the lcm resolution of a germ, the data that fix its cells and their matching: a preorder on the lcms ([`AbstractLCMPreorder`](@ref)) and the order of the atoms at the root, a permutation given as the list of the atoms in increasing order (`nothing`: the order of the germ, `1:N`).
 

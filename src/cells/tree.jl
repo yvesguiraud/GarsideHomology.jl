@@ -1,32 +1,27 @@
 # The tree of the cells: the cells of the lcm resolution of a germ for an ordering, as a
-# prefix tree in integers (J1.d, task d2).
+# prefix tree in integers.
 
 """
     CellTree(G::AbstractGerm, ordering::LCMOrdering = LCMOrdering())
 
-The cells of the lcm resolution of the germ `G` for the ordering `ordering`, as a tree whose
-nodes are the cells. The node of a cell `x = [τ₁|…|τₙ]` has for parent the cell
-`[τ₁|…|τₙ₋₁]`, for letter its last letter `τₙ`, for atom the atom `a` that created it
-(`τₙ = ω \\ (ω ∨ a)`, `ω` being the weight of the parent), for weight `τ₁⋯τₙ` and for
-degree `n`. The node `1` is the cell of degree 0, of weight the identity.
+The cells of the lcm resolution of the germ `G` for the ordering `ordering`, as a tree whose nodes are the cells.
 
-The tree is built breadth first, by the rule of [`LCMOrdering`](@ref): at a node of
-weight `ω` whose list `I` of admissible atoms is in the inherited order (the order of the
-root at the root), `I` is sorted by the preorder at `ω`, ties keeping the inherited
-order; an atom `j` is kept if no atom placed before it divides `ω ∨ aⱼ`; the atoms kept
-give the children, in that order, and the list of a child is formed of the atoms of its
-elder siblings. No list is copied: it is read in the tree itself.
+The node of a cell `x = τ₁|⋯|τₙ` has the following data:
+- its parent, the cell `τ₁|⋯|τₙ₋₁`;
+- its letter, the last letter `τₙ`;
+- its atom, the atom `a` that created it, so that `τₙ` is the right complement `ω \\ (ω ∨ a)`, where `ω` is the weight of the parent;
+- its weight `τ₁⋯τₙ`;
+- its degree `n`.
 
-The cells are numbered `1:ncells(T)` in the order of the construction: by degree, then by
-parent, then in the order given by the ordering. The children of a node are contiguous, and the
-cells of degree `n` form [`cell_range`](@ref)`(T, n)`, which fixes the order of the basis
-of the free module of degree `n`.
+The node `1` is the cell of degree 0, whose weight is the identity.
 
-Accessors, on the numbers of the cells: [`ncells`](@ref), [`cell_weight`](@ref),
-[`cell_degree`](@ref) and [`atom_sequence`](@ref) (exported, since they also read a
-[`Cell`](@ref), the cell for the user), [`cell_range`](@ref), [`cell_letter`](@ref),
-[`cell_atom`](@ref), [`cell_children`](@ref), [`admissible_atoms`](@ref) and
-[`bar_form`](@ref) (public, not exported).
+The tree is built degree by degree, by the rule given in [`LCMOrdering`](@ref). The list of admissible atoms of a node ([`admissible_atoms`](@ref)) is not copied: it is read in the tree itself, as the order of the root or the atoms of the elder siblings.
+
+The cells are numbered `1:ncells(T)` in the order of the construction: by degree, then by parent, then in the order given by the ordering. The children of a node are contiguous, and the cells of degree `n` form [`cell_range`](@ref)`(T, n)`; this range fixes the order of the basis of the free module of degree `n`.
+
+The accessors read the tree by the numbers of the cells:
+- [`ncells`](@ref), [`cell_weight`](@ref), [`cell_degree`](@ref) and [`atom_sequence`](@ref) are exported, since they also read a [`Cell`](@ref);
+- [`cell_range`](@ref), [`cell_letter`](@ref), [`cell_atom`](@ref), [`cell_children`](@ref), [`admissible_atoms`](@ref) and [`bar_form`](@ref) are public but not exported.
 """
 struct CellTree{G <: AbstractGerm, O <: LCMOrdering}
     germ::G
@@ -147,13 +142,11 @@ end
 
 """
     ncells(T::CellTree) -> Int
-    ncells(T::CellTree, n) -> Int
+    ncells(T::CellTree, n::Integer) -> Int
     ncells(R::LCMResolution) -> Int
-    ncells(R::LCMResolution, n) -> Int
+    ncells(R::LCMResolution, n::Integer) -> Int
 
-The number of cells of `T`, or of its cells of degree `n` (0 outside the degrees of `T`);
-for an lcm resolution `R`, those of its tree ([`cell_tree`](@ref)). The numbers by degree:
-`[ncells(R, n) for n in range(R)]`.
+The number of cells of `T`, or of its cells of degree `n` (0 outside the degrees of `T`). For an lcm resolution `R`, these are the numbers of cells of its tree ([`cell_tree`](@ref)). The numbers of cells by degree are `[ncells(R, n) for n in range(R)]`.
 """
 ncells(T::CellTree) = length(T.parent)
 ncells(T::CellTree, n::Integer) = length(cell_range(T, n))
@@ -165,71 +158,67 @@ _top_degree(T::CellTree) = length(T.degree_start) - 2
 _degree_counts(T::CellTree) = [ncells(T, n) for n in 0:_top_degree(T)]
 
 """
-    cell_range(T::CellTree, n) -> UnitRange{Int}
+    cell_range(T::CellTree, n::Integer) -> UnitRange{Int}
 
-The numbers of the cells of degree `n` (empty outside the degrees of `T`), in the order
-of the basis of the free module of degree `n`.
+The numbers of the cells of degree `n`, in the order of the basis of the free module of degree `n`. The range is empty outside the degrees of `T`.
 """
 cell_range(T::CellTree, n::Integer) =
     0 <= n <= _top_degree(T) ? (Int(T.degree_start[n + 1]):Int(T.degree_start[n + 2] - 1)) : (1:0)
 
 """
-    cell_weight(T::CellTree, x) -> Int32
+    cell_weight(T::CellTree, x::Integer) -> Int32
 
-The weight of the cell `x`, the product of its letters, a simple of the germ.
+The weight of the cell `x`, that is, the product of its letters, a simple of the germ.
 """
 cell_weight(T::CellTree, x::Integer) = T.weight[x]
 
 """
-    cell_letter(T::CellTree, x) -> Int32
+    cell_letter(T::CellTree, x::Integer) -> Int32
 
-The last letter of the cell `x` (a simple), `0` for the cell of degree 0.
+The last letter of the cell `x`, a simple, or `0` for the cell of degree 0.
 """
 cell_letter(T::CellTree, x::Integer) = T.letter[x]
 
 """
-    cell_atom(T::CellTree, x) -> Int32
+    cell_atom(T::CellTree, x::Integer) -> Int32
 
-The atom that created the cell `x` from its parent, `0` for the cell of degree 0.
+The atom that created the cell `x` from its parent, or `0` for the cell of degree 0.
 """
 cell_atom(T::CellTree, x::Integer) = T.atom[x]
 
 """
-    cell_degree(T::CellTree, x) -> Int
+    cell_degree(T::CellTree, x::Integer) -> Int
 
 The degree of the cell `x`.
 """
 cell_degree(T::CellTree, x::Integer) = Int(T.degree[x])
 
 """
-    cell_children(T::CellTree, x) -> UnitRange{Int}
+    cell_children(T::CellTree, x::Integer) -> UnitRange{Int}
 
-The children of the cell `x`, contiguous, in the order given by the ordering.
+The children of the cell `x`, which are contiguous, in the order given by the ordering.
 """
 cell_children(T::CellTree, x::Integer) = Int(T.child_start[x]):Int(T.child_start[x + 1] - 1)
 
 """
-    admissible_atoms(T::CellTree, x)
+    admissible_atoms(T::CellTree, x::Integer)
 
-The list of admissible atoms of the cell `x`, in the inherited order, as a view of the
-tree: the order of the root for the cell of degree 0, the atoms of the elder siblings of
-`x` otherwise.
+The list of admissible atoms of the cell `x`, in the inherited order, as a view of the tree. It is the order of the root for the cell of degree 0, and the list of the atoms of the elder siblings of `x` otherwise.
 """
 admissible_atoms(T::CellTree, x::Integer) =
     x == 1 ? view(T.root_order, 1:length(T.root_order)) : view(T.atom, Int(T.child_start[T.parent[x]]):(Int(x) - 1))
 
 """
-    bar_form(T::CellTree, x) -> Vector{Int32}
+    bar_form(T::CellTree, x::Integer) -> Vector{Int32}
 
-The letters of the cell `x`, from the first: the simples `[τ₁, …, τₙ]`.
+The letters of the cell `x`, from the first one: the simples `[τ₁, …, τₙ]`.
 """
 bar_form(T::CellTree, x::Integer) = _path(T.letter, T, x)
 
 """
-    atom_sequence(T::CellTree, x) -> Vector{Int32}
+    atom_sequence(T::CellTree, x::Integer) -> Vector{Int32}
 
-The atoms that created the cell `x` and its ancestors, from the first: the name of the
-cell in the snapshots (`7.3.12`).
+The atoms that created the cell `x` and its ancestors, from the first one. This sequence is the name of the cell in the snapshots (for instance `7.3.12`).
 """
 atom_sequence(T::CellTree, x::Integer) = _path(T.atom, T, x)
 
@@ -244,7 +233,7 @@ function _path(field::Vector{Int32}, T::CellTree, x::Integer)
     return w
 end
 
-# Signature line, counted only by some compiled instances in the coverage of Julia (J1.g).
+# Signature line, counted only by some compiled instances in the coverage of Julia.
 function Base.show(io::IO, T::CellTree)  # COV_EXCL_LINE
     print(io, "CellTree: ", ncells(T), " cells, by degree ", _degree_counts(T), ", ")
     show(io, T.ordering)

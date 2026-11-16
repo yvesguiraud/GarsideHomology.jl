@@ -3,7 +3,7 @@
 
 """
     CoxeterGerm{n} <: AbstractGerm
-    CoxeterGerm(C)
+    CoxeterGerm(C::AbstractMatrix{<:Integer})
 
 The germ of the classical braid monoid B⁺(W) of the finite Coxeter group W of rank `n` given by its integral Cartan matrix `C` (crystallographic types), the simples being the elements of W. The germ is lazy: its simples are numbered as they are met (identity `0`, atoms `1:n` in the order of the rows of `C`, the others in the order of the queries, which is not canonical), for the large groups that cannot be tabulated, such as E₈ (696 729 600 simples, of which the construction of the resolution meets less than a tenth).
 
@@ -27,7 +27,7 @@ struct CoxeterGerm{n} <: AbstractGerm
 end
 
 """
-    nnumbered(G)
+    nnumbered(G::CoxeterGerm)
 
 The number of simples numbered so far by the lazy germ `G`; it only grows.
 """

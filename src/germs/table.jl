@@ -104,7 +104,7 @@ end
 _tab_error(msg) = throw(ArgumentError("tabulate: " * msg))
 
 """
-    tabulate(R, identity) -> (G, renumber)
+    tabulate(R::AbstractMatrix{<:Integer}, identity::Integer) -> (G, renumber)
 
 The [`TableGerm`](@ref) `G` of the germ given by its right covers, and the numbering of its simples. The simples are numbered `1:n` in any order (a provisional numbering), `identity` being the identity; `R` is an `N × n` matrix of integers whose entry `R[a, σ]` is the simple `σa` if it is simple, `0` otherwise, so that the atoms are the `R[a, identity]`, in the order of the rows. `renumber[p]` is the number in `G` of the simple numbered `p` in `R`; the inverse numbering is `sortperm(renumber)`.
 
@@ -363,7 +363,7 @@ function _tabulate_canonical(::Val{K}, N, n, R, Q, len, canon, lexrank, timings,
 end
 
 """
-    TableGerm(R, identity)
+    TableGerm(R::AbstractMatrix{<:Integer}, identity::Integer)
     TableGerm(G::AbstractGerm)
 
 The tabulated germ given by its right covers (see [`tabulate`](@ref)), or the tabulation of a germ `G` whose simples are all numbered (see `tabulate(G)`).
