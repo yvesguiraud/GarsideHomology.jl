@@ -34,6 +34,10 @@ makedocs(;
         edit_link = "main",
         # Hides the headings of the current page in the sidebar (docs/src/assets/custom.css).
         assets = ["assets/custom.css"],
+        # The page of the imprimitive groups, made of generated tables, exceeds the default
+        # thresholds (a warning above 100 KiB, an error above 200 KiB).
+        size_threshold_warn = 200 * 2^10,
+        size_threshold = 500 * 2^10,
     ),
     pages = [
         "Home" => "index.md",
@@ -51,6 +55,7 @@ makedocs(;
             "Exceptional braid groups" => "examples/exceptional.md",
             "Spherical Artin groups" => "examples/spherical.md",
             "Imprimitive braid groups" => "examples/imprimitive.md",
+            "Two orderings" => "examples/orderings.md",
         ],
         "Reference manual" => [
             "Overview" => "reference_manual/overview.md",

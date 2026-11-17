@@ -19,6 +19,7 @@ The numbers of cells are those of the reduced lcm resolution of B*(W) in each de
 - [Exceptional braid groups](exceptional.md): the 26 well-generated exceptional groups.
 - [Spherical Artin groups](spherical.md): the braid groups of the finite Coxeter groups.
 - [Imprimitive braid groups](imprimitive.md): the groups G(m, m, n) and G(m, 1, n).
+- [Two orderings](orderings.md): the cells of the reduced resolution and of the order resolution of Dehornoy and Lafont, compared on B*(B₃).
 
 ## Not computed yet
 
