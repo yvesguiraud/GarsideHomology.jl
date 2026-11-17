@@ -1,27 +1,19 @@
 # Modules of coefficients: modules over the monoid algebra of a germ, free of finite rank
-# over a ring, given by the action of the atoms (J1.e, task e2).
+# over a ring, given by the action of the atoms.
 
 """
     AbstractMonoidModule{R}
 
-Supertype of the modules of coefficients: a module over the monoid algebra `R[M]` of a
-monoid `M`, free of finite rank over the ring `R` (an AbstractAlgebra ring), given by the
-action of the atoms; a simple acts as a word of atoms. A module does not depend on a germ:
-the tensor products ([`tensor_product`](@ref)) compute the action on the simples of the
-germ of the complex (and check, when needed, that it is well defined).
+Supertype of the modules of coefficients. Such a module is a module over the monoid algebra `R[M]` of a monoid `M`, free of finite rank over the ring `R` (an AbstractAlgebra ring), and given by the action of the atoms; a simple acts as a word of atoms. A module does not depend on a germ: the tensor products ([`tensor_product`](@ref)) compute the action on the simples of the germ of the complex, and check, when needed, that it is well defined.
 
-Interface: `base_ring(M)`, the ring `R`, and `rank(M)`, the rank over `R`. A module of rank
-one is given by a character χ of the monoid, and serves on both sides, `s·m = m·s = χ(s)·m`.
+The interface is made of `base_ring(M)`, the ring `R`, and `rank(M)`, the rank over `R`. A module of rank one is given by a character χ of the monoid, and serves on both sides: `s·m = m·s = χ(s)·m`.
 """
 abstract type AbstractMonoidModule{R <: AbstractAlgebra.Ring} end
 
 """
-    TrivialModule(R = GarsideHomology.ZZ)
+    TrivialModule(R::AbstractAlgebra.Ring = GarsideHomology.ZZ)
 
-The ring `R`, every element of the monoid acting by 1: the trivial module. The homology
-with coefficients in `TrivialModule()` is the homology of the group of fractions with
-trivial integer coefficients. By default, `R` is the ring of integers of AbstractAlgebra
-(`GarsideHomology.ZZ`), that of the coefficients of the resolutions.
+The trivial module: the ring `R`, on which every element of the monoid acts by 1. By default, `R` is the ring of integers of AbstractAlgebra (`GarsideHomology.ZZ`), that of the coefficients of the resolutions. The homology with coefficients in `TrivialModule()` is the homology of the monoid with trivial integer coefficients, which is also that of its enveloping group, since the monoid is a Garside monoid.
 """
 struct TrivialModule{R} <: AbstractMonoidModule{R}
     ring::R
@@ -31,12 +23,9 @@ end
 TrivialModule() = TrivialModule(AbstractAlgebra.ZZ)
 
 """
-    SignModule(R = GarsideHomology.ZZ)
+    SignModule(R::AbstractAlgebra.Ring = GarsideHomology.ZZ)
 
-The ring `R`, every atom acting by −1, so that a simple `s` acts by `(−1)^ℓ(s)`: for a braid
-group and the integers, the module ℤε in which the braid reflections act by −1 (Garnier,
-table 4). Well defined on every homogeneous germ. By default, `R` is the ring of integers
-of AbstractAlgebra (`GarsideHomology.ZZ`).
+The sign module: the ring `R`, on which every atom acts by −1, so that a simple `s` acts by `(−1)^ℓ(s)`. For a braid group and the integers, this is the module ℤε in which the braid reflections act by −1 (Garnier, table 4). The module is well defined for every homogeneous germ. By default, `R` is the ring of integers of AbstractAlgebra (`GarsideHomology.ZZ`).
 """
 struct SignModule{R} <: AbstractMonoidModule{R}
     ring::R
@@ -48,20 +37,16 @@ SignModule() = SignModule(AbstractAlgebra.ZZ)
 """
     ℤε
 
-The sign module over the integers, `SignModule()`: every atom acts by −1, so that
-`homology(R, ℤε)` is the homology with coefficients in ℤε (Garnier, table 4), beside
-`homology(R, ℤ)` for the trivial coefficients, and `ℤ ⊗ R ⊗ ℤε` the complex that computes
-it. Typed `\\bbZ` then Tab, then `\\varepsilon` then Tab (ε, U+03B5). The other epsilon,
-`\\epsilon` (ϵ, U+03F5, another character), gives [`ℤϵ`](@ref), the same object.
+The sign module over the integers, `SignModule()`, on which every atom acts by −1. With it, `homology(R, ℤε)` is the homology with coefficients in ℤε (Garnier, table 4), beside `homology(R, ℤ)` for the trivial coefficients, and `ℤ ⊗ R ⊗ ℤε` is the complex that computes it.
+
+The name is typed `\\bbZ` then Tab, then `\\varepsilon` then Tab (ε, U+03B5). The other epsilon, `\\epsilon` (ϵ, U+03F5, another character), gives [`ℤϵ`](@ref), the same object.
 """
 const ℤε = SignModule()
 
 """
     ℤϵ
 
-The same object as [`ℤε`](@ref), the sign module over the integers, under the name typed
-with `\\epsilon` (ϵ, U+03F5) rather than `\\varepsilon` (ε, U+03B5), two characters that
-look alike.
+The same object as [`ℤε`](@ref), the sign module over the integers, under the name typed with `\\epsilon` (ϵ, U+03F5) rather than `\\varepsilon` (ε, U+03B5): these two characters look alike.
 """
 const ℤϵ = ℤε
 

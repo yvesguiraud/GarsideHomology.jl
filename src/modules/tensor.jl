@@ -1,57 +1,42 @@
 # Tensor products of complexes over a monoid algebra by modules of coefficients, on one side
-# or on both, and the homology with coefficients (J1.e, task e2).
+# or on both, and the homology with coefficients.
 
-# A ring stands for its trivial module (J1.g): `homology(R, ℤ)`, `ℤ ⊗ R ⊗ ℤ`.
+# A ring stands for its trivial module: `homology(R, ℤ)`, `ℤ ⊗ R ⊗ ℤ`.
 const _Coefficients = Union{AbstractMonoidModule, AbstractAlgebra.Ring}
 _module(M::AbstractMonoidModule) = M
 _module(A::AbstractAlgebra.Ring) = TrivialModule(A)
 
 """
-    GarsideHomology.tensor_product(N, C)
-    GarsideHomology.tensor_product(C, M)
-    GarsideHomology.tensor_product(N, C, M)
+    GarsideHomology.tensor_product(N, C::AbstractChainComplex)
+    GarsideHomology.tensor_product(C::AbstractChainComplex, M)
+    GarsideHomology.tensor_product(N, C::AbstractChainComplex, M)
     N ⊗ C,  C ⊗ M                  (with `using GarsideHomology: ⊗`, or with Chevie loaded)
 
-The tensor products over the monoid algebra of a complex `C` of free modules over a
-[`MonoidAlgebra`](@ref) by a module of coefficients `N` on the left (as a right module) or
-`M` on the right (as a left module), [`AbstractMonoidModule`](@ref)s over the ring of the
-coefficients of `C` (ℤ for now). A ring stands for its trivial module: `ℤ ⊗ C ⊗ ℤ` is
-`TrivialModule() ⊗ C ⊗ TrivialModule()`, that is [`extend_scalars`](@ref)`(C)`.
+The tensor products over the monoid algebra of a complex `C` of free modules over a [`MonoidAlgebra`](@ref) by a module of coefficients `N` on the left (as a right module) or `M` on the right (as a left module). The arguments `N` and `M` are [`AbstractMonoidModule`](@ref)s over the ring of the coefficients of `C` (ℤ for now), or rings (`AbstractAlgebra.Ring`), a ring standing for its trivial module: `ℤ ⊗ C ⊗ ℤ` is `TrivialModule() ⊗ C ⊗ TrivialModule()`, that is, [`extend_scalars`](@ref)`(C)`.
 
-- `C` of bimodules (an lcm resolution): `N ⊗ C` is the complex of free right modules whose
-  terms `c·σ y τ` become `χ_N(σ)·c · y τ` (labels τ, side `:right`); `C ⊗ M` that of free
-  left modules, `χ_M(τ)·c · σ y` (labels σ, side `:left`); in each column, the terms of the
-  same row and label are summed. `tensor_product(N, C, M)`, or `(N ⊗ C) ⊗ M`, is the
-  complex over the ring, `χ_N(σ)·χ_M(τ)·c · y`.
-- `C` of right modules (`N ⊗ R`): `C ⊗ M` is the complex over the ring; of left modules:
-  `N ⊗ C`. Tensoring a side that is already tensored is an `ArgumentError`.
+The result depends on the sides of `C`:
+- if `C` is a complex of bimodules, such as an lcm resolution, then `N ⊗ C` is the complex of free right modules whose terms `c·σ[y]τ` become `χ_N(σ)·c·[y]τ` (labels τ, side `:right`), and `C ⊗ M` is the complex of free left modules whose terms become `χ_M(τ)·c·σ[y]` (labels σ, side `:left`); in each column, the terms of the same row and label are summed; `tensor_product(N, C, M)`, or `(N ⊗ C) ⊗ M`, is the complex over the ring whose terms are `χ_N(σ)·χ_M(τ)·c·[y]`;
+- if `C` is a complex of right modules, such as `N ⊗ R`, then `C ⊗ M` is the complex over the ring; if `C` is a complex of left modules, then `N ⊗ C` is the complex over the ring;
+- tensoring a side that is already tensored throws an `ArgumentError`.
 
-The results share the bases of `C`, which keep their cells. `homology(R, M)` is the homology
-of `TrivialModule ⊗ R ⊗ M`, that is `H₍*₎(B; M)` for the monoid `B` (the homology of its group
-of fractions).
-`tensor_product` is exported by Hecke and Oscar, `⊗` by Hecke, Oscar and Chevie (that of
-FinitePosets): neither is exported by GarsideHomology. With Chevie loaded, the `⊗` of
-Chevie has the same methods for our complexes (package extension), so that `ℤ ⊗ R ⊗ ℤ`
-works without importing ours.
+The results share the bases of `C`, which keep their cells. `homology(R, M)` is the homology of `TrivialModule() ⊗ R ⊗ M`, that is, the homology of the monoid with coefficients in `M` (see [`homology`](@ref)).
+
+The name `tensor_product` is exported by Hecke and Oscar, and `⊗` by Hecke, Oscar and Chevie (that of FinitePosets), so that neither is exported by GarsideHomology. With Chevie loaded, the `⊗` of Chevie has the same methods for our complexes (package extension), so that `ℤ ⊗ R ⊗ ℤ` works without importing ours.
 """
 function tensor_product end
 
 """
-    ⊗(N, C), ⊗(C, M)
+    ⊗(N, C::AbstractChainComplex)
+    ⊗(C::AbstractChainComplex, M)
 
-The tensor products `GarsideHomology.tensor_product(N, C)` and
-`GarsideHomology.tensor_product(C, M)`, `N` and `M` modules of coefficients or rings (for
-their trivial modules). Public, not exported: write `using GarsideHomology: ⊗`, which wins
-over the exports of `⊗` by Hecke, Oscar and Chevie. With Chevie loaded, the `⊗` of Chevie
-(that of FinitePosets) has the same methods for our complexes, and `ℤ ⊗ R ⊗ ℤ` works
-without the import.
+The tensor products `GarsideHomology.tensor_product(N, C)` and `GarsideHomology.tensor_product(C, M)`, where `N` and `M` are modules of coefficients or rings (for their trivial modules). The name is public but not exported: write `using GarsideHomology: ⊗`, which wins over the exports of `⊗` by Hecke, Oscar and Chevie. With Chevie loaded, the `⊗` of Chevie (that of FinitePosets) has the same methods for our complexes, and `ℤ ⊗ R ⊗ ℤ` works without the import.
 """
 ⊗(N::_Coefficients, C::AbstractChainComplex) = tensor_product(N, C)
 ⊗(C::AbstractChainComplex, M::_Coefficients) = tensor_product(C, M)
 
 # The arguments are not reassigned (a module for a ring): the local names left and right
 # keep a single type each.
-# Signature line, counted only by some compiled instances in the coverage of Julia (J1.g).
+# Signature line, counted only by some compiled instances in the coverage of Julia.
 function tensor_product(N::_Coefficients, C::AbstractChainComplex{<:MonoidAlgebra})  # COV_EXCL_LINE
     left = _module(N)
     A = base_ring(C)
@@ -63,7 +48,7 @@ function tensor_product(N::_Coefficients, C::AbstractChainComplex{<:MonoidAlgebr
     return _one_sided(C, :right, l -> (χ(l[1]), l[2]))
 end
 
-# Signature line, counted only by some compiled instances in the coverage of Julia (J1.g).
+# Signature line, counted only by some compiled instances in the coverage of Julia.
 function tensor_product(C::AbstractChainComplex{<:MonoidAlgebra}, M::_Coefficients)  # COV_EXCL_LINE
     right = _module(M)
     A = base_ring(C)
@@ -94,7 +79,7 @@ tensor_product(::_Coefficients, ::AbstractChainComplex, ::_Coefficients) =
     throw(ArgumentError("tensor_product: the complex is not over a monoid algebra"))
 
 # The module must be over the ring of the coefficients of the monoid algebra, the integers
-# for now (other rings come with J2).
+# for now (other rings will come later).
 function _check_coefficients(A::MonoidAlgebra, M::AbstractMonoidModule)
     base_ring(M) isa AbstractAlgebra.Integers ||
         throw(ArgumentError("tensor_product: modules over the integers only for now, not over $(base_ring(M))"))
@@ -128,17 +113,14 @@ function _one_sided_matrix(d::LabelledSparseMatrix{NTuple{2, Int32}, Tv}, f) whe
 end
 
 """
-    homology(R::AbstractChainComplex, M; kwargs...)
-    homology(R::AbstractChainComplex, M, n; kwargs...)
+    homology(R::AbstractChainComplex{<:MonoidAlgebra}, M; kwargs...)
+    homology(R::AbstractChainComplex{<:MonoidAlgebra}, M, n::Integer; kwargs...)
 
-The homology of the monoid, that of its group of fractions, with coefficients in the module
-`M`, from a resolution `R` of bimodules (an lcm resolution): the homology over the ring of
-`M` of `TrivialModule ⊗ R ⊗ M` ([`tensor_product`](@ref)), in all degrees or in degree `n`.
-For a complex of right modules (`TrivialModule ⊗ R`), the homology of `C ⊗ M`. `M` is a
-module of coefficients, or a ring for its trivial module: `homology(R, ℤ)` is
-`homology(R, TrivialModule())`. The keyword arguments go to the solver, as for
-`homology(C)`. Without coefficients, `homology(R)` is an error: the homology of the
-resolution itself is not that of the monoid.
+The homology of the monoid with coefficients in the module `M`, computed from a resolution `R` of bimodules, such as an lcm resolution, in all degrees or in degree `n`. It is the homology over the ring of `M` of `TrivialModule() ⊗ R ⊗ M` ([`tensor_product`](@ref)). Since the monoid is a Garside monoid, this is also the homology of its enveloping group with coefficients in `M` (see the page Background and conventions of the User guide).
+
+The argument `M` is a module of coefficients ([`AbstractMonoidModule`](@ref)), or a ring for its trivial module: `homology(R, ℤ)` is `homology(R, TrivialModule())`. For a complex of right modules, such as `TrivialModule() ⊗ R`, the result is the homology of `C ⊗ M`. The keyword arguments go to the solver, as for `homology(C)`.
+
+Without coefficients, `homology(R)` is an error: the homology of the resolution itself is not that of the monoid.
 """
 Complexes.homology(C::AbstractChainComplex{<:MonoidAlgebra}, M::_Coefficients; kwargs...) =
     homology(_with_coefficients(C, _module(M)); kwargs...)
@@ -147,21 +129,15 @@ Complexes.homology(C::AbstractChainComplex{<:MonoidAlgebra}, M::_Coefficients, n
     homology(_with_coefficients(C, _module(M)), n; kwargs...)
 
 """
-    homology(G::AbstractGerm, M = TrivialModule(); ordering = LCMOrdering(), kwargs...)
-    homology(G::AbstractGerm, M, n; ordering = LCMOrdering(), kwargs...)
-    homology(G::AbstractGerm, n; ordering = LCMOrdering(), kwargs...)
+    homology(G::AbstractGerm, M = TrivialModule(); ordering::LCMOrdering = LCMOrdering(), kwargs...)
+    homology(G::AbstractGerm, M, n::Integer; ordering::LCMOrdering = LCMOrdering(), kwargs...)
+    homology(G::AbstractGerm, n::Integer; ordering::LCMOrdering = LCMOrdering(), kwargs...)
 
-The homology of the monoid of the germ `G`, that of its group of fractions, with
-coefficients in the module `M` (trivial by default; a ring stands for its trivial module,
-as in `homology(G, ℤ)`), in all degrees or in degree `n`: that
-of its lcm resolution for `ordering`, `homology(lcm_resolution(G, ordering), M)`. The
-resolution is built at each call: to compute several homologies of the same monoid, build
-it once with [`lcm_resolution`](@ref). The other keyword arguments go to the solver, as
-for `homology(C)`.
+The homology of the monoid of the germ `G` with coefficients in the module `M`, in all degrees or in degree `n`. The module is trivial by default, and a ring stands for its trivial module, as in `homology(G, ℤ)`. Since the monoid is a Garside monoid, this is also the homology of its enveloping group.
 
-With Chevie loaded, the same forms for a `BraidMonoid` or a `DualBraidMonoid` of Chevie,
-through its germ ([`germ`](@ref)): `homology(BraidMonoid(coxgroup(:A, 2)))` is the
-homology of the braid group on three strands.
+The homology is computed from the lcm resolution for `ordering`, as `homology(lcm_resolution(G, ordering), M)`. The resolution is built at each call: to compute several homologies of the same monoid, build it once with [`lcm_resolution`](@ref). The other keyword arguments go to the solver, as for `homology(C)`.
+
+With Chevie loaded, the same forms apply to a `BraidMonoid` or a `DualBraidMonoid` of Chevie, through its germ ([`germ`](@ref)): for instance, `homology(BraidMonoid(coxgroup(:A, 2)))` is the homology of the braid group on three strands.
 """
 Complexes.homology(G::AbstractGerm, M::_Coefficients = TrivialModule();
                    ordering::LCMOrdering = LCMOrdering(), kwargs...) =

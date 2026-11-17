@@ -72,18 +72,14 @@ function _divisor_summary(A::SparseMatrixCSC{<:Integer}; kwargs...)
 end
 
 """
-    homology(C::AbstractChainComplex)
-    homology(C::AbstractChainComplex, n)
+    homology(C::AbstractChainComplex; kwargs...)
+    homology(C::AbstractChainComplex, n::Integer; kwargs...)
 
-Homology of a complex over ℤ: a [`FinitelyGeneratedGradedAbelianGroup`](@ref) over the
-degrees of `C`, or the [`FinitelyGeneratedAbelianGroup`](@ref) `H_n` alone. With
-`d_n : C_{n+1} → C_n`, the free rank of `H_n` is `rank(C_n) − rank(d_n) − rank(d_{n-1})`
-and its torsion is given by the elementary divisors of `d_n` other than 1, computed by
-`SparseElementaryDivisors.sparse_elementary_divisors`, to which the keyword arguments are
-passed (`value_type`, `nworkers`, `core_format`, `verbose`, ...). `homology(C)` computes
-each differential once. A complex over a monoid algebra needs coefficients first: for a
-resolution `R` of GarsideHomology, `homology(R, M)` with a module or a ring
-(`homology(R, ℤ)`), or the homology of an extension of scalars, `homology(extend_scalars(C))`.
+The homology of a complex over ℤ: a [`FinitelyGeneratedGradedAbelianGroup`](@ref) over the degrees of `C`, or the [`FinitelyGeneratedAbelianGroup`](@ref) `H_n` alone.
+
+With `d_n : C_{n+1} → C_n`, the free rank of `H_n` is `rank(C_n) − rank(d_n) − rank(d_{n-1})`, and its torsion is given by the elementary divisors of `d_n` other than 1. These are computed by `SparseElementaryDivisors.sparse_elementary_divisors`, to which the keyword arguments are passed (`value_type`, `nworkers`, `core_format`, `verbose`, ...). `homology(C)` computes each differential once.
+
+A complex over a monoid algebra needs coefficients first: for a resolution `R` of GarsideHomology, use `homology(R, M)` with a module or a ring (as in `homology(R, ℤ)`), or the homology of an extension of scalars, `homology(extend_scalars(R))`.
 """
 function homology(C::AbstractChainComplex{R, D}; kwargs...) where
         {R <: AbstractAlgebra.Integers, D <: SparseMatrixCSC{<:Integer}}

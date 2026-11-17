@@ -37,15 +37,9 @@ using AbstractAlgebra: ZZ
 """
     ℤ
 
-The ring of integers of AbstractAlgebra, that of the coefficients of the resolutions, under
-a name of its own: the same object as `GarsideHomology.ZZ`. A ring stands for its trivial
-module: `homology(R, ℤ)`, `ℤ ⊗ R ⊗ ℤ`. Typed `\\bbZ` then Tab, in the Julia REPL and in the
-editors that know Julia (VS Code, Jupyter, Pluto, the Julia modes of Emacs and Vim).
+The ring of integers of AbstractAlgebra, that of the coefficients of the resolutions, under a name of its own; it is the same object as `GarsideHomology.ZZ`. A ring stands for its trivial module, as in `homology(R, ℤ)` and `ℤ ⊗ R ⊗ ℤ`. The name is typed `\\bbZ` then Tab, in the Julia REPL and in the editors that know Julia (VS Code, Jupyter, Pluto, the Julia modes of Emacs and Vim).
 
-`ZZ` is public but not exported: Nemo, Hecke and Oscar export a `ZZ` of their own, another
-object, and exporting ours would make `ZZ` ambiguous, hence unusable, for their users. To
-write `ZZ`, import it: `using GarsideHomology: ZZ` (rather than `GarsideHomology.ZZ` at
-each use).
+`ZZ` is public but not exported: Nemo, Hecke and Oscar export a `ZZ` of their own, which is another object, and exporting ours would make `ZZ` ambiguous, hence unusable, for their users. To write `ZZ`, import it with `using GarsideHomology: ZZ`, rather than writing `GarsideHomology.ZZ` at each use.
 """
 const ℤ = AbstractAlgebra.ZZ
 import SHA
