@@ -1,74 +1,41 @@
 # GarsideHomology.jl
 
+[![Docs dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://yvesguiraud.github.io/GarsideHomology.jl/dev/)
 [![CI](https://github.com/yvesguiraud/GarsideHomology.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/yvesguiraud/GarsideHomology.jl/actions/workflows/CI.yml)
 [![Coverage](https://codecov.io/gh/yvesguiraud/GarsideHomology.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/yvesguiraud/GarsideHomology.jl)
-[![Documentation](https://img.shields.io/badge/docs-dev-blue.svg)](https://yvesguiraud.github.io/GarsideHomology.jl/dev/)
 
 Small free resolutions of Garside monoids and their homology, in Julia.
 
-GarsideHomology.jl computes the *reduced lcm resolution* of a Garside monoid, a variant of the
-Dehornoy–Lafont resolution with fewer cells, and the homology of the corresponding
-groups with various coefficients. The first target is the homology of real and well-generated complex braid groups.
+GarsideHomology.jl computes the *reduced lcm resolution* of a Garside monoid, a variant of the resolution of Dehornoy and Lafont with fewer cells. It is a free resolution of the monoid algebra by free bimodules, and it can be checked by a certificate. The homology of the group with coefficients in a module of rank one (for now, the trivial module ℤ and the sign module ℤε, in which the braid reflections act by −1) is then computed from the elementary divisors of the differentials, by [SparseElementaryDivisors.jl](https://github.com/yvesguiraud/SparseElementaryDivisors.jl).
 
-## Status
+The first target is the homology of the braid groups of the real and well-generated complex reflection groups. For the 26 well-generated exceptional groups, the package computes the homology with ℤ and with ℤε, except for B(G₃₇) with ℤε, where the coefficients of the elimination outgrow the integer types used for now. The values agree with the tables of Garnier, with one exception noted on the page [Exceptional braid groups](https://yvesguiraud.github.io/GarsideHomology.jl/dev/examples/exceptional/) of the documentation.
 
-Early development, not registered. In place:
+> **Status:** early development, not registered yet; the interface may still change.
 
-- `GarsideHomology.Complexes`, with based free modules over monoid algebras, labelled sparse
-  matrices, chain complexes, their specialisation to integer coefficients and their
-  homology over ℤ, computed by
-  [SparseElementaryDivisors.jl](https://github.com/yvesguiraud/SparseElementaryDivisors.jl).
-  It has been validated on the 344 reference resolutions of the preliminary
-  implementation, among which those of the dual braid monoids of the 26 well-generated
-  exceptional complex reflection groups: the integral homology of the corresponding
-  complex braid groups is reproduced.
-- The construction of the lcm resolutions, `lcm_resolution`, with integer-coded simples
-  and precomputed lcm tables (lazy tables for the large Coxeter groups): it reproduces the
-  reference resolutions of the preliminary implementation, B*(G₃₇) in a few seconds
-  instead of several minutes. An
-  ordering of the lcms chooses the resolution: the reduced one by default, that of
-  Dehornoy and Lafont with `LCMOrdering(TrivialPreorder())`. `GarsideHomology.write_snapshot`
-  writes a resolution in the text format of the reference snapshots.
-- The certificates of the resolutions, `certify`: homogeneity of the boundaries, ∂² = 0
-  computed in the bimodules, Euler characteristic of each weight against the Möbius
-  function, minimality and linearity. The 344 reference resolutions are certified
-  correct, and the reduced one is minimal in all their 86 cases.
-- The modules of coefficients `TrivialModule()` and `SignModule()` (ℤε, the braid
-  reflections acting by −1), the homology `homology(R, M)` and the tensor products
-  `GarsideHomology.tensor_product` (or `⊗`, with `using GarsideHomology: ⊗`). With ℤε, the homology of the
-  braid groups of the well-generated exceptional groups agrees with table 4 of
-  [O. Garnier](https://arxiv.org/abs/2302.10033) up to B(G₃₆); for B(G₃₇), the
-  coefficients outgrow the integer types of the solver for now.
+The [documentation](https://yvesguiraud.github.io/GarsideHomology.jl/dev/) contains a user guide, examples, the reference manual and a bibliography, as well as the development history and the acknowledgements.
+
+## Installation
+
+The package is not registered yet:
 
 ```julia
-using GarsideHomology, SparseArrays
-
-# Cellular chain complex of the real projective plane: d₀ = 0, d₁ = 2.
-C = ChainComplex([spzeros(Int, 1, 1), sparse([1], [1], [2], 1, 1)])
-homology(C)    # ℤ, ℤ/2ℤ, 0 in degrees 0 to 2
-
-using Chevie
-
-# Reduced lcm resolution of the dual braid monoid of G₄, its certificate, then the homology
-# of its group, the braid group on three strands, with trivial coefficients and with the
-# sign module ℤε (the braid reflections acting by −1).
-R = lcm_resolution(dual_germ(crg(4)))
-certify(R)                      # ResolutionCertificate: correct, minimal, linear
-homology(R, TrivialModule())    # ℤ, ℤ, 0 in degrees 0 to 2
-homology(R, SignModule())       # ℤ/2ℤ, ℤ/3ℤ, 0
+using Pkg
+Pkg.add(url = "https://github.com/yvesguiraud/GarsideHomology.jl")
+Pkg.add("Chevie")   # optional: monoids built from reflection groups
 ```
 
-## Requirements
+It requires Julia 1.11 or later. The monoids are built from the reflection groups through [Chevie.jl](https://github.com/jmichel7/Chevie.jl), loaded as a package extension.
 
-Julia 1.11 or later. Monoids are built from reflection groups through
-[Chevie.jl](https://github.com/jmichel7/Chevie.jl), loaded as a package extension.
-Elementary divisors of the large sparse differentials are computed by
-[SparseElementaryDivisors.jl](https://github.com/yvesguiraud/SparseElementaryDivisors.jl).
+## A first example
 
-## Development
+```julia
+using GarsideHomology, Chevie
 
-This package is an overhauled version of the code available here: [Gauss.jl](https://plmlab.math.cnrs.fr/guiraud/gauss.jl). The old version was developed by the author alone, while the new version is developed with the assistance of an AI model (Claude Opus 5.5). All code is reviewed, tested and validated by the author against reference computations.
+G = dual_germ(crg(4))          # the germ of the dual braid monoid B*(G₄)
+R = lcm_resolution(G)          # its reduced lcm resolution
+certify(R)                     # correct, minimal, linear
+homology(R, ℤ)                 # ℤ, ℤ, 0 in degrees 0 to 2
+homology(R, ℤε)                # ℤ/2ℤ, ℤ/3ℤ, 0
+```
 
-## License
-
-MIT, see [LICENSE](LICENSE).
+Start Julia with several threads to benefit from the parallel steps: `julia -t auto`. The page [Working with other packages](https://yvesguiraud.github.io/GarsideHomology.jl/dev/user_guide/interoperability/) of the user guide explains how to type `ℤ` and `ℤε`, which names are shared with Oscar, Hecke and Chevie, and the current limits of the package.
