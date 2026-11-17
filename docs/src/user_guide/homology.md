@@ -14,7 +14,7 @@ A ring stands for its trivial module: `homology(R, ℤ)` is `homology(R, Trivial
 
 ## Homology
 
-For a resolution `R`, `homology(R, M)` is the homology of the monoid, hence of its group of fractions, with coefficients in `M`, in all degrees; `homology(R, M, n)` in degree `n`. The result is a [`FinitelyGeneratedGradedAbelianGroup`](@ref): `H[n]` is the [`FinitelyGeneratedAbelianGroup`](@ref) of degree `n`, with its free rank `rank(H[n])` and its invariant factors `torsion(H[n])`. A group is written torsion first, `(ℤ/3ℤ)² ⊕ ℤ/6ℤ ⊕ ℤ`, and this written form is read back by `parse(FinitelyGeneratedAbelianGroup, s)`, which also accepts `Z` for `ℤ`, `ℤ/2` for `ℤ/2ℤ`, `^k` for an exponent and `+` for `⊕`.
+For a resolution `R`, `homology(R, M)` is the homology of the monoid with coefficients in `M`, in all degrees, and `homology(R, M, n)` is that of degree `n`. Since the monoid is a Garside monoid, this is also the homology of its enveloping group (see [Background and conventions](background.md)). The result is a [`FinitelyGeneratedGradedAbelianGroup`](@ref): `H[n]` is the [`FinitelyGeneratedAbelianGroup`](@ref) of degree `n`, with its free rank `rank(H[n])` and its invariant factors `torsion(H[n])`. A group is written torsion first, `(ℤ/3ℤ)² ⊕ ℤ/6ℤ ⊕ ℤ`, and this written form is read back by `parse(FinitelyGeneratedAbelianGroup, s)`, which also accepts `Z` for `ℤ`, `ℤ/2` for `ℤ/2ℤ`, `^k` for an exponent and `+` for `⊕`.
 
 The elementary divisors are computed by [SparseElementaryDivisors.jl](https://github.com/yvesguiraud/SparseElementaryDivisors.jl), and the keyword arguments of `homology` go to it: `value_type`, the integer types tried during the elimination, `nworkers`, `verbose`, and the others described in its documentation.
 

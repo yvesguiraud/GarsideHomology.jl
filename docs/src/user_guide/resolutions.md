@@ -15,7 +15,7 @@ P = lcm_resolution(A2)
 
 ## Elements of a germ
 
-A germ is called to give its elements, as [`GermElement`](@ref)s: `A2(1, 2)` is the product of the atoms 1 and 2, `A2("12")` the same simple read from its written form, `A2()` the identity, and `simples(A2)` the list of the simples. The product `s * t` is defined when it is a simple (`A2(1) * A2(2) == A2("12")`; `A2(1) * A2(1)` is an `ArgumentError`), and `s \ t` is the left quotient when `s ≼ t`. Also `word(s)`, the smallest word of `s` in the atoms, and `length(s)`.
+A germ is called to give its elements, as [`GermElement`](@ref)s: `A2(1, 2)` is the product of the atoms 1 and 2, `A2("12")` the same simple read from its written form, `A2()` the identity, and `simples(A2)` the list of the simples. The product `s * t` is defined when it is a simple (`A2(1) * A2(2) == A2("12")`; `A2(1) * A2(1)` is an `ArgumentError`), and `s \ t` is the right complement, that is, the simple `u` such that `su = t`, when `s ≼ t`. The smallest word of `s` in the atoms is `word(s)`, and its length is `length(s)`.
 
 ## Cells
 
@@ -48,7 +48,7 @@ A2(1) * P("2") == P("1[2]")      # the action on the left
 y * A2(2) == P("[1]2")           # and on the right
 ```
 
-The identity is omitted on both sides, the coefficients ±1 too, and the cell of degree 0 is written `[]`. The marker `×` separates a coefficient from what follows when the atoms are written with digits. `v[σ, x, τ]` is the coefficient of a term, and the iteration over `v` gives the terms as tuples `(c, σ, x, τ)`.
+The identity is omitted on both sides, and so are the coefficients ±1; the cell of degree 0 is written `[]`. The marker `×` separates a coefficient from what follows when the atoms are written with digits. `v[σ, x, τ]` is the coefficient of a term, and the iteration over `v` gives the terms as tuples `(c, σ, x, τ)`.
 
 ## The differential
 
@@ -59,7 +59,7 @@ d(A2(2) * y) == P("21[] - 2[]1")
 iszero(d(d(x)))                  # true
 ```
 
-`d(x)` is the boundary of the generator `x`, and `d(v)` that of an element ([`Differential`](@ref)). The matrices of the differential are `differential(P, n)`, from degree `n + 1` to degree `n`: [`LabelledSparseMatrix`](@ref)es whose entries carry the pairs `(σ, τ)`.
+`d(x)` is the boundary of the generator `[x]` of a cell `x`, and `d(v)` that of an element `v` ([`Differential`](@ref)). The matrices of the differential are `differential(P, n)`, from degree `n + 1` to degree `n`: [`LabelledSparseMatrix`](@ref)es whose entries carry the pairs `(σ, τ)`.
 
 ## Extensions of scalars
 

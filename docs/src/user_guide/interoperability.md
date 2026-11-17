@@ -12,7 +12,7 @@ CurrentModule = GarsideHomology
 
 ## Names shared with other packages
 
-Some names of GarsideHomology are also exported by other packages, for other objects. They are public but not exported by GarsideHomology, or are to be qualified when these packages are loaded.
+Some names of GarsideHomology are also exported by other packages, for other objects. They are public but not exported by GarsideHomology, or they must be qualified when these packages are loaded.
 
 - `ZZ`, the ring of integers of AbstractAlgebra, is `ℤ` under its usual name. Nemo, Hecke and Oscar export a `ZZ` of their own: write `using GarsideHomology: ZZ` to use ours.
 - `homology` and `differential` are exported by GarsideHomology, and also by Hecke and Oscar: with one of them loaded, write `GarsideHomology.homology` and `GarsideHomology.differential`, or import them explicitly (`using GarsideHomology: homology`).

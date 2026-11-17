@@ -32,7 +32,7 @@ show(IOContext(stdout, :notation => Notation(empty_cell_in_module = "[e]")), d(P
 ## The settings
 
 - `atom_names`: the names of the atoms, by default their numbers; `:subscripts` for `a₁, a₂, …`, a vector of strings, or a function of the number of an atom.
-- `atom_separator`: written between the atoms of a word. By default, the atoms are written side by side when each name is a single character, possibly followed by subscripts or primes, and separated by `·` otherwise, for instance in a germ with at least 10 atoms numbered: `1·12·3`.
+- `atom_separator`: written between the atoms of a word. By default, the atoms are written side by side when each name is a single character, possibly followed by subscripts or primes, and separated by `·` otherwise, for instance in a germ with at least 10 atoms written with their numbers: `1·12·3`.
 - `identity`, `garside_symbol`: the identity (`e`), and Δ, written as a word by default or by a symbol such as `"Δ"`.
 - `bar_separator`, `empty_cell`, `empty_cell_in_module`: the separator of the letters of a cell (`|`), the cell of degree 0 (`e`) and its generator in a module (`[]`).
 - `coefficient_style`: `×` only when the names of the atoms can begin with a digit (the default), always `×` (`:times`) or `*` (`:star`), or parentheses around the monomial (`:parentheses`).

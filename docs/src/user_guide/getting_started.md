@@ -22,7 +22,7 @@ homology(R, ℤε)               # ℤ/2ℤ, ℤ/3ℤ, 0
 The steps are the following.
 - A *germ* gives the simples of a Garside monoid and their products. [`dual_germ`](@ref) builds the germ of the dual braid monoid of a well-generated irreducible reflection group, without building the monoid itself; [`germ`](@ref) builds that of a classical braid monoid, `germ(coxgroup(:A, 3))`, or of a monoid of Chevie, `germ(BraidMonoid(W))`.
 - [`lcm_resolution`](@ref) builds a free resolution of the monoid, a chain complex of free bimodules whose bases are cells.
-- [`certify`](@ref) checks the resolution (homogeneity of the boundaries, ∂² = 0, Euler characteristic of each weight) and says whether it is minimal.
+- [`certify`](@ref) checks the resolution (homogeneity of the boundaries, d² = 0, Euler characteristic of each weight) and says whether it is minimal.
 - `homology(R, M)` is the homology of the braid group with coefficients in `M`: `ℤ` for the trivial coefficients, `ℤε` for the sign module, in which the braid reflections act by −1.
 
 The result is a [`FinitelyGeneratedGradedAbelianGroup`](@ref), shown one degree per line:
@@ -35,13 +35,13 @@ FinitelyGeneratedGradedAbelianGroup in degrees 0:2
   2: 0
 ```
 
-`homology(R, ℤ, 1)` gives the degree 1 alone. The page [Background and conventions](background.md) recalls the notions and the conventions used here.
+With `H = homology(R, ℤ)`, `H[1]` is the group of degree 1, a [`FinitelyGeneratedAbelianGroup`](@ref), and `homology(R, ℤ, 1)` computes it alone. The page [Background and conventions](background.md) recalls the notions and the conventions used here.
 
 ## Shortcuts
 
 `homology(G, ℤε)` builds the resolution of the germ `G` and computes its homology in one call, and with Chevie loaded, `homology(BraidMonoid(W))` does the same for a monoid of Chevie. Each of these calls builds the resolution again: to compute several homologies of the same monoid, build the resolution once with `lcm_resolution`.
 
-For the dual braid monoids, `dual_germ(W)` is much faster than `germ(DualBraidMonoid(W))`: building `DualBraidMonoid(W)` itself with Chevie takes minutes for the largest groups (about 4 for G₃₄), where `dual_germ(W)` takes a fraction of a second.
+For the dual braid monoids, `dual_germ(W)` is much faster than `germ(DualBraidMonoid(W))`: building `DualBraidMonoid(W)` itself with Chevie takes minutes for the largest groups (about 4 for G₃₄), whereas `dual_germ(W)` takes a fraction of a second.
 
 ## Classical and dual braid monoids
 
@@ -50,4 +50,4 @@ For the dual braid monoids, `dual_germ(W)` is much faster than `germ(DualBraidMo
 
 ## Threads and times
 
-Start Julia with several threads, `julia -t auto`: the check of ∂² = 0 in [`certify`](@ref) and the computation of the elementary divisors use them. The first call of a session includes the compilation of the code. The time and the memory grow quickly with the size of the monoid, mostly through the number of cells and the size of the differentials.
+Start Julia with several threads, `julia -t auto`: the check of d² = 0 in [`certify`](@ref) and the computation of the elementary divisors use them. The first call of a session includes the compilation of the code. The time and the memory grow quickly with the size of the monoid, mostly through the number of cells and the size of the differentials.
