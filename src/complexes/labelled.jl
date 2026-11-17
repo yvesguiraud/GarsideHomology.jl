@@ -3,31 +3,22 @@
 """
     LabelledSparseMatrix{L, Tv}
 
-Sparse `m × n` matrix over a monoid algebra ([`MonoidAlgebra`](@ref)). Writing the
-matrix as `D = Σ_γ D_γ · γ`, with integer matrices `D_γ` and `γ` in the monoid, all the
-`D_γ` are stored in a single CSC structure, each stored integer carrying its `γ`, its
-label. Column `j` is the image of the `j`-th basis element of the source; its stored entry `k` is
-the monomial `nzval[k] · label[k]` in row `rowval[k]`, and the coefficient in row `i` is
-the sum of the monomials of column `j` in row `i`. A label is the code of an element of
-the monoid (`Int32`) or of a pair `(σ, τ)` for a bimodule (`NTuple{2, Int32}`), so that a
-term of a bimodule differential reads `c · σ y τ`.
+A sparse `m × n` matrix over a monoid algebra ([`MonoidAlgebra`](@ref)). Write the matrix as `D = Σ_γ D_γ·γ`, with integer matrices `D_γ` and elements `γ` of the monoid. All the `D_γ` are stored in a single CSC structure, in which each stored integer carries its `γ`, its label. The column `j` is the image of the `j`-th element of the basis of the source; its stored entry `k` is the monomial `nzval[k]·label[k]` in the row `rowval[k]`, and the coefficient in the row `i` is the sum of the monomials of the column `j` in the row `i`. A label is the code of an element of the monoid (`Int32`) or of a pair `(σ, τ)` for a bimodule (`NTuple{2, Int32}`), so that a term of a differential of bimodules reads `c·σ[y]τ`.
 
-Invariants, checked by the constructor unless `check = false` (see
-[`check_invariants`](@ref)):
+The constructor checks the following invariants, unless `check = false` (see [`check_invariants`](@ref)):
 
-1. `length(colptr) == n + 1`, `colptr[1] == 1`, `colptr` is nondecreasing and
-   `colptr[n + 1] - 1` is the common length of `rowval`, `label` and `nzval`;
+1. `length(colptr) == n + 1`, `colptr[1] == 1`, `colptr` is nondecreasing, and `colptr[n + 1] - 1` is the common length of `rowval`, `label` and `nzval`;
 2. `1 ≤ rowval[k] ≤ m`;
-3. in each column, the pairs `(rowval[k], label[k])` are strictly increasing: the
-   storage is canonical, two equal matrices have equal arrays;
+3. in each column, the pairs `(rowval[k], label[k])` are strictly increasing, so that the storage is canonical: two equal matrices have equal arrays;
 4. no stored coefficient is zero;
-5. labels are nonnegative, label `0` (or `(0, 0)`) being the identity.
+5. the labels are nonnegative, the label `0` (or `(0, 0)`) being the identity.
 
-Constructors: `LabelledSparseMatrix(I, J, L, V, m, n)` from a list of monomials (see
-below), `LabelledSparseMatrix(m, n, colptr, rowval, label, nzval; check = true)` from the
-CSC arrays, and `LabelledSparseMatrix{L, Tv}(m, n)` for the zero matrix; the first two
-differ by their first argument, a vector of rows or a number of rows. Accessors follow SparseArrays:
-`size`, `nrows`, `ncols`, `nnz`, `nzrange`, `rowvals`, `nonzeros`, plus [`labels`](@ref).
+There are three constructors:
+- `LabelledSparseMatrix(I, J, L, V, m, n)`, from a list of monomials (see below);
+- `LabelledSparseMatrix(m, n, colptr, rowval, label, nzval; check = true)`, from the CSC arrays;
+- `LabelledSparseMatrix{L, Tv}(m, n)`, for the zero matrix.
+
+The first two differ by their first argument, a vector of rows or a number of rows. The accessors follow SparseArrays: `size`, `nrows`, `ncols`, `nnz`, `nzrange`, `rowvals` and `nonzeros`, together with [`labels`](@ref).
 """
 struct LabelledSparseMatrix{L <: Union{Integer, NTuple{2, Integer}}, Tv}
     m::Int
@@ -60,8 +51,7 @@ _label_valid(l::NTuple{2, Integer}) = l[1] >= 0 && l[2] >= 0
 """
     check_invariants(d::LabelledSparseMatrix)
 
-Check the invariants of `d` in O(nnz) (see [`LabelledSparseMatrix`](@ref)); throw an
-`ArgumentError` naming the first violation, return `d` otherwise.
+Check the invariants of `d` in O(nnz) operations (see [`LabelledSparseMatrix`](@ref)). Throw an `ArgumentError` naming the first violation, and return `d` otherwise.
 """
 function check_invariants(d::LabelledSparseMatrix)
     m, n = d.m, d.n
@@ -95,13 +85,10 @@ function check_invariants(d::LabelledSparseMatrix)
 end
 
 """
-    LabelledSparseMatrix(I, J, L, V, m, n)
+    LabelledSparseMatrix(I::AbstractVector{<:Integer}, J::AbstractVector{<:Integer},
+                         L::AbstractVector, V::AbstractVector, m::Integer, n::Integer)
 
-The `m × n` [`LabelledSparseMatrix`](@ref) whose monomials are `V[k] · L[k]` in row
-`I[k]` and column `J[k]`, in any order (arguments in the order of `SparseArrays.sparse`,
-labels before values). Monomials with the same row, column and label are summed
-(checked arithmetic for machine integers), zero sums are dropped. Cost: a counting sort
-on the columns, O(k + n), then a sort inside each column.
+The `m × n` [`LabelledSparseMatrix`](@ref) whose monomials are `V[k]·L[k]` in the row `I[k]` and the column `J[k]`, given in any order. The arguments come in the order of `SparseArrays.sparse`, the labels before the values. Monomials with the same row, column and label are summed (with checked arithmetic for machine integers), and zero sums are dropped. The cost is that of a counting sort on the columns, O(k + n), then of a sort inside each column.
 """
 function LabelledSparseMatrix(I::AbstractVector{<:Integer}, J::AbstractVector{<:Integer},
                               L::AbstractVector{LT}, V::AbstractVector{Tv},
@@ -184,7 +171,7 @@ SparseArrays.nonzeros(d::LabelledSparseMatrix) = d.nzval
 """
     labels(d::LabelledSparseMatrix)
 
-The labels of the stored entries of `d`, in storage order (as `rowvals` and `nonzeros`).
+The labels of the stored entries of `d`, in the order of the storage, as for `rowvals` and `nonzeros`.
 """
 labels(d::LabelledSparseMatrix) = d.label
 
@@ -206,18 +193,11 @@ end
     extend_scalars(d::LabelledSparseMatrix)
     extend_scalars(d::LabelledSparseMatrix, χ)
 
-The integer matrix obtained by extending the scalars along the character `χ` of the
-monoid (of `M × M^op` for a bimodule), trivial if omitted: each label `γ` is sent to the
-integer `χ(γ)`, or to `1`, and the monomials of a given row and column are then summed,
-whatever their labels (trivial module on both sides). One pass over the stored entries; the
-result is a `SparseMatrixCSC{Tv, Int}` without stored zeros, computed with checked
-arithmetic for machine integers. `χ` is any callable, for instance `(σ, τ) ↦ (−1)^ℓ(τ)`,
-the sign module on the right (ℤε), with lengths given by the germ. The sign on both sides,
-`(σ, τ) ↦ (−1)^(ℓ(σ) + ℓ(τ))`, only changes the signs of the basis elements of a homogeneous
-resolution (`ℓ(σ) + ℓ(τ)` is the difference of the lengths of the weights of the source and
-of the target), hence gives the trivial homology. For a resolution, the typed interface is
-`homology(R, M)` and `GarsideHomology.tensor_product`, with a module of coefficients `M`
-or a ring for its trivial module.
+The integer matrix obtained by extending the scalars along the character `χ` of the monoid (of `M × Mᵒᵖ` for a bimodule), trivial if omitted. Each label `γ` is sent to the integer `χ(γ)`, or to `1`, and the monomials of a given row and column are then summed, whatever their labels. The computation makes one pass over the stored entries; the result is a `SparseMatrixCSC{Tv, Int}` without stored zeros, computed with checked arithmetic for machine integers.
+
+The character `χ` is any callable, for instance `(σ, τ) ↦ (−1)^ℓ(τ)`, the sign module on the right (ℤε), with the lengths given by the germ. The sign on both sides, `(σ, τ) ↦ (−1)^(ℓ(σ) + ℓ(τ))`, only changes the signs of the elements of the basis of a homogeneous resolution, since `ℓ(σ) + ℓ(τ)` is the difference of the lengths of the weights of the source and of the target; it therefore gives the trivial homology.
+
+For a resolution, the typed interface is `homology(R, M)` and `GarsideHomology.tensor_product`, with a module of coefficients `M`, or a ring for its trivial module.
 """
 extend_scalars(d::LabelledSparseMatrix) = _extend_scalars(d, nothing)
 extend_scalars(d::LabelledSparseMatrix, χ) = _extend_scalars(d, χ)

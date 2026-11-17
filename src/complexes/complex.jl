@@ -3,18 +3,13 @@
 """
     AbstractChainComplex{R, D}
 
-Supertype of the chain complexes `C_lo ← C_{lo+1} ← … ← C_hi` of this layer, over a ring
-described by an object of type `R` (an AbstractAlgebra ring or a [`MonoidAlgebra`](@ref)),
-with maps of type `D` (`SparseMatrixCSC` over ℤ, [`LabelledSparseMatrix`](@ref) over a
-monoid algebra). Convention of GarsideHomology: `d_n : C_{n+1} → C_n` has the index of its target.
+Supertype of the chain complexes `C_lo ← C_{lo+1} ← … ← C_hi` of this layer, over a ring described by an object of type `R` (an AbstractAlgebra ring or a [`MonoidAlgebra`](@ref)), with maps of type `D` (`SparseMatrixCSC` over ℤ, [`LabelledSparseMatrix`](@ref) over a monoid algebra). The convention of GarsideHomology is that `d_n : C_{n+1} → C_n` has the index of its target.
 
-Interface, required: `range(C)` (the degrees `lo:hi`), `C[n]` (the module `C_n`, a
-`BoundsError` outside the degrees), [`differential`](@ref)`(C, n)` (the map `d_n`, the zero
-map outside `lo:(hi - 1)`) and `base_ring(C)`. Derived, for every subtype: `firstindex`,
-`lastindex`, [`extend_scalars`](@ref), [`is_square_zero`](@ref), [`homology`](@ref),
-[`collapsible_pairs`](@ref). [`ChainComplex`](@ref) is the generic concrete type; a type
-that carries more structure (the lcm resolutions of GarsideHomology, for instance) is a subtype of
-its own, usually wrapping a `ChainComplex`.
+The interface is made of:
+- required methods: `range(C)`, the degrees `lo:hi`; `C[n]`, the module `C_n` (a `BoundsError` outside the degrees); [`differential`](@ref)`(C, n)`, the map `d_n` (the zero map outside `lo:(hi - 1)`); and `base_ring(C)`;
+- derived methods, for every subtype: `firstindex`, `lastindex`, [`extend_scalars`](@ref), [`is_square_zero`](@ref), [`homology`](@ref) and [`collapsible_pairs`](@ref).
+
+[`ChainComplex`](@ref) is the generic concrete type. A type that carries more structure, such as the lcm resolutions of GarsideHomology, is a subtype of its own, which usually wraps a `ChainComplex`.
 """
 abstract type AbstractChainComplex{R <: _RingDescriptor, D} end
 
@@ -22,21 +17,15 @@ Base.firstindex(C::AbstractChainComplex) = first(range(C))
 Base.lastindex(C::AbstractChainComplex) = last(range(C))
 
 """
-    ChainComplex(modules, maps; lo = 0, check = true)
-    ChainComplex(maps::AbstractVector{<:SparseMatrixCSC}; lo = 0)
+    ChainComplex(modules::AbstractVector{<:AbstractModule}, maps::AbstractVector;
+                 lo::Integer = 0, check::Bool = true)
+    ChainComplex(maps::AbstractVector{<:SparseMatrixCSC{<:Integer}}; lo::Integer = 0)
 
-Chain complex `C_lo ← C_{lo+1} ← … ← C_hi` of free modules over a common ring, where
-`maps[k]` is `d_n : C_{n+1} → C_n` for `n = lo + k - 1` (convention of GarsideHomology: `d_n` has
-target `C_n`, whereas Hecke and most texts index `d_n : C_n → C_{n-1}` by the source).
-The maps are [`LabelledSparseMatrix`](@ref)s over a [`MonoidAlgebra`](@ref), or
-`SparseMatrixCSC`s over ℤ. The second form takes integer matrices only and builds the
-modules `BasedFreeModule(ZZ, r)` of the ranks they imply.
+The chain complex `C_lo ← C_{lo+1} ← … ← C_hi` of free modules over a common ring, where `maps[k]` is `d_n : C_{n+1} → C_n` for `n = lo + k - 1`. In the convention of GarsideHomology, `d_n` has the target `C_n`, whereas Hecke and most texts index `d_n : C_n → C_{n-1}` by its source. The maps are [`LabelledSparseMatrix`](@ref)es over a [`MonoidAlgebra`](@ref), or `SparseMatrixCSC`s over ℤ. The second form takes integer matrices only, and builds the modules `BasedFreeModule(ZZ, r)` of the ranks that they imply.
 
-Checked: one map fewer than modules, a common ring, `size(d_n) == (rank(C_n), rank(C_{n+1}))`.
-Not checked: `d_n ∘ d_{n+1} = 0` (see [`is_square_zero`](@ref)).
+The constructor checks that there is one map fewer than modules, that the modules have a common ring, and that `size(d_n) == (rank(C_n), rank(C_{n+1}))`. It does not check `d_n ∘ d_{n+1} = 0` (see [`is_square_zero`](@ref)).
 
-Accessors: `range(C)` (degrees `lo:hi`), `C[n]` (the module `C_n`),
-[`differential`](@ref)`(C, n)` (the map `d_n`), `base_ring(C)`.
+The accessors are `range(C)`, the degrees `lo:hi`, `C[n]`, the module `C_n`, [`differential`](@ref)`(C, n)`, the map `d_n`, and `base_ring(C)`.
 """
 struct ChainComplex{R <: _RingDescriptor, M <: AbstractModule, D} <: AbstractChainComplex{R, D}
     ring::R
@@ -95,12 +84,9 @@ end
 _rank(C::AbstractChainComplex, n::Integer) = n in range(C) ? rank(C[n]) : 0
 
 """
-    differential(C::AbstractChainComplex, n)
+    differential(C::AbstractChainComplex, n::Integer)
 
-The map `d_n : C_{n+1} → C_n`, indexed by its target (see [`AbstractChainComplex`](@ref)), of
-size `rank(C_n) × rank(C_{n+1})`. Outside the stored
-maps it is the zero map, of size `0 × rank(C_lo)` for `n = lo - 1` and
-`rank(C_hi) × 0` for `n = hi`, as the formula of homology expects.
+The map `d_n : C_{n+1} → C_n`, indexed by its target (see [`AbstractChainComplex`](@ref)), of size `rank(C_n) × rank(C_{n+1})`. Outside the stored maps, it is the zero map, of size `0 × rank(C_lo)` for `n = lo - 1` and `rank(C_hi) × 0` for `n = hi`, as the formula of the homology expects.
 """
 function differential(C::ChainComplex{R, M, D}, n::Integer) where {R, M, D}
     k = n - C.lo + 1
@@ -115,14 +101,9 @@ _zero_map(::Type{LabelledSparseMatrix{L, Tv}}, m, n) where {L, Tv} = LabelledSpa
     extend_scalars(C::AbstractChainComplex)
     extend_scalars(C::AbstractChainComplex, χ)
 
-The extension of scalars of a complex `C` over a monoid algebra along the character `χ` of
-the monoid (of `M × M^op` for a complex of bimodules), trivial if omitted: for a complex
-of bimodules and the trivial character, `ℤ ⊗_ℤM C ⊗_ℤM ℤ`. The result is the
-[`ChainComplex`](@ref) over the ring of coefficients of the monoid algebra, with the same
-bases (shared, not copied) and the maps `extend_scalars(d_n)` or `extend_scalars(d_n, χ)`.
-For a resolution of GarsideHomology, the same with modules of coefficients:
-`homology(R, M)`, `GarsideHomology.tensor_product` and `⊗`, which also accept a ring for
-its trivial module (`homology(R, ℤ)`, `ℤ ⊗ R ⊗ ℤ`).
+The extension of scalars of a complex `C` over a monoid algebra along the character `χ` of the monoid (of `M × Mᵒᵖ` for a complex of bimodules), trivial if omitted. For a complex of bimodules and the trivial character, this is `ℤ ⊗_{ℤ[M]} C ⊗_{ℤ[M]} ℤ`. The result is the [`ChainComplex`](@ref) over the ring of the coefficients of the monoid algebra, with the same bases (shared, not copied) and the maps `extend_scalars(d_n)` or `extend_scalars(d_n, χ)`.
+
+For a resolution of GarsideHomology, the same is done with modules of coefficients by `homology(R, M)`, `GarsideHomology.tensor_product` and `⊗`, which also accept a ring for its trivial module (`homology(R, ℤ)`, `ℤ ⊗ R ⊗ ℤ`).
 """
 function extend_scalars(C::AbstractChainComplex{<:MonoidAlgebra, LabelledSparseMatrix{L, Tv}},
                         χ = nothing) where {L, Tv}
@@ -136,10 +117,7 @@ end
 """
     is_square_zero(C::AbstractChainComplex)
 
-Whether `d_n ∘ d_{n+1} = 0` for every `n`, for a complex of integer matrices, with
-checked arithmetic. Over a monoid algebra this needs products of elements of the monoid:
-extend the scalars first ([`extend_scalars`](@ref)), or use the certificates of the
-resolution layer.
+Whether `d_n ∘ d_{n+1} = 0` for every `n`, for a complex of integer matrices, with checked arithmetic. Over a monoid algebra, the compositions need the products of the elements of the monoid: GarsideHomology has a method for the complexes of bimodules over a germ, such as the lcm resolutions; for other complexes, extend the scalars first ([`extend_scalars`](@ref)).
 """
 function is_square_zero(C::AbstractChainComplex{R, D}) where {R, D <: SparseMatrixCSC{<:Integer}}
     degrees = range(C)

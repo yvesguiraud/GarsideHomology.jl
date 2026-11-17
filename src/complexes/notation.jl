@@ -1,4 +1,4 @@
-# Settings of the display (J1.h): how the elements of the monoids, the cells and the elements
+# Settings of the display: how the elements of the monoids, the cells and the elements
 # of the free modules are written, for the session or for one display.
 
 """
@@ -8,31 +8,15 @@
              differential_symbol = "d")
     Notation(N::Notation; settings...)
 
-The settings of the display of the elements of a monoid (a simple is written as a word in
-the atoms), of the cells (`x₁|⋯|xₙ`) and of the elements of the free modules (`c×σ[x]τ`).
-The second form copies `N` with the settings given changed. The settings of the session
-are changed by [`set_notation!`](@ref) and read by [`notation`](@ref); for one display,
-give a `Notation` under the key `:notation` of an `IOContext`, which wins over the session:
-`show(IOContext(stdout, :notation => Notation(atom_separator = ".")), x)`.
+The settings of the display of the elements of a monoid (a simple is written as a word in the atoms), of the cells (`x₁|⋯|xₙ`) and of the elements of the free modules (`c×σ[x]τ`). The second form copies `N` with the given settings changed. The settings of the session are changed by [`set_notation!`](@ref) and read by [`notation`](@ref). For one display, give a `Notation` under the key `:notation` of an `IOContext`, which wins over the session, as in `show(IOContext(stdout, :notation => Notation(atom_separator = ".")), x)`.
 
-- `atom_names`: the names of the atoms `1:N`. `nothing`, their numbers; `:subscripts`,
-  `a₁, a₂, …`; a vector of strings (the atoms beyond its length keep their numbers); or a
-  function of the number of an atom.
-- `atom_separator`: written between the atoms of a word. `:auto` writes them side by side
-  when every name of an atom of the germ is a single character, possibly followed by
-  subscript digits or primes (`1` to `9`, `a`, `s₁₂`, `b′`), and separates them by `·`
-  otherwise, in the whole germ (germs with at least 10 atoms numbered); a string imposes
-  the separator.
+The settings are the following:
+- `atom_names`: the names of the atoms `1:N`: `nothing` for their numbers; `:subscripts` for `a₁, a₂, …`; a vector of strings, the atoms beyond its length keeping their numbers; or a function of the number of an atom.
+- `atom_separator`: what is written between the atoms of a word. With `:auto`, the atoms are written side by side when every name of an atom of the germ is a single character, possibly followed by subscript digits or primes (`1` to `9`, `a`, `s₁₂`, `b′`), and separated by `·` otherwise, in the whole germ (for instance, in a germ with at least 10 atoms written with their numbers); a string imposes the separator.
 - `identity`: the identity of the monoid.
-- `garside_symbol`: `nothing` writes the Garside element as a word; a string (`"Δ"`, `"δ"`)
-  writes it by that symbol, for a germ that has one.
-- `bar_separator`, `empty_cell`, `empty_cell_in_module`: the separator of the letters of a
-  cell, the cell of degree 0, and its image `[e]` in a free module.
-- `coefficient_style`: how an integer coefficient other than ±1 is separated from what
-  follows it. `:auto` writes `×` only when the names of the atoms can begin with a digit,
-  hence for the numbered atoms (`2×12[1|21]3`, `2×[x]`), and nothing otherwise (`2ab[x]c`);
-  `:times` (`×`) and `:star` (`*`) always; `:parentheses` puts the monomial in parentheses
-  (`2(12[1|21]3)`).
+- `garside_symbol`: `nothing` writes the Garside element as a word; a string, such as `"Δ"` or `"δ"`, writes it by that symbol, for a germ that has one.
+- `bar_separator`, `empty_cell`, `empty_cell_in_module`: the separator of the letters of a cell, the cell of degree 0, and its image `[e]` in a free module.
+- `coefficient_style`: how an integer coefficient other than ±1 is separated from what follows it. With `:auto`, `×` is written only when the names of the atoms can begin with a digit, hence for the numbered atoms (`2×12[1|21]3`, `2×[x]`), and nothing otherwise (`2ab[x]c`); `:times` (`×`) and `:star` (`*`) always write a separator; `:parentheses` puts the monomial in parentheses (`2(12[1|21]3)`).
 - `differential_symbol`: the name of the differential in the displays of complexes.
 
 The reading of expressions follows the same settings.
@@ -131,9 +115,7 @@ const _SESSION_NOTATION = Ref(_DEFAULT_NOTATION)
     notation() -> Notation
     notation(io::IO) -> Notation
 
-The settings of the display of the session ([`Notation`](@ref)), or those of the display
-on `io`: the `Notation` under its key `:notation` if it has one, those of the session
-otherwise.
+The settings of the display of the session ([`Notation`](@ref)), or those of the display on `io`: the `Notation` under the key `:notation` of `io` if it has one, and those of the session otherwise.
 """
 notation() = _SESSION_NOTATION[]
 
@@ -146,10 +128,7 @@ end
 """
     set_notation!(; settings...) -> Notation
 
-Change the settings of the display of the session given as keywords (see
-[`Notation`](@ref)), the others being kept; without argument, go back to the defaults.
-Returns the new settings: `set_notation!(atom_names = ["a", "b"])` writes the atoms of a
-germ with two atoms as letters, `set_notation!()` as numbers again.
+Change the settings of the display of the session given as keywords (see [`Notation`](@ref)), the others being kept; without argument, go back to the defaults. The function returns the new settings. For instance, `set_notation!(atom_names = ["a", "b"])` writes the atoms of a germ with two atoms as letters, and `set_notation!()` writes them as numbers again.
 """
 function set_notation!(; settings...)
     _SESSION_NOTATION[] = isempty(settings) ? _DEFAULT_NOTATION : Notation(_SESSION_NOTATION[]; settings...)

@@ -8,7 +8,7 @@ CurrentModule = GarsideHomology.Complexes
 Complexes
 ```
 
-The exported names of `GarsideHomology.Complexes` are also exported by `GarsideHomology`. Among its public names, `rank`, `basis`, `MonoidAlgebra`, `GradedBasis`, `BasedFreeModuleElement` and `Differential` are also public in `GarsideHomology`; the others are written `GarsideHomology.Complexes.AbstractChainComplex`, for instance. With Chevie loaded, `basis` and `rank` are written without qualification: the extension adds methods to the functions of Chevie that have these names.
+The exported names of `GarsideHomology.Complexes` are also exported by `GarsideHomology`. Some of its public names are also public in `GarsideHomology`: `rank`, `basis`, `MonoidAlgebra`, `GradedBasis`, `BasedFreeModuleElement` and `Differential`. The others are written with the name of the submodule, as in `GarsideHomology.Complexes.AbstractChainComplex`. With Chevie loaded, `basis` and `rank` can be written without qualification, since the extension adds methods to the functions of Chevie that have these names.
 
 ## Rings and monoid algebras
 
@@ -35,7 +35,7 @@ extend_scalars
 
 ## Chain complexes
 
-The docstrings of `AbstractChainComplex` include the methods that build the elements of a complex: `C("…")` from their written form, and, for a resolution, `P(x)` from a cell and `P(G(2), G(1, 2))` from germ elements.
+The docstrings of `AbstractChainComplex` include the methods that build the elements of a complex: `C("…")` from their written form, and, for a resolution, `P(x)` from a cell and `P(G(2), G(1, 2))` from germ elements. The cells themselves are given by [`Cell`](@ref GarsideHomology.Cell).
 
 ```@docs
 AbstractChainComplex
@@ -71,7 +71,7 @@ FinitelyGeneratedGradedModule
 FinitelyGeneratedGradedAbelianGroup
 ```
 
-The homology, `homology`, is documented on the page [Coefficients and homology](coefficients.md), with all its methods.
+The function `homology` is documented, with all its methods, on the page [Coefficients and homology](coefficients.md).
 
 ## For developers
 
