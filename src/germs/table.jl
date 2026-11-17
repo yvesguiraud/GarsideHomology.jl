@@ -383,8 +383,9 @@ end
 """
     TableGerm(R::AbstractMatrix{<:Integer}, identity::Integer)
     TableGerm(G::AbstractGerm)
+    TableGerm(M::Union{BraidMonoid, DualBraidMonoid})
 
-The first method returns the tabulated germ given by its right covers (see [`tabulate`](@ref)). The second one returns the tabulation of a germ `G` whose simples are all numbered (see `tabulate(G)`).
+The first method returns the tabulated germ given by its right covers (see [`tabulate`](@ref)). The second one returns the tabulation of a germ `G` whose simples are all numbered (see `tabulate(G)`). The third one, added by the extension for Chevie, tabulates the germ of a monoid `M` of Chevie, whatever the number of its simples, whereas [`germ`](@ref)`(M)` chooses the type of the germ by this number.
 """
 TableGerm(R::AbstractMatrix{<:Integer}, identity::Integer) = first(tabulate(R, identity))
 TableGerm(G::AbstractGerm) = first(tabulate(G))
