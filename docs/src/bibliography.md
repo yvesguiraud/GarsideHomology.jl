@@ -2,12 +2,12 @@
 
 ## Garside theory and resolutions
 
-- P. Dehornoy, F. Digne, E. Godelle, D. Krammer, J. Michel, *Foundations of Garside Theory*, EMS Tracts in Mathematics 22, European Mathematical Society (2015), [doi:10.4171/139](https://doi.org/10.4171/139). Germs of Garside monoids (chapter VI).
+- P. Dehornoy, F. Digne, E. Godelle, D. Krammer, J. Michel, *Foundations of Garside Theory*, EMS Tracts in Mathematics 22, European Mathematical Society (2015), [doi:10.4171/139](https://doi.org/10.4171/139). Germs of Garside monoids (chapter VI), and the homology of a left-Ore category compared with that of its groupoid of fractions (Lemma III.3.27).
 - P. Dehornoy, L. Paris, *Gaussian groups and Garside groups, two generalisations of Artin groups*, Proceedings of the London Mathematical Society (3) 79(3) (1999), 569–604, [doi:10.1112/S0024611599012071](https://doi.org/10.1112/S0024611599012071).
 - P. Dehornoy, Y. Lafont, *Homology of Gaussian groups*, Annales de l'Institut Fourier 53(2) (2003), 489–540, [doi:10.5802/aif.1951](https://doi.org/10.5802/aif.1951). The order resolution, of which the lcm resolutions are variants.
 - R. Charney, J. Meier, K. Whittlesey, *Bestvina's normal form complex and the homology of Garside groups*, Geometriae Dedicata 105 (2004), 171–188, [doi:10.1023/B:GEOM.0000024696.69357.73](https://doi.org/10.1023/B:GEOM.0000024696.69357.73).
 - C. Squier, *The homological algebra of Artin groups*, Mathematica Scandinavica 75(1) (1994), 5–43, [doi:10.7146/math.scand.a-12500](https://doi.org/10.7146/math.scand.a-12500). Resolutions of the Artin monoids, an approach that the order resolution of Dehornoy and Lafont generalises.
-- O. Garnier, *Generalization of the Dehornoy–Lafont order complex to categories. Application to exceptional braid groups*, [arXiv:2302.10033](https://arxiv.org/abs/2302.10033). The tables of the homology of the exceptional braid groups with coefficients in ℤ and ℤε (tables 3 and 4).
+- O. Garnier, *Generalization of the Dehornoy–Lafont order complex to categories. Application to exceptional braid groups*, Applied Categorical Structures 32 (2024), article 1, [doi:10.1007/s10485-023-09757-6](https://doi.org/10.1007/s10485-023-09757-6); [arXiv:2302.10033](https://arxiv.org/abs/2302.10033). The numbers of cells of order resolutions of Dehornoy and Lafont (table 1) and the homology of the exceptional braid groups with coefficients in ℤ and ℤε (tables 3 and 4), transcribed from the version 2 on arXiv.
 
 ## Braid monoids and reflection groups
 
