@@ -4,12 +4,6 @@
 CurrentModule = GarsideHomology
 ```
 
-## Typing the names
-
-- `ℤ`: `\bbZ`, then Tab, in the Julia REPL and in the editors that know Julia (VS Code, Jupyter, Pluto, the Julia modes of Emacs and Vim).
-- `ℤε`: `\bbZ`, Tab, `\varepsilon`, Tab. The other epsilon, `\epsilon`, gives `ℤϵ`, another character but the same object.
-- `⊗`: `\otimes`, then Tab.
-
 ## Names shared with other packages
 
 Some names of GarsideHomology are also exported by other packages, for other objects. They are public but not exported by GarsideHomology, or they must be qualified when these packages are loaded.
