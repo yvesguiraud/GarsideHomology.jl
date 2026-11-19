@@ -19,7 +19,7 @@ const SNAP_DIR = get(ENV, "GARSIDE_HOMOLOGY_SNAPSHOT_DIR", "")
 const SNAP_PAIRS = joinpath(SNAP_REFERENCE, "collapsible_pairs.csv")
 
 # Free commutative monoid on two atoms a = 1, b = 2 (e = 0): Koszul resolution of bimodules,
-# ∂[a] = a·[]·e − e·[]·a, ∂[b] likewise, ∂[a|b] = (a⊗1 − 1⊗a)[b] − (b⊗1 − 1⊗b)[a].
+# d[a] = a·[]·e − e·[]·a, d[b] likewise, d[a|b] = (a⊗1 − 1⊗a)[b] − (b⊗1 − 1⊗b)[a].
 const KOSZUL_SNAPSHOT = """
 # format: cliche-gauss 1
 # cas: test_koszul
@@ -55,7 +55,7 @@ _read_text(text) = read_snapshot(_write_gzip(tempname() * ".txt.gz", text))
 
 # Sign on both sides, (σ, τ) ↦ (-1)^(ℓ(σ) + ℓ(τ)), for the simples of a snapshot.
 # The sign on both sides: not the module ℤε (sign on one side), only a change of the signs
-# of the cells, which keeps ∂² = 0 and the trivial homology.
+# of the cells, which keeps d² = 0 and the trivial homology.
 _sign_both_sides(m::SnapshotMonoid) = l -> iseven(simple_length(m, l[1]) + simple_length(m, l[2])) ? 1 : -1
 
 @testset "Snapshots" begin
@@ -186,7 +186,7 @@ _sign_both_sides(m::SnapshotMonoid) = l -> iseven(simple_length(m, l[1]) + simpl
                         @test H == E
                         n_expected[] += 1
                     end
-                    # Collapsible pairs: B3 counted the monomials 1·y·1 whatever their coefficient.
+                    # Collapsible pairs: B3 counted the monomials 1[y]1 whatever their coefficient.
                     monomials = identity_monomials(s.complex)
                     counts = get(pair_reference, name, nothing)
                     if counts === nothing
@@ -216,7 +216,7 @@ _sign_both_sides(m::SnapshotMonoid) = l -> iseven(simple_length(m, l[1]) + simpl
             @info "$(sum(length, values(homologies); init = 0)) snapshots checked in " *
                   "$(round(elapsed; digits = 1)) s; homology compared with the expected values " *
                   "for $(n_expected[]) of them; collapsible pairs compared with J0 " *
-                  "(targets included for $(n_with_targets[])); $(n_non_units[]) monomials 1·y·1 " *
+                  "(targets included for $(n_with_targets[])); $(n_non_units[]) monomials 1[y]1 " *
                   "with a coefficient other than ±1."
         end
     end

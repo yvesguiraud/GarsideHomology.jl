@@ -42,7 +42,7 @@ const _gb_sparse = GarsideHomology.Complexes.SparseArrays.sparse
     end
 
     @testset "Generators read from their written form" begin
-        @test C("a") == "a" && C(" b ") == "b" && C("p") == "p"
+        @test string(C("a")) == "[a]" && C(" b ") == C("[b]") == C[1]("b") && C("p") == C[0]("p")
         @test_throws ArgumentError C("z")
         twice = ChainComplex([BasedFreeModule(zz, ["a"]), BasedFreeModule(zz, ["a"])], [_gb_sparse([0;;])])
         @test_throws ArgumentError twice("a")                  # in two degrees

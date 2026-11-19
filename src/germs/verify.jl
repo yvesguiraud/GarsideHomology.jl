@@ -34,13 +34,11 @@ function _foreach_interval(f, G::AbstractGerm)
 end
 
 """
-    count_multichains(G::AbstractGerm, m) -> Int
+    count_multichains(G::AbstractGerm, m::Integer) -> Int
 
-The number of multichains σ₁ ≼ σ₂ ≼ ⋯ ≼ σₘ of `m` simples of `G` (repetitions allowed),
-whose simples must all be numbered: the number of simples for `m = 1`, of pairs σ ≼ ν for
-`m = 2`. For the dual braid monoid of a well-generated group, this is the Fuss–Catalan
-number Π (dᵢ + m·h)/dᵢ. Computed by m − 1 passes over the intervals, in O(n) memory; an
-`OverflowError` is thrown rather than a wrong count.
+The number of multichains σ₁ ≼ σ₂ ≼ ⋯ ≼ σₘ of `m` simples of `G`, repetitions allowed; the simples of `G` must all be numbered. For `m = 1`, this is the number of simples, and for `m = 2`, the number of pairs σ ≼ ν. For the dual braid monoid of a well-generated group, this is the Fuss–Catalan number Π (dᵢ + m·h)/dᵢ.
+
+The count takes m − 1 passes over the intervals, in O(n) memory, and throws an `OverflowError` rather than return a wrong count.
 """
 function count_multichains(G::AbstractGerm, m::Integer)
     m >= 1 || throw(ArgumentError("count_multichains: m = $m < 1"))
@@ -60,21 +58,17 @@ function _multichain_step(G::AbstractGerm, f::Vector{Int})
 end
 
 """
-    verify(G::AbstractGerm; full = false)
+    verify(G::AbstractGerm; full::Bool = false)
 
-Check the consistency of the tables of a germ whose simples are all numbered (a tabulated
-germ, a germ of the tests, a germ read from a file), and throw an `ArgumentError` naming
-the first defect. Checked, in O(n·N) operations of the interface:
-- the identity and the atoms (lengths 0 and 1, words, descents);
-- the left descents of each simple are exactly the atoms that divide it, with quotients
-  of length one less;
-- each simple product by an atom adds 1 to the length and divides back;
-- for each simple ω and atom a, `lcm_atom` gives a common multiple ω·τ = ω ∨ a, equal to
-  (ω, 1) when a ≼ ω;
-- a single simple Δ without right cover, which every simple divides;
-- the canonical order (by length, then smallest word) and the lexicographic comparison.
-With `full = true`, also the lattice property, in O(#intervals · N): each ω ∨ a divides
-every common multiple of ω and a.
+Check the consistency of the tables of a germ whose simples are all numbered (a tabulated germ, a germ of the tests, a germ read from a file), and throw an `ArgumentError` naming the first defect. The following properties are checked, in O(n·N) operations of the interface:
+- the identity and the atoms: lengths 0 and 1, words, descents;
+- the left descents of each simple are exactly the atoms that divide it, with quotients of length one less;
+- each product of a simple by an atom, when it is simple, adds 1 to the length and divides back;
+- for each simple ω and atom a, `lcm_atom` gives a common multiple ω·τ = ω ∨ a, equal to ω, with the identity as complement, when a ≼ ω;
+- there is a single simple Δ without right cover, and every simple divides it;
+- the canonical order (by length, then by smallest word) and the lexicographic comparison are consistent.
+
+With `full = true`, the lattice property is also checked, in O(#intervals · N) operations: each ω ∨ a divides every common multiple of ω and a.
 """
 function verify(G::AbstractGerm; full::Bool = false)
     fail(msg) = throw(ArgumentError("verify: " * msg))
@@ -140,13 +134,14 @@ end
 """
     GermFingerprint
 
-An invariant of isomorphism of germs, independent of the numberings of the simples and
-of the atoms (J1.c, c6), given by [`fingerprint`](@ref): the number of atoms, the length
-of Δ, the number of simples of each length, the numbers of multichains for m = 2 and 3
-(see [`count_multichains`](@ref)), the profile of the descents (`descent_profile[ℓ + 1,
-d + 1]` simples of length ℓ with d left descents) and the Möbius invariant μ(1, Δ). Two
-fingerprints compare by `==`. Not a complete invariant, but enough to detect an error of
-construction or of convention between two presentations of a germ.
+An invariant of isomorphism of germs, independent of the numberings of the simples and of the atoms, given by [`fingerprint`](@ref). It is made of:
+- the number of atoms and the length of Δ;
+- the number of simples of each length;
+- the numbers of multichains for m = 2 and 3 (see [`count_multichains`](@ref));
+- the profile of the descents: `descent_profile[ℓ + 1, d + 1]` is the number of simples of length ℓ with d left descents;
+- the Möbius invariant μ(1, Δ).
+
+Two fingerprints are compared by `==`. The fingerprint is not a complete invariant, but it is enough to detect an error of construction or of convention between two presentations of a germ.
 """
 struct GermFingerprint
     natoms::Int
@@ -172,8 +167,7 @@ Base.show(io::IO, a::GermFingerprint) =
 """
     fingerprint(G::AbstractGerm) -> GermFingerprint
 
-The [`GermFingerprint`](@ref) of a germ whose simples are all numbered, in
-O(#intervals · N) operations.
+The [`GermFingerprint`](@ref) of a germ whose simples are all numbered, computed in O(#intervals · N) operations.
 """
 function fingerprint(G::AbstractGerm)
     S = _simple_numbers(G)
@@ -192,7 +186,7 @@ function fingerprint(G::AbstractGerm)
 end
 
 # ------------------------------------------------------------------------------------
-# The Möbius function μ(1, ω) (J1.e, task e1)
+# The Möbius function μ(1, ω)
 
 # μ(1, σ) for every simple σ of a germ whose simples are all numbered, as the vector μ with
 # μ[σ + 1] = μ(1, σ): in the order of the lengths, μ(1, 1) = 1 and μ(1, σ) = −Σ_{ρ ≺ σ} μ(1, ρ),

@@ -38,7 +38,7 @@ const _M_SA = GarsideHomology.Complexes.SparseArrays
     R = lcm_resolution(dual_dihedral_germ(3))        # B*(A₂): cells [], [1], [2], [3], 2.1, 3.1
 
     @testset "B*(A₂) by hand" begin
-        # One side: ℤ ⊗ R, labels τ; ∂[a] = [] − []·a, the terms of the same row and label summed.
+        # One side: ℤ ⊗ R, labels τ; d[a] = [] − []·a, the terms of the same row and label summed.
         L = T ⊗ R
         @test L isa ChainComplex && base_ring(L) == MonoidAlgebra(_M_ZZ, cell_tree(R).germ, :right)
         @test basis(L[1]) === basis(R[1]) && cell_tree(L) === cell_tree(R)

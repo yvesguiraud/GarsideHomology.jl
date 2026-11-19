@@ -1,14 +1,15 @@
-# The graded basis of a complex, and the printing of long lists within a line (J1.h). The
+# The graded basis of a complex, and the printing of long lists within a line. The
 # generators are read from their written form with the elements (elements.jl).
 
 """
     GradedBasis
 
-The graded basis of a chain complex `C`, as returned by `basis(C)`: `X[n]` is the basis of
-`C_n`, `basis(C[n])`, for `n` in `range(X)`, the degrees of `C` (a `BoundsError` outside
-them); `X[end]`, `length(X)` (the number of degrees), `pairs(X)` (degree and basis) and the
-iteration over the bases, by increasing degree. At the REPL, one line per degree, cut in the
-middle when it is too long; `show(io, X)` gives the summary line.
+The graded basis of a chain complex `C`, as returned by `basis(C)`. For `n` in `range(X)`, the degrees of `C`, `X[n]` is the basis of `C_n`, `basis(C[n])`; a `BoundsError` is thrown outside these degrees. The other operations are:
+- `X[end]`, and `length(X)`, the number of degrees;
+- `pairs(X)`, which gives the degrees and the bases;
+- the iteration over the bases, by increasing degree.
+
+At the REPL, a graded basis is shown with one line per degree, cut in the middle when it is too long; `show(io, X)` gives the summary line.
 """
 struct GradedBasis{C <: AbstractChainComplex}
     complex::C
@@ -17,8 +18,7 @@ end
 """
     basis(C::AbstractChainComplex) -> GradedBasis
 
-The graded basis of the complex `C`, a [`GradedBasis`](@ref): `basis(C)[n] == basis(C[n])`.
-A method of the function `basis` of AbstractAlgebra, as `basis(M)` for a module.
+The graded basis of the complex `C`, a [`GradedBasis`](@ref), such that `basis(C)[n] == basis(C[n])`. This is a method of the function `basis` of AbstractAlgebra, as `basis(M)` for a module.
 """
 AbstractAlgebra.basis(C::AbstractChainComplex) = GradedBasis(C)
 

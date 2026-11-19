@@ -1,22 +1,14 @@
 # Finitely generated modules over a principal ideal domain, as results of homology.
 
 """
-    FinitelyGeneratedModule{T}(rank, torsion = T[])
-    FinitelyGeneratedAbelianGroup(rank, torsion = BigInt[])
+    FinitelyGeneratedModule{T}(rank::Integer, torsion::AbstractVector = T[])
+    FinitelyGeneratedAbelianGroup(rank::Integer, torsion::AbstractVector = BigInt[])
 
-Finitely generated module `R^rank ⊕ R/(t₁) ⊕ … ⊕ R/(tₖ)` over a principal ideal domain
-`R`, stored by its free rank and its invariant factors `t₁ | t₂ | … | tₖ`, none of them a
-unit; `T` is the type of the invariant factors. Only `T = BigInt` is implemented for
-now, that is `R = ℤ`, under the alias `FinitelyGeneratedAbelianGroup`; polynomial
-factors, for `k[t, t⁻¹]`, will follow.
+The finitely generated module `R^rank ⊕ R/(t₁) ⊕ … ⊕ R/(tₖ)` over a principal ideal domain `R`, stored by its free rank and its invariant factors `t₁ | t₂ | … | tₖ`, none of which is a unit; `T` is the type of the invariant factors. Only `T = BigInt` is implemented for now, that is, `R = ℤ`, under the alias `FinitelyGeneratedAbelianGroup`; polynomial factors, for `k[t, t⁻¹]`, will follow.
 
-Over ℤ the constructor accepts any list of positive integers: factors equal to 1 are
-dropped and the others are brought to invariant-factor form, so that `ℤ/2ℤ ⊕ ℤ/3ℤ`
-becomes `ℤ/6ℤ`. Displayed as in Garnier's tables, torsion first: `(ℤ/3ℤ)² ⊕ ℤ/6ℤ ⊕ ℤ`,
-and `0` for the trivial group. `parse(FinitelyGeneratedAbelianGroup, s)` reads this form,
-and also `ℤ/2`, `Z` for `ℤ`, `^k` for an exponent and `+` for `⊕`.
+Over ℤ, the constructor accepts any list of positive integers: the factors equal to 1 are dropped, and the others are brought to the form of invariant factors, so that `ℤ/2ℤ ⊕ ℤ/3ℤ` becomes `ℤ/6ℤ`. The module is displayed as in Garnier's tables, torsion first, as in `(ℤ/3ℤ)² ⊕ ℤ/6ℤ ⊕ ℤ`, and the trivial group as `0`. `parse(FinitelyGeneratedAbelianGroup, s)` reads this form, and also accepts `ℤ/2`, `Z` for `ℤ`, `^k` for an exponent and `+` for `⊕`.
 
-`rank(H)` is the free rank, [`torsion`](@ref)`(H)` the invariant factors.
+The accessors are `rank(H)`, the free rank, and [`torsion`](@ref)`(H)`, the invariant factors.
 """
 struct FinitelyGeneratedModule{T}
     rank::Int
@@ -32,7 +24,7 @@ FinitelyGeneratedModule{T}(rank::Integer) where {T} = FinitelyGeneratedModule{T}
 """
     FinitelyGeneratedAbelianGroup
 
-Alias of `FinitelyGeneratedModule{BigInt}`: a finitely generated abelian group.
+The alias of `FinitelyGeneratedModule{BigInt}`: a finitely generated abelian group.
 """
 const FinitelyGeneratedAbelianGroup = FinitelyGeneratedModule{BigInt}
 
@@ -63,8 +55,7 @@ AbstractAlgebra.rank(H::FinitelyGeneratedModule) = H.rank
 """
     torsion(H::FinitelyGeneratedModule)
 
-The invariant factors `t₁ | t₂ | … | tₖ` of the torsion submodule of `H`, none of them a
-unit (all at least 2 over ℤ).
+The invariant factors `t₁ | t₂ | … | tₖ` of the torsion submodule of `H`, none of which is a unit (all of them are at least 2 over ℤ).
 """
 torsion(H::FinitelyGeneratedModule) = H.torsion
 

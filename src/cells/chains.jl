@@ -1,16 +1,12 @@
 # The tree of the chains: the chains of the Garside complex visited by the projection,
-# as a prefix tree whose first nodes are the cells (J1.d, task d3).
+# as a prefix tree whose first nodes are the cells.
 
 """
     ChainTree(T::CellTree)
 
-The prefix tree of the chains `[x₁|…|xₙ]` of the Garside complex visited by the
-projection of a resolution by lcms: the node of a chain has for parent the chain
-`[x₁|…|xₙ₋₁]`, for letter `xₙ` (a simple other than the identity) and for degree `n`.
-Its first nodes are the cells of `T`, with the same numbers, so that a chain is a cell if
-and only if its number is at most `ncells(T)`; the other chains are added as they are
-met. The child of a node by a letter is found in a dictionary, whose key packs the
-number of the node and the letter in a `UInt64`.
+The prefix tree of the chains `x₁|⋯|xₙ` of the Garside complex that the projection of an lcm resolution visits.
+
+The parent of the node of a chain `x₁|⋯|xₙ` is the chain `x₁|⋯|xₙ₋₁`, its letter is `xₙ` (a simple other than the identity), and its degree is `n`. The first nodes of the tree are the cells of `T`, with the same numbers, so that a chain is a cell if and only if its number is at most `ncells(T)`; the other chains are added as they are met. The child of a node by a letter is found in a dictionary, whose key packs the number of the node and the letter in a `UInt64`.
 """
 struct ChainTree
     parent::Vector{Int32}

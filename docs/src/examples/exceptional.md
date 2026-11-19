@@ -18,9 +18,11 @@ Sign module ℤε:
 Main.ExamplesTables.exceptional_homology("sign")
 ```
 
+The values agree with tables 3 and 4 of Garnier, except H₇(B(G₃₆); ℤε), which is 0 here and ℤ in his table 4.
+
 † The value with ℤε for G₃₇ is not computed by the package for now: the coefficients of the elimination outgrow `Int128`, the largest integer type used in these computations. The value given was obtained by computing the elementary divisors of the differentials of the package with Magma.
 
-The eight other exceptional groups, G₇, G₁₁, G₁₂, G₁₃, G₁₅, G₁₉, G₂₂ and G₃₁, are not well-generated: they have no dual braid monoid, and the package does not compute their homology for now. Their homology with ℤ and ℤε is known: see Callegaro and Marin, Marin (*Homology computations for complex braid groups II*) and Garnier (tables 3 and 4), who treats G₃₁ through a Garside category ([References](../references.md)).
+The eight other exceptional groups, G₇, G₁₁, G₁₂, G₁₃, G₁₅, G₁₉, G₂₂ and G₃₁, are not well-generated: they have no dual braid monoid, and the package does not compute their homology for now. Their homology with ℤ and ℤε is known: see Callegaro and Marin, Marin (*Homology computations for complex braid groups II*) and Garnier (tables 3 and 4), who treats G₃₁ through a Garside category ([Bibliography](../bibliography.md)).
 
 Numbers of cells of the reduced lcm resolution:
 
@@ -28,7 +30,7 @@ Numbers of cells of the reduced lcm resolution:
 Main.ExamplesTables.exceptional_cells()
 ```
 
-For five of these groups, table 1 of Garnier gives the numbers of cells of Dehornoy–Lafont complexes, for the order of the atoms of Marin and for an order chosen by Garnier to reduce the number of cells (with the correction of his erratum):
+For five of these groups, table 1 of Garnier gives the numbers of cells of the order resolutions of Dehornoy and Lafont (see [Mathematical background](../user_guide/background.md)) for two orders of the atoms: the order of Marin, and an order chosen by Garnier to reduce the number of cells. The table takes into account the correction given in the erratum of his article.
 
 ```@eval
 Main.ExamplesTables.exceptional_dehornoy_lafont()

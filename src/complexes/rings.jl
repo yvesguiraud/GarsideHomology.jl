@@ -7,26 +7,18 @@
 """
     AbstractMonoid
 
-Supertype of the objects that describe a monoid for a [`MonoidAlgebra`](@ref): the germs
-of the GarsideHomology layer, a table of simples read from a file, etc. Such an object fixes the
-numbering of the elements used as labels (0 for the identity). No method is required
-by this layer.
+Supertype of the objects that describe a monoid for a [`MonoidAlgebra`](@ref), such as the germs of GarsideHomology or a table of simples read from a file. Such an object fixes the numbering of the elements that serve as labels, `0` being the identity. This layer requires no method of it.
 """
 abstract type AbstractMonoid end
 
 """
-    MonoidAlgebra(base, monoid, side = :both)
+    MonoidAlgebra(base::AbstractAlgebra.Ring, monoid::AbstractMonoid, side::Symbol = :both)
 
-Descriptor of the monoid algebra `base[M]` of a monoid `M` (`side = :left` or `:right`),
-or of the algebra `base[M × Mᵒᵖ]` over which bimodules are left modules (`side = :both`).
-`base` is an AbstractAlgebra ring and `monoid` an [`AbstractMonoid`](@ref).
+The descriptor of a monoid algebra over the ring `base`, for the monoid `M` described by `monoid` ([`AbstractMonoid`](@ref)):
+- with `side = :left` or `:right`, the monoid algebra `base[M]`, over which the modules are left or right modules;
+- with `side = :both`, the algebra `base[M × Mᵒᵖ]`, over which the bimodules are left modules.
 
-Elements of `M` are encoded by nonnegative integers in the numbering fixed by `monoid`,
-`0` being the identity; for `side = :both`, an element `(σ, τ)` of `M × Mᵒᵖ` is encoded
-by a pair of such integers. These codes are the labels of a
-[`LabelledSparseMatrix`](@ref) (see [`label_type`](@ref)).
-
-`base_ring(A)` is the ring of coefficients `base`.
+The elements of `M` are encoded by nonnegative integers in the numbering fixed by `monoid`, `0` being the identity; for `side = :both`, an element `(σ, τ)` of `M × Mᵒᵖ` is encoded by a pair of such integers. These codes are the labels of a [`LabelledSparseMatrix`](@ref) (see [`label_type`](@ref)). `base_ring(A)` is the ring of coefficients `base`.
 """
 struct MonoidAlgebra{R <: AbstractAlgebra.Ring, M <: AbstractMonoid}
     base::R
@@ -48,15 +40,14 @@ AbstractAlgebra.base_ring(A::MonoidAlgebra) = A.base
 """
     label_type(A::MonoidAlgebra)
 
-Type of the labels of the matrices over `A`: `Int32` for a one-sided monoid algebra,
-`NTuple{2, Int32}` for an algebra of bimodules.
+The type of the labels of the matrices over `A`: `Int32` for a one-sided monoid algebra, and `NTuple{2, Int32}` for an algebra of bimodules.
 """
 label_type(A::MonoidAlgebra) = A.side === :both ? NTuple{2, Int32} : Int32
 
 """
-    identity_label(L)
+    identity_label(L::Type)
 
-Label of the identity of the monoid: `zero(L)` for integer labels, `(0, 0)` for pairs.
+The label of the identity of the monoid, for labels of type `L`: `zero(L)` for integer labels, and `(0, 0)` for pairs.
 """
 identity_label(::Type{L}) where {L <: Integer} = zero(L)
 identity_label(::Type{NTuple{2, T}}) where {T <: Integer} = (zero(T), zero(T))

@@ -3,29 +3,20 @@
 
 """
     CoxeterGerm{n} <: AbstractGerm
-    CoxeterGerm(C)
+    CoxeterGerm(C::AbstractMatrix{<:Integer})
 
-The germ of the classical braid monoid B⁺(W) of the finite Coxeter group W of rank `n`
-given by its integral Cartan matrix `C` (crystallographic types), the simples being the
-elements of W. The germ is lazy: its simples are numbered as they are met (identity
-`0`, atoms `1:n` in the order of the rows of `C`, the others in the order of the queries,
-which is not canonical), for the large groups that cannot be tabulated, such as E₈
-(696 729 600 simples, of which the construction of the resolution meets a few percent).
+The germ of the classical braid monoid B⁺(W) of the finite Coxeter group W of rank `n` given by its integral Cartan matrix `C` (crystallographic types); the simples are the elements of W.
 
-An element w is identified by its key, the indices of the roots w(α₁), …, w(αₙ), with
-the convention of Chevie for the product (`σ·τ` acts as σ then τ on the indices of the
-roots). For each simple met, only its key and its length are kept; left descents are
-read on the key, and the other operations computed with the coordinates of the roots
-in the basis of the simple roots. The lcms with the atoms are memorised. A query numbers
-only the simple it returns: divisions, words and lexicographic comparisons follow the
-smallest words on the keys, without numbering the intermediate quotients.
+The germ is lazy, for the large groups that cannot be tabulated, such as E₈, which has 696 729 600 simples, of which the construction of the resolution meets less than a tenth. Its simples are numbered as they are met: the identity is `0`, the atoms are `1:n` in the order of the rows of `C`, and the other simples follow in the order of the queries, which is not canonical.
 
-[`nsimples`](@ref) is |W|, from the exponents (Kostant: heights of the positive roots);
-[`nnumbered`](@ref) is the number of simples numbered so far; [`simples`](@ref) is not
-defined. A query may number new simples: a `CoxeterGerm` must not be queried from
-several threads at once. Two `CoxeterGerm` are equal only if identical, their
-numberings depending on the history of their queries. `C` and its transpose give the
-same germ (the Weyl groups of dual root systems are the same Coxeter group).
+An element w is identified by its key, the indices of the roots w(α₁), …, w(αₙ), with the convention of Chevie for the product (`σ·τ` acts as σ then τ on the indices of the roots). For each simple met, only its key and its length are kept. The left descents are read on the key, and the other operations are computed with the coordinates of the roots in the basis of the simple roots. The lcms with the atoms are memorised. A query numbers only the simple it returns: divisions, words and lexicographic comparisons follow the smallest words on the keys, without numbering the intermediate quotients.
+
+Some functions of the interface behave as follows:
+- [`nsimples`](@ref) is |W|, computed from the exponents (Kostant: heights of the positive roots);
+- [`nnumbered`](@ref) is the number of simples numbered so far;
+- [`simples`](@ref) is not defined.
+
+A query may number new simples, so that a `CoxeterGerm` must not be queried from several threads at once. Two `CoxeterGerm`s are equal only if they are identical, since their numberings depend on the history of their queries. The matrix `C` and its transpose give the same germ, since the Weyl groups of dual root systems are the same Coxeter group.
 """
 struct CoxeterGerm{n} <: AbstractGerm
     cartan::Matrix{Int}
@@ -43,9 +34,9 @@ struct CoxeterGerm{n} <: AbstractGerm
 end
 
 """
-    nnumbered(G)
+    nnumbered(G::CoxeterGerm)
 
-The number of simples numbered so far by the lazy germ `G`; it only grows.
+The number of simples numbered so far by the lazy germ `G`. This number only grows.
 """
 function nnumbered end
 
@@ -203,7 +194,7 @@ nsimples(G::CoxeterGerm) = G.order
 nnumbered(G::CoxeterGerm) = length(G.keys)
 Base.length(G::CoxeterGerm, s::Integer) = Int(G.lengths[Int(s) + 1])
 
-# Signature line, counted only by some compiled instances in the coverage of Julia (J1.g).
+# Signature line, counted only by some compiled instances in the coverage of Julia.
 function left_descents(G::CoxeterGerm{n}, s::Integer) where {n}  # COV_EXCL_LINE
     k = _key(G, s)
     N = G.npositive
@@ -281,7 +272,7 @@ function isless_lex(G::CoxeterGerm{n}, s::Integer, t::Integer) where {n}
     end
 end
 
-# Signature line, counted only by some compiled instances in the coverage of Julia (J1.g).
+# Signature line, counted only by some compiled instances in the coverage of Julia.
 function lcm_atom(G::CoxeterGerm{n}, ω::Integer, a::Integer) where {n}  # COV_EXCL_LINE
     1 <= a <= n || throw(BoundsError(1:n, a))
     x = Int32(ω)

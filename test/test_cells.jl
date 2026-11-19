@@ -57,22 +57,27 @@ import Chevie
     end
 
     @testset "Reading" begin
-        @test P("2|12") == x == P(" 2 | 12 ") == P("2|1·2") == P(A2(2), A2(1, 2))
-        @test P("e") == P() == basis(P[0])[1] && P("1") == basis(P[1])[1]
-        @test extend_scalars(P)("2|12") == x                 # the bases are shared
+        @test Cell(P, "2|12") == x == Cell(P, " 2 | 12 ") == Cell(P, "2|1·2") == Cell(P, A2(2), A2(1, 2))
+        @test Cell(P, "e") == Cell(P) == basis(P[0])[1] && Cell(P, "1") == basis(P[1])[1]
+        @test Cell(extend_scalars(P), "2|12") == x           # the bases are shared
+        # Calling the resolution gives the generators, not the cells.
+        @test P("2|12") == P(x) == P(A2(2), A2(1, 2)) == P("[2|12]") && P() == P(Cell(P)) == P("[]")
         for bad in ("1|2", "2|3", "", "2||12", "11")
             @test_throws ArgumentError P(bad)
+            @test_throws ArgumentError Cell(P, bad)
         end
         @test_throws ArgumentError P(A2(1), A2(2))           # not a cell
+        @test_throws ArgumentError Cell(P, A2(1), A2(2))
         @test_throws ArgumentError P(GarsideHomology.CoxeterGerm([2 -1; -1 2])(1))   # another germ
+        @test_throws ArgumentError Cell(P, GarsideHomology.CoxeterGerm([2 -1; -1 2])(1))
         @test occursin("between quotes", sprint(showerror, try P(2 | 12) catch e; e end))
         for R in (P, lcm_resolution(GarsideHomology._dual_dihedral_germ(65)),
                   lcm_resolution(germ(Chevie.coxgroup(:B, 3))))
-            @test all(R(string(c)) == c for n in range(R) for c in basis(R[n]))
+            @test all(Cell(R, string(c)) == c && R(string(c)) == R(c) for n in range(R) for c in basis(R[n]))
         end
         try
             set_notation!(atom_names = ["a", "b"], bar_separator = " | ")
-            @test P("b | ab") == x && string(x) == "b | ab"
+            @test Cell(P, "b | ab") == x && P("b | ab") == P(x) && string(x) == "b | ab"
         finally
             set_notation!()
         end
@@ -80,7 +85,7 @@ import Chevie
 
     @testset "Graded basis of a resolution" begin
         X = basis(P)
-        @test X isa GradedBasis && range(X) == 0:2 && X[2] == basis(P[2]) && X[1][2] == P("2")
+        @test X isa GradedBasis && range(X) == 0:2 && X[2] == basis(P[2]) && X[1][2] == Cell(P, "2")
         @test sprint(show, X) == "GradedBasis in degrees 0:2, ranks [1, 2, 1]"
         @test sprint(show, MIME"text/plain"(), X) == "GradedBasis in degrees 0:2\n  0: e\n  1: 1, 2\n  2: 2|12"
         @test sprint(show, MIME"text/plain"(), X; context = :notation => Notation(atom_names = ["a", "b"])) ==

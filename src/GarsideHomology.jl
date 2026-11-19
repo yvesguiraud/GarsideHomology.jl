@@ -3,24 +3,15 @@
 
 Small free resolutions of Garside monoids and their homology.
 
-GarsideHomology computes the reduced lcm resolution of a Garside monoid, a variant of the
-Dehornoy–Lafont resolution with far fewer cells, and the homology of the
-corresponding groups with various coefficients.
+GarsideHomology computes the reduced lcm resolution of a Garside monoid, a variant of the resolution of Dehornoy and Lafont with fewer cells, and the homology of the monoid, which is that of its enveloping group, with coefficients in a module of rank one (for now, the trivial module and the sign module over the integers).
 
-This version is a package skeleton: the layers (germs, orderings, cell tree,
-projection, resolution and certificates, modules, complexes) are added step by step.
-Present so far: the generic layer of complexes, `GarsideHomology.Complexes`, whose public names
-are re-exported, the interface of germs ([`AbstractGerm`](@ref)), tabulated and lazy
-germs ([`TableGerm`](@ref), [`CoxeterGerm`](@ref)), the orderings
-([`LCMOrdering`](@ref)), the tree of the cells ([`CellTree`](@ref)), the projection
-onto the cells ([`LCMProjectionData`](@ref)) and the lcm resolution
-([`lcm_resolution`](@ref), [`LCMResolution`](@ref)), with its snapshots
-([`write_snapshot`](@ref)) and its certificate ([`certify`](@ref)), the modules of
-coefficients ([`TrivialModule`](@ref), [`SignModule`](@ref)) and the tensor products by
-them ([`tensor_product`](@ref), `homology(R, M)`), in which a ring stands for its trivial
-module ([`ℤ`](@ref): `homology(R, ℤ)`, `ℤ ⊗ R ⊗ ℤ`; [`ℤε`](@ref) for the sign module). The
-elements of a germ are shown to the user as words in the atoms ([`GermElement`](@ref):
-`G(1, 2, 1)`, `G("121")`), with the settings of the display of [`Notation`](@ref).
+A computation goes through the following steps:
+- a germ gives the simples of the monoid and their partial product ([`AbstractGerm`](@ref)); with Chevie loaded, [`germ`](@ref) and [`dual_germ`](@ref) build the germs of the braid monoids and of the dual braid monoids of reflection groups;
+- an ordering ([`LCMOrdering`](@ref)) fixes the cells of the resolution and their matching;
+- [`lcm_resolution`](@ref) builds the resolution, a chain complex of free bimodules whose bases are made of cells ([`Cell`](@ref)), and [`certify`](@ref) checks it;
+- [`homology`](@ref) computes the homology with coefficients in a module ([`TrivialModule`](@ref), [`SignModule`](@ref)), or in a ring for its trivial module, as in `homology(R, ℤ)` and `homology(R, ℤε)`.
+
+The elements of a germ are written as words in the atoms ([`GermElement`](@ref)), and the cells and the elements of the modules in bar form, with the settings of [`Notation`](@ref). The generic layer of free modules and chain complexes, `GarsideHomology.Complexes`, does not depend on the rest of the package; its exported names are also exported by GarsideHomology.
 """
 module GarsideHomology
 
@@ -37,15 +28,9 @@ using AbstractAlgebra: ZZ
 """
     ℤ
 
-The ring of integers of AbstractAlgebra, that of the coefficients of the resolutions, under
-a name of its own: the same object as `GarsideHomology.ZZ`. A ring stands for its trivial
-module: `homology(R, ℤ)`, `ℤ ⊗ R ⊗ ℤ`. Typed `\\bbZ` then Tab, in the Julia REPL and in the
-editors that know Julia (VS Code, Jupyter, Pluto, the Julia modes of Emacs and Vim).
+The ring of integers of AbstractAlgebra, that of the coefficients of the resolutions, under a name of its own; it is the same object as `GarsideHomology.ZZ`. A ring stands for its trivial module, as in `homology(R, ℤ)` and `ℤ ⊗ R ⊗ ℤ`. The name is typed `\\bbZ` then Tab, in the Julia REPL and in the editors that know Julia (VS Code, Jupyter, Pluto, the Julia modes of Emacs and Vim).
 
-`ZZ` is public but not exported: Nemo, Hecke and Oscar export a `ZZ` of their own, another
-object, and exporting ours would make `ZZ` ambiguous, hence unusable, for their users. To
-write `ZZ`, import it: `using GarsideHomology: ZZ` (rather than `GarsideHomology.ZZ` at
-each use).
+`ZZ` is public but not exported: Nemo, Hecke and Oscar export a `ZZ` of their own, which is another object, and exporting ours would make `ZZ` ambiguous, hence unusable, for their users. To write `ZZ`, import it with `using GarsideHomology: ZZ`, rather than writing `GarsideHomology.ZZ` at each use.
 """
 const ℤ = AbstractAlgebra.ZZ
 import SHA
@@ -92,9 +77,9 @@ export homology, collapsible_pairs
 export base_ring, nrows, ncols
 export Notation, set_notation!, notation
 # Public, not exported: Chevie exports its own `rank` and `basis` (see Complexes.jl),
-# Oscar a type MonoidAlgebra of its own (J1.e, M5); GradedBasis, BasedFreeModuleElement and
+# Oscar a type MonoidAlgebra of its own; GradedBasis, BasedFreeModuleElement and
 # Differential, the types of basis(C), of M(x) and of differential(C), are obtained without
-# being named (J1.h).
+# being named.
 public rank, basis, MonoidAlgebra, GradedBasis, BasedFreeModuleElement, Differential
 
 # Interface of germs. Exported: the names an ordinary user types. Public only: the
@@ -102,7 +87,7 @@ public rank, basis, MonoidAlgebra, GradedBasis, BasedFreeModuleElement, Differen
 # (`product` and `atoms` by Oscar, `word` by Chevie and Oscar).
 export natoms, nsimples, simples, opposite, germ, dual_germ
 public AbstractGerm, StaticBitSet
-# The elements of a germ for the user (J1.h): public, since one gets them by calling the
+# The elements of a germ for the user: public, since one gets them by calling the
 # germ (G(1, 2, 1), G("121")) or from simples(G); elements is exported by PermGroups (hence
 # Chevie), FiniteFields, Hecke and Oscar (with Chevie, the extension adds a method to its
 # elements).
@@ -119,12 +104,13 @@ export LCMOrdering, ComplementDeglex, TrivialPreorder, FunctionPreorder
 public AbstractLCMPreorder, precedes, extends_divisibility
 
 # Tree of the cells: a tool of the construction, public but not exported, except ncells,
-# which also counts the cells of a resolution (J1.g). Accessors with the prefix cell_, since
-# weight and degree are exported by Oscar, AbstractAlgebra, Chevie. The cells for the user
-# (J1.h): Cell, public, obtained from the bases or by P("2|12"); cell_weight, cell_degree and
-# atom_sequence, exported, since they also read a Cell.
-export ncells, cell_weight, cell_degree, atom_sequence
-public CellTree, Cell, cell_range, cell_letter, cell_atom
+# which also counts the cells of a resolution. Accessors with the prefix cell_, since
+# weight and degree are exported by Oscar, AbstractAlgebra, Chevie. The cells for the user:
+# Cell, exported, obtained from the bases or by Cell(P, "2|12") (no Cell is exported by
+# Oscar, Hecke, AbstractAlgebra or Chevie); cell_weight, cell_degree and atom_sequence,
+# exported, since they also read a Cell.
+export Cell, ncells, cell_weight, cell_degree, atom_sequence
+public CellTree, cell_range, cell_letter, cell_atom
 public cell_children, admissible_atoms, bar_form
 
 # Projection onto the cells (provisional names, before the theory of the article).
@@ -147,7 +133,7 @@ public AbstractMonoidModule, tensor_product, ⊗
 public ZZ
 
 # ------------------------------------------------------------------------------------
-# Precompilation of the first calls (J1.g, task g4): tabulated germs with at most 64 atoms
+# Precompilation of the first calls: tabulated germs with at most 64 atoms
 # and with more (one or two words of 64 bits for the sets of atoms, the second case being
 # that of the large groups, B*(E₈) and G₃₄ to G₃₇), and a lazy germ; their resolutions for
 # the two orderings, their certificates and their homology with trivial and sign
@@ -156,7 +142,7 @@ public ZZ
 using PrecompileTools: @setup_workload, @compile_workload
 
 # COV_EXCL_START: run only while the package is precompiled, never in the tests; a failure
-# makes the precompilation, hence every task of the CI, fail (J1.g, task g3).
+# makes the precompilation, hence every task of the CI, fail.
 
 # The germ of the dual braid monoid of I₂(m), tabulated from its right covers: rows, the
 # atoms r₀, …, r_{m-1} (the reflections, simples 2 to m + 1); columns, the simples 1, the
@@ -180,13 +166,13 @@ function _precompile_workload()
         homology(R, SignModule())
         ncells(R)
     end
-    # The elements, displays and readings of J1.h, on B*(A₂) and B*(I₂(65)).
+    # The elements, their displays and their readings, on B*(A₂) and B*(I₂(65)).
     for G in germs[1:2]
         R = lcm_resolution(G)
         d = differential(R)
         x = basis(R[last(range(R))])[1]
         v = d(x)
-        R(string(v)), R(string(x)), G(string(G(1))), extend_scalars(R)(string(x))
+        R(string(v)), R(string(x)), Cell(R, string(x)), G(string(G(1))), extend_scalars(R)(string(x))
         sprint(show, MIME"text/plain"(), R; context = :limit => true)
         sprint(show, MIME"text/plain"(), R)
         sprint(show, MIME"text/plain"(), basis(R); context = :limit => true)

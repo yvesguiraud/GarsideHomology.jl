@@ -1,16 +1,12 @@
 # Finitely generated graded modules, and the homology of complexes over ℤ.
 
 """
-    FinitelyGeneratedGradedModule{T}(modules; lo = 0)
-    FinitelyGeneratedGradedAbelianGroup(modules; lo = 0)
+    FinitelyGeneratedGradedModule{T}(modules::AbstractVector; lo::Integer = 0)
+    FinitelyGeneratedGradedAbelianGroup(modules::AbstractVector; lo::Integer = 0)
 
-Finitely generated graded module `M = ⊕ₙ Mₙ` over a principal ideal domain, concentrated
-in the degrees `lo:(lo + length(modules) - 1)`, where `Mₙ = modules[n - lo + 1]` is a
-[`FinitelyGeneratedModule{T}`](@ref). `FinitelyGeneratedGradedAbelianGroup` is the alias
-for `T = BigInt`, that is over ℤ; it is what [`homology`](@ref) returns.
+The finitely generated graded module `M = ⊕ₙ Mₙ` over a principal ideal domain, concentrated in the degrees `lo:(lo + length(modules) - 1)`, where `Mₙ = modules[n - lo + 1]` is a [`FinitelyGeneratedModule{T}`](@ref). `FinitelyGeneratedGradedAbelianGroup` is the alias for `T = BigInt`, that is, over ℤ; this is what [`homology`](@ref) returns.
 
-`M[n]` is the module of degree `n` (a `BoundsError` outside the degrees, as for
-`ChainComplex`), `range(M)` the degrees.
+The accessors are `M[n]`, the module of degree `n` (a `BoundsError` is thrown outside the degrees, as for `ChainComplex`), and `range(M)`, the degrees.
 """
 struct FinitelyGeneratedGradedModule{T}
     lo::Int
@@ -23,7 +19,7 @@ end
 """
     FinitelyGeneratedGradedAbelianGroup
 
-Alias of `FinitelyGeneratedGradedModule{BigInt}`: a finitely generated graded abelian group.
+The alias of `FinitelyGeneratedGradedModule{BigInt}`: a finitely generated graded abelian group.
 """
 const FinitelyGeneratedGradedAbelianGroup = FinitelyGeneratedGradedModule{BigInt}
 
@@ -72,18 +68,14 @@ function _divisor_summary(A::SparseMatrixCSC{<:Integer}; kwargs...)
 end
 
 """
-    homology(C::AbstractChainComplex)
-    homology(C::AbstractChainComplex, n)
+    homology(C::AbstractChainComplex; kwargs...)
+    homology(C::AbstractChainComplex, n::Integer; kwargs...)
 
-Homology of a complex over ℤ: a [`FinitelyGeneratedGradedAbelianGroup`](@ref) over the
-degrees of `C`, or the [`FinitelyGeneratedAbelianGroup`](@ref) `H_n` alone. With
-`d_n : C_{n+1} → C_n`, the free rank of `H_n` is `rank(C_n) − rank(d_n) − rank(d_{n-1})`
-and its torsion is given by the elementary divisors of `d_n` other than 1, computed by
-`SparseElementaryDivisors.sparse_elementary_divisors`, to which the keyword arguments are
-passed (`value_type`, `nworkers`, `core_format`, `verbose`, ...). `homology(C)` computes
-each differential once. A complex over a monoid algebra needs coefficients first: for a
-resolution `R` of GarsideHomology, `homology(R, M)` with a module or a ring
-(`homology(R, ℤ)`), or the homology of an extension of scalars, `homology(extend_scalars(C))`.
+The homology of a complex over ℤ: a [`FinitelyGeneratedGradedAbelianGroup`](@ref) over the degrees of `C`, or the [`FinitelyGeneratedAbelianGroup`](@ref) `H_n` alone.
+
+With `d_n : C_{n+1} → C_n`, the free rank of `H_n` is `rank(C_n) − rank(d_n) − rank(d_{n-1})`, and its torsion is given by the elementary divisors of `d_n` other than 1. These are computed by `SparseElementaryDivisors.sparse_elementary_divisors`, to which the keyword arguments are passed (`value_type`, `nworkers`, `core_format`, `verbose`, ...). `homology(C)` computes each differential once.
+
+A complex over a monoid algebra needs coefficients first: for a resolution `R` of GarsideHomology, use `homology(R, M)` with a module or a ring (as in `homology(R, ℤ)`), or the homology of an extension of scalars, `homology(extend_scalars(R))`.
 """
 function homology(C::AbstractChainComplex{R, D}; kwargs...) where
         {R <: AbstractAlgebra.Integers, D <: SparseMatrixCSC{<:Integer}}

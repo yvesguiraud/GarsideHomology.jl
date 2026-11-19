@@ -1,4 +1,4 @@
-# Elements of the free modules with a basis (J1.h): sparse vectors over the basis, with the
+# Elements of the free modules with a basis: sparse vectors over the basis, with the
 # labels of the monoid algebra, written as sums of terms c×σ[x]τ and read from that form;
 # the differential of a complex as an object applied to them.
 
@@ -83,33 +83,25 @@ _generator_degree(::AbstractVector, x) =
 """
     BasedFreeModuleElement
 
-An element of a free module with a basis `M` ([`BasedFreeModule`](@ref)): a finite sum of
-terms `c×σ[x]τ`, with `x` an element of the basis, `c` an integer and, over a monoid algebra,
-`σ` and `τ` elements of the monoid on the sides of the module (both for bimodules, one for
-left or right modules, none over a ring). Kept as sorted vectors of indices, labels and
-coefficients (`Int`, with checked arithmetic), without zeros, so that equality is that of
-the vectors. The terms are in the order of the basis, then, for bimodules, of `τ`, then of
-`σ`: the terms `σ[x]` come before the terms `[x]τ`.
+An element of a free module `M` with a basis ([`BasedFreeModule`](@ref)): a finite sum of terms `c×σ[x]τ`, where `x` is an element of the basis, `c` an integer and, over a monoid algebra, `σ` and `τ` elements of the monoid on the sides of the module (both for bimodules, one for left or right modules, none over a ring). An element is kept as sorted vectors of indices, labels and coefficients (`Int`, with checked arithmetic), without zeros, so that equality is that of the vectors. The terms are in the order of the basis, then, for bimodules, of `τ`, then of `σ`: the terms `σ[x]` come before the terms `[x]τ`.
 
-Built by calling the module: `M(x)`, the generator `[x]` for an element `x` of the basis (a
-[`Cell`](@ref GarsideHomology.Cell) for a resolution); `M("2×12[1|21]3 - [2|12]")`, read from
-its written form (a text without brackets is a generator, `M("2|12")`); over a ring, `M(v)`
-from the vector of its coefficients on the basis; `zero(M)`. For a complex, `C(x)` for a
-cell and `C("…")` find the module themselves.
+An element is built by calling the module:
+- `M(x)` is the generator `[x]` of an element `x` of the basis (a [`Cell`](@ref GarsideHomology.Cell) for a resolution);
+- `M("2×12[1|21]3 - [2|12]")` is read from its written form, and a text without brackets is a generator, as in `M("2|12")`;
+- over a ring, `M(v)` is built from the vector `v` of its coefficients on the basis;
+- `zero(M)` is the zero element.
 
-Operations: `+`, `-`, multiples by integers, the actions of the elements of the monoid on
-the sides of the module (`σ * v`, `v * τ`, with
-[`GermElement`](@ref GarsideHomology.GermElement)s; an `ArgumentError` if a product is not a
-simple), equality and hashing, `iszero`, `parent(v)` (the module);
-`v[x]` (over a ring), `v[σ, x]`, `v[x, τ]` or `v[σ, x, τ]`, the coefficient of a term; the
-iteration over the terms, as tuples `(c, σ, x, τ)` (`nothing` for an absent side);
-`length(v)`, the number of terms. Over a ring, `Vector(v)` and `SparseVector(v)` give the
-coefficients on the basis, of length `rank(M)`.
+For a complex `C`, `C(x)` for a cell `x` and `C("…")` find the module themselves.
 
-Written as `2×12[1|21]3 - [2|12]`, following the settings of the display
-([`Notation`](@ref)): the identity is omitted on both sides, the coefficients ±1 too, the
-cell of degree 0 is `[]`, and a marker `×` separates a coefficient from what follows when
-the elements of the monoid are written with digits.
+The operations are:
+- `+`, `-`, and the multiples by integers;
+- the actions of the elements of the monoid on the sides of the module, `σ * v` and `v * τ`, with [`GermElement`](@ref GarsideHomology.GermElement)s; an `ArgumentError` is thrown if a product is not a simple;
+- equality and hashing, `iszero`, and `parent(v)`, the module;
+- `v[x]` (over a ring), `v[σ, x]`, `v[x, τ]` or `v[σ, x, τ]`, the coefficient of a term;
+- the iteration over the terms, as tuples `(c, σ, x, τ)` (`nothing` for an absent side), and `length(v)`, the number of terms;
+- over a ring, `Vector(v)` and `SparseVector(v)`, the coefficients on the basis, of length `rank(M)`.
+
+An element is written as `2×12[1|21]3 - [2|12]`, following the settings of the display ([`Notation`](@ref)): the identity is omitted on both sides, and so are the coefficients ±1; the cell of degree 0 is `[]`; and a marker `×` separates a coefficient from what follows when the elements of the monoid are written with digits.
 """
 struct BasedFreeModuleElement{M <: BasedFreeModule, L, Tv}
     parent::M
@@ -454,11 +446,9 @@ end
 """
     (C::AbstractChainComplex)(text::AbstractString)
 
-What `text` writes in the complex `C`: with brackets, an element of the module of the degree
-of its generators (`P("2×12[1|21]3 - [2|12]")`, an `ArgumentError` if they are not all of the
-same degree); without, the generator written `text`, in any degree: for a resolution of
-GarsideHomology, the cell of bar form `text` (`P("2|12")`); for other bases, the element whose
-printed form is `text` (an `ArgumentError` if none or several are, in several degrees).
+The element of a module of the complex `C` written `text`. The module is found from the generators that the text names:
+- with brackets, `text` is a sum of terms, such as `P("2×12[1|21]3 - [2|12]")`, whose generators must all have the same degree; otherwise, an `ArgumentError` is thrown;
+- without brackets, `text` names a single generator, in any degree, and the result is this generator: for a resolution of GarsideHomology, `P("2|12")` is the generator `[2|12]` of the cell of bar form `2|12`; for other bases, `text` is the printed form of an element of a basis, and an `ArgumentError` is thrown if no element, or elements of several degrees, have this printed form.
 """
 function (C::AbstractChainComplex)(text::AbstractString)
     N = notation()
@@ -466,7 +456,7 @@ function (C::AbstractChainComplex)(text::AbstractString)
     isempty(strip(text)) && throw(ArgumentError("cannot read an empty text"))
     if !occursin('[', text)
         n, i = _find_generator(b0, C, N, text)
-        return basis(C[n])[i]
+        return _element_of_generator(C[n], i)
     end
     R = base_ring(C)
     terms = _read_terms(R, N, text)
@@ -492,16 +482,11 @@ end
 """
     Differential
 
-The differential `d` of a chain complex `C` as a whole, as returned by
-[`differential`](@ref)`(C)`: `d(x)`, or `d[x]`, is the boundary of the generator `x` of
-`C_{n+1}` (a [`Cell`](@ref GarsideHomology.Cell) of a resolution, which knows its degree),
-and `d(v)` that of an element `v` of a module of `C`, an element of `C_n`. For the terms
-`c×σ[x]τ` of a module over a monoid algebra, `d(v)` is the sum of the `c × σ·d(x)·τ`, an
-`ArgumentError` if a product of elements of the monoid is not a simple. The boundary of an
-element of the lowest degree is 0, in a module of rank 0 below it (whose elements have the
-boundary 0 too).
-`d(d(x))` checks `d² = 0` on `x`. At the REPL, `d` shows the boundaries of the generators,
-within the screen; `d.(basis(C[n]))` gives those of one degree.
+The differential `d` of a chain complex `C` as a whole, as returned by [`differential`](@ref)`(C)`. It applies as follows:
+- `d(x)`, or `d[x]`, for an element `x` of the basis of `C_{n+1}`, such as a [`Cell`](@ref GarsideHomology.Cell) of a resolution, which knows its degree, is the boundary of the generator `[x]`, an element of `C_n`;
+- `d(v)`, for an element `v` of a module of `C`, is the boundary of `v`. For the terms `c×σ[x]τ` of a module over a monoid algebra, `d(v)` is the sum of the `c×σ·d(x)·τ`, and an `ArgumentError` is thrown if a product of elements of the monoid is not a simple.
+
+The boundary of an element of the lowest degree is 0, in a module of rank 0 below it, whose elements have the boundary 0 too. `d(d(x))` checks `d² = 0` on `x`. At the REPL, `d` shows the boundaries of the generators, within the screen; `d.(basis(C[n]))` gives those of one degree.
 """
 struct Differential{C <: AbstractChainComplex}
     complex::C
@@ -510,8 +495,7 @@ end
 """
     differential(C::AbstractChainComplex) -> Differential
 
-The differential of the complex `C` as a whole, a [`Differential`](@ref), to apply to its
-generators and to the elements of its modules: `d = differential(P); d(P("2|12"))`.
+The differential of the complex `C` as a whole, a [`Differential`](@ref), to apply to the elements of the bases and of the modules of `C`, as in `d = differential(P); d(P("2|12"))`.
 """
 differential(C::AbstractChainComplex) = Differential(C)
 

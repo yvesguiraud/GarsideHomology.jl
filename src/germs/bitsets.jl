@@ -6,20 +6,13 @@ struct _Words end
 """
     StaticBitSet{K}
 
-Set of integers of `1:64K`, stored as `K` words of 64 bits: the integer `i` is the bit
-`i - 1`. The value is immutable and isbits, so that sets are stored inline in arrays
-and returned without allocation; `K` is a constant of the type, fixed for instance by a
-germ from its number of atoms (`K = cld(N, 64)`).
+A set of integers of `1:64K`, stored as `K` words of 64 bits, where the integer `i` is the bit `i - 1`. The value is immutable and isbits, so that sets are stored inline in arrays and returned without allocation. `K` is a constant of the type, fixed for instance by a germ from its number of atoms (`K = cld(N, 64)`).
 
-`StaticBitSet{K}()` is the empty set and `StaticBitSet{K}(itr)` the set of the integers
-of `itr`, each in `1:64K`. Fast methods: `in`, iteration in increasing order, `length`,
-`isempty`, `first`, `issubset`, `union`, `intersect`, `setdiff`, `symdiff`,
-`isdisjoint`, `==`. As an `AbstractSet{Int}`, a `StaticBitSet` also has the generic
-methods of sets (`collect`, comparison and union with other sets, `hash`).
+`StaticBitSet{K}()` is the empty set, and `StaticBitSet{K}(itr)` is the set of the integers of `itr`, each in `1:64K`. The following methods are fast: `in`, iteration in increasing order, `length`, `isempty`, `first`, `issubset`, `union`, `intersect`, `setdiff`, `symdiff`, `isdisjoint` and `==`. As an `AbstractSet{Int}`, a `StaticBitSet` also has the generic methods of sets (`collect`, comparison and union with other sets, `hash`).
 """
 struct StaticBitSet{K} <: AbstractSet{Int}
     words::NTuple{K, UInt64}
-    # Signature line, counted only by some compiled instances in the coverage of Julia (J1.g).
+    # Signature line, counted only by some compiled instances in the coverage of Julia.
     function StaticBitSet{K}(::_Words, words::NTuple{K, UInt64}) where {K}  # COV_EXCL_LINE
         K isa Int && K >= 1 || throw(ArgumentError("StaticBitSet{$K}: K must be an Int ≥ 1"))
         return new{K}(words)

@@ -14,7 +14,7 @@ _limited(rows, columns) = (:limit => true, :displaysize => (rows, columns))
     A2 = germ(Chevie.coxgroup(:A, 2))                    # B⁺(A₂): cells e; 1, 2; 2|12
     P = lcm_resolution(A2)
     d = differential(P)
-    x = P("2|12")
+    x = Cell(P, "2|12")
     cells = "\nCells:\n  0: e\n  1: 1, 2\n  2: 2|12"
     top = "\n  d(2|12) = " * string(d(x))
 

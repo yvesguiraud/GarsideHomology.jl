@@ -209,7 +209,7 @@ AA.base_ring(W::WrappedComplex) = base_ring(W.inner)
 
     @testset "Complexes over a monoid algebra" begin
         # Free monoid on one atom a, simples e = 0 and a = 1: resolution of bimodules
-        # 0 → C₁ = ⟨[a]⟩ → C₀ = ⟨[]⟩, ∂[a] = a·[]·e − e·[]·a.
+        # 0 → C₁ = ⟨[a]⟩ → C₀ = ⟨[]⟩, d[a] = a·[]·e − e·[]·a.
         A = MonoidAlgebra(ZZ, NamedMonoid(["e", "a"]))
         len = [0, 1]                                 # len[l + 1] = ℓ(label l)
         da = LabelledSparseMatrix([1, 1], [1, 1], L2[(1, 0), (0, 1)], [1, -1], 1, 1)
@@ -227,7 +227,7 @@ AA.base_ring(W::WrappedComplex) = base_ring(W.inner)
         @test differential(extend_scalars(P, sign_right), 0) == SA.sparse([1], [1], [2], 1, 1)
 
         # Free commutative monoid on a, b, simples e = 0, a = 1, b = 2, ab = 3: Koszul
-        # resolution of bimodules, ∂[a|b] = (a⊗1 − 1⊗a)[b] − (b⊗1 − 1⊗b)[a].
+        # resolution of bimodules, d[a|b] = (a⊗1 − 1⊗a)[b] − (b⊗1 − 1⊗b)[a].
         B = MonoidAlgebra(ZZ, NamedMonoid(["e", "a", "b", "ab"]))
         lenB = [0, 1, 1, 2]
         d0 = LabelledSparseMatrix([1, 1, 1, 1], [1, 1, 2, 2],

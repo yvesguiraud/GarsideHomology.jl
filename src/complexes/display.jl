@@ -1,4 +1,4 @@
-# The detailed displays (J1.h, point 5b): a complex shows its bases, one line per degree, and
+# The detailed displays: a complex shows its bases, one line per degree, and
 # the boundaries of its generators; its differential the boundaries alone; an element, in
 # full. With :limit (the REPL), everything keeps within the screen: the lines of the bases
 # are cut in the middle, the list of the boundaries keeps its beginning and its end, a long

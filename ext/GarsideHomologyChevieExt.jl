@@ -1,26 +1,19 @@
 """
     GarsideHomologyChevieExt
 
-Package extension loaded together with Chevie: the germs of the braid monoids
-(`BraidMonoid` of a finite Coxeter group) and of the dual braid monoids of Chevie,
-built by `GarsideHomology.germ(M)` and `GarsideHomology.TableGerm(M)`, and `GarsideHomology.dual_germ(W; c)`, which
-builds the germ of a dual braid monoid from the group without building the monoid. Also
-`germ(W)` for a finite Coxeter group (the germ of its classical braid monoid),
-`lcm_resolution(M)` and `homology(M)` for a monoid of Chevie, through its germ, and the
-methods of the `⊗` of Chevie for our complexes, and of its `word`, `elements`, `basis` and
-`rank` for our objects.
+The package extension loaded together with Chevie. It adds the following methods:
+- the germs of the braid monoids of Chevie (`BraidMonoid` of a finite Coxeter group) and of its dual braid monoids, built by `GarsideHomology.germ(M)` and `GarsideHomology.TableGerm(M)`;
+- `GarsideHomology.dual_germ(W; c)`, which builds the germ of a dual braid monoid from the group, without building the monoid;
+- `germ(W)` for a finite Coxeter group, the germ of its classical braid monoid;
+- `lcm_resolution(M)` and `homology(M)` for a monoid of Chevie, through its germ;
+- methods of the `⊗` of Chevie for the complexes of GarsideHomology, and of its `word`, `elements`, `basis` and `rank` for the objects of GarsideHomology.
 
-The right covers σ → σa given to `GarsideHomology.tabulate` come from the arithmetic of the group
-alone. An element is identified by the images of the roots of the generators, which
-form a basis: a key of `n` small integers, updated by the action of the atoms without
-forming products of permutations.
-- Braid monoid: search of the Cayley graph of the generators.
-- Dual braid monoid of a real group (2 among the degrees): search by layers with the
-  criterion of Brady and Watt, σa is simple if and only if the root of a lies in the
-  moved space of the Kreweras complement σ⁻¹c, by exact linear algebra.
-- Dual braid monoid of a complex group: prefixes of the Hurwitz orbit of a reduced
-  decomposition of c (Bessis), then covers by the layers.
-- Reference: the simples listed by `left_divisors` of Chevie (`method = :chevie`).
+The right covers σ → σa given to `GarsideHomology.tabulate` come from the arithmetic of the group alone. An element is identified by the images of the roots of the generators, which form a basis: a key of `n` small integers, updated by the action of the atoms without forming products of permutations. The simples are enumerated as follows:
+- for a braid monoid, by a search of the Cayley graph of the generators;
+- for the dual braid monoid of a real group (2 among the degrees), by a search by layers with the criterion of Brady and Watt: σa is simple if and only if the root of `a` lies in the moved space of the Kreweras complement σ⁻¹c, which is decided by exact linear algebra;
+- for the dual braid monoid of a complex group, by the prefixes of the Hurwitz orbit of a reduced decomposition of c (Bessis), then by the covers, layer by layer.
+
+The simples listed by `left_divisors` of Chevie serve as a reference (`method = :chevie`).
 """
 module GarsideHomologyChevieExt
 
@@ -38,9 +31,7 @@ _order(W) = prod(BigInt, Chevie.degrees(W))
 """
     _simples_count(M) -> BigInt
 
-The number of simples of `M`, from the degrees of its group, without enumeration: |W|
-for a braid monoid; for a dual braid monoid of an irreducible group, the Catalan number
-Π (dᵢ + h) / dᵢ, `h` being the largest degree, and |W| (an upper bound) otherwise.
+The number of simples of `M`, computed from the degrees of its group, without enumeration: |W| for a braid monoid; for a dual braid monoid of an irreducible group, the Catalan number Π (dᵢ + h) / dᵢ, where `h` is the largest degree; and |W|, an upper bound, otherwise.
 """
 _simples_count(M::Chevie.BraidMonoid) = _order(M.W)
 _simples_count(M::Chevie.DualBraidMonoid) = _dual_count(M.W)
@@ -92,7 +83,7 @@ function GarsideHomology.dual_germ(W::ReflectionGroup; c = nothing)
 end
 
 # ------------------------------------------------------------------------------------
-# Conveniences (J1.g, task g1): the germ of the classical braid monoid from the group, the
+# Conveniences: the germ of the classical braid monoid from the group, the
 # resolution and the homology of a monoid of Chevie through its germ.
 
 GarsideHomology.germ(W::Chevie.FiniteCoxeterGroup) = GarsideHomology.germ(Chevie.BraidMonoid(W))
@@ -106,7 +97,7 @@ GarsideHomology.lcm_resolution(M::ChevieMonoid, ordering::GarsideHomology.LCMOrd
                                GarsideHomology.LCMOrdering()) =
     GarsideHomology.lcm_resolution(GarsideHomology.germ(M), ordering)
 
-# N is a module of coefficients, or a ring for its trivial module (J1.g).
+# N is a module of coefficients, or a ring for its trivial module.
 GarsideHomology.Complexes.homology(M::ChevieMonoid,
                                    N::GarsideHomology._Coefficients = GarsideHomology.TrivialModule();
                                    kwargs...) =
@@ -120,7 +111,7 @@ GarsideHomology.Complexes.homology(M::ChevieMonoid, n::Integer; kwargs...) =
     GarsideHomology.Complexes.homology(GarsideHomology.germ(M), n; kwargs...)
 
 # The ⊗ of Chevie, that of FinitePosets (reexported by Chevie), also tensors our complexes,
-# so that `ℤ ⊗ R ⊗ ℤ` works with Chevie loaded, without `using GarsideHomology: ⊗` (J1.g).
+# so that `ℤ ⊗ R ⊗ ℤ` works with Chevie loaded, without `using GarsideHomology: ⊗`.
 # One argument is always a complex of GarsideHomology: no type piracy.
 Chevie.FinitePosets.:⊗(N::GarsideHomology._Coefficients, C::GarsideHomology.Complexes.AbstractChainComplex) =
     GarsideHomology.tensor_product(N, C)
@@ -131,7 +122,7 @@ Chevie.FinitePosets.:⊗(C::GarsideHomology.Complexes.AbstractChainComplex, M::G
 # (those of PermGroups, reexported by Chevie), basis (that of Chevie.Algebras) and rank (that
 # of Chevie.Symbols). They get methods for our types, which call ours, so that `word(s)`,
 # `elements(G)`, `basis(M)` and `rank(M)` work without qualification with Chevie loaded
-# (J1.h, point 7a). Our types only: no type piracy; no signature of Chevie is met.
+# Our types only: no type piracy; no signature of Chevie is met.
 Chevie.PermGroups.word(s::GarsideHomology.GermElement) = GarsideHomology.word(s)
 Chevie.PermGroups.word(G::GarsideHomology.AbstractGerm, s::Integer) = GarsideHomology.word(G, s)
 Chevie.PermGroups.elements(G::GarsideHomology.AbstractGerm) = GarsideHomology.elements(G)
@@ -211,9 +202,7 @@ _minus_identity(X) = [X[i, j] - (i == j ? one(eltype(X)) : zero(eltype(X))) for 
 """
     _Roots
 
-The coordinates of the roots of a reflection group in the basis of the roots of its
-generators (numbers 1:n), in a field `T` (rationals, or cyclotomics), and as integers
-when they are all integral (crystallographic case).
+The coordinates of the roots of a reflection group in the basis of the roots of its generators (numbers 1:n), in a field `T` (rationals, or cyclotomics), and as integers when they are all integral (crystallographic case).
 """
 struct _Roots{T}
     coords::Vector{Vector{T}}
@@ -271,11 +260,7 @@ end
 """
     _right_covers(M, timings = nothing; method = :auto) -> (R, identity)
 
-The right covers of the simples of `M`, in the form taken by `GarsideHomology.tabulate`, the
-identity being numbered 1. For a dual braid monoid, `method = :chevie` uses the simples
-listed by `left_divisors` (the reference of J1.c, c3); `:auto` uses the criterion of
-Brady and Watt for a real group and the Hurwitz orbit otherwise. With a vector
-`timings`, the durations of the enumeration of the simples and of the covers are pushed.
+The right covers of the simples of `M`, in the form taken by `GarsideHomology.tabulate`, the identity being numbered 1. For a dual braid monoid, `method = :chevie` uses the simples listed by `left_divisors`, which serve as a reference, and `:auto` uses the criterion of Brady and Watt for a real group and the Hurwitz orbit otherwise. With a vector `timings`, the durations of the enumeration of the simples and of the covers are pushed to it.
 """
 _right_covers(M::Chevie.BraidMonoid, timings = nothing) =
     _classical_covers(M, Val(length(Chevie.gens(M.W))), timings)
@@ -578,17 +563,18 @@ function _default_coxeter_word(W, ::Val{nb}) where {nb}
 end
 
 # ------------------------------------------------------------------------------------
-# Precompilation of the first calls of the extension (J1.g, task g4): the classical and
+# Precompilation of the first calls of the extension: the classical and
 # dual germs of A₃, by the group and by the monoids of Chevie; the dual germs of A₂ to A₈
 # (the ranks of the dual path, integer roots), of H₃ (cyclotomic roots) and of G₄ (a
 # complex reflection group); the lazy germ of E₈; and the homology of a monoid of Chevie
 # through its germ. The other ranks and types of roots, and the ranks of the classical
 # path other than 3, still compile at their first call (a tenth to seven tenths of a
-# second each, measured in g4). Run at precompilation by PrecompileTools.
+# second each, measured when this precompilation was set up). Run at precompilation by
+# PrecompileTools.
 using PrecompileTools: @setup_workload, @compile_workload
 
 # COV_EXCL_START: run only while the extension is precompiled, never in the tests; a
-# failure makes the precompilation, hence every task of the CI, fail (J1.g, task g3).
+# failure makes the precompilation, hence every task of the CI, fail.
 function _precompile_workload()
     W = Chevie.coxgroup(:A, 3)
     GarsideHomology.germ(W)

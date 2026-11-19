@@ -26,8 +26,8 @@ from `a` to `d` (Gauss_a to Gauss_d).
   - *atom sequence* (i₁, …, iₙ): `7.3.12`; the cell of degree 0 is written `-`;
   - *bar form*: `[1.2|3|2.1]`; the cell of degree 0 is written `[]`.
 - **Weight** π(x) = a₁⋯aₙ, written as a simple.
-- **Term** of ∂x: coef · σ · y · τ, with σ the simple on the left and τ the simple on the
-  right; dₙ : Cₙ₊₁ → Cₙ, so a term of ∂x belongs to dₙ when x has degree n + 1.
+- **Term** of dx: coef · σ · y · τ, with σ the simple on the left and τ the simple on the
+  right; dₙ : Cₙ₊₁ → Cₙ, so a term of dx belongs to dₙ when x has degree n + 1.
 - **Coefficient**: signed integer, always with its sign (`+1`, `-1`, `+2`).
 
 All data lines are ASCII; only the header contains UTF-8. LF line endings.
