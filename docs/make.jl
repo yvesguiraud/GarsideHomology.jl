@@ -56,8 +56,8 @@ makedocs(;
             "Spherical Artin groups" => "examples/spherical.md",
             "Imprimitive braid groups" => "examples/imprimitive.md",
             "Two orderings" => "examples/orderings.md",
+            "Benchmarks" => "examples/benchmarks.md",
         ],
-        "Benchmarks" => "benchmarks.md",
         "Reference manual" => [
             "Overview" => "reference_manual/overview.md",
             "Germs" => "reference_manual/germs.md",
