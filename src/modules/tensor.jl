@@ -116,7 +116,7 @@ end
     homology(R::AbstractChainComplex{<:MonoidAlgebra}, M; kwargs...)
     homology(R::AbstractChainComplex{<:MonoidAlgebra}, M, n::Integer; kwargs...)
 
-The homology of the monoid with coefficients in the module `M`, computed from a resolution `R` of bimodules, such as an lcm resolution, in all degrees or in degree `n`. It is the homology over the ring of `M` of `TrivialModule() ⊗ R ⊗ M` ([`tensor_product`](@ref)). Since the monoid is a Garside monoid, this is also the homology of its enveloping group with coefficients in `M` (see the page Background and conventions of the User guide).
+The homology of the monoid with coefficients in the module `M`, computed from a resolution `R` of bimodules, such as an lcm resolution, in all degrees or in degree `n`. It is the homology over the ring of `M` of `TrivialModule() ⊗ R ⊗ M` ([`tensor_product`](@ref)). Since the monoid is a Garside monoid, this is also the homology of its enveloping group with coefficients in `M` (see the page Mathematical background of the User guide).
 
 The argument `M` is a module of coefficients ([`AbstractMonoidModule`](@ref)), or a ring for its trivial module: `homology(R, ℤ)` is `homology(R, TrivialModule())`. For a complex of right modules, such as `TrivialModule() ⊗ R`, the result is the homology of `C ⊗ M`. The keyword arguments go to the solver, as for `homology(C)`.
 

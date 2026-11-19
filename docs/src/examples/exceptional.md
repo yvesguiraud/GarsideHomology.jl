@@ -30,7 +30,7 @@ Numbers of cells of the reduced lcm resolution:
 Main.ExamplesTables.exceptional_cells()
 ```
 
-For five of these groups, table 1 of Garnier gives the numbers of cells of the order resolutions of Dehornoy and Lafont (see [Background and conventions](../user_guide/background.md)) for two orders of the atoms: the order of Marin, and an order chosen by Garnier to reduce the number of cells. The table takes into account the correction given in the erratum of his article.
+For five of these groups, table 1 of Garnier gives the numbers of cells of the order resolutions of Dehornoy and Lafont (see [Mathematical background](../user_guide/background.md)) for two orders of the atoms: the order of Marin, and an order chosen by Garnier to reduce the number of cells. The table takes into account the correction given in the erratum of his article.
 
 ```@eval
 Main.ExamplesTables.exceptional_dehornoy_lafont()

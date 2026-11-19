@@ -38,4 +38,4 @@ homology(R, ℤ)                 # ℤ, ℤ, 0 in degrees 0 to 2
 homology(R, ℤε)                # ℤ/2ℤ, ℤ/3ℤ, 0
 ```
 
-Start Julia with several threads to benefit from the parallel steps: `julia -t auto`. The page [Working with other packages](https://yvesguiraud.github.io/GarsideHomology.jl/dev/user_guide/interoperability/) of the user guide explains how to type `ℤ` and `ℤε`, which names are shared with Oscar, Hecke and Chevie, and the current limits of the package.
+Start Julia with several threads to benefit from the parallel steps: `julia -t auto`. The page [Getting started](https://yvesguiraud.github.io/GarsideHomology.jl/dev/user_guide/getting_started/) of the user guide explains how to type `ℤ` and `ℤε`, and the page [Miscellaneous](https://yvesguiraud.github.io/GarsideHomology.jl/dev/user_guide/miscellaneous/) lists the names shared with Oscar, Hecke and Chevie and the current limits of the package.

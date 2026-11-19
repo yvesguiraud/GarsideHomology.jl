@@ -133,7 +133,7 @@ The lcm resolution of the germ `G` for the ordering `ordering`, as an [`LCMResol
 
 The basis of its module of degree `n` is made of the cells of degree `n` ([`CellBasis`](@ref)). The matrix `differential(R, n)`, from degree `n + 1` to degree `n`, is a `LabelledSparseMatrix` whose column `j` is the boundary of the `j`-th cell of degree `n + 1`, with the labels `(σ, τ)` for the terms `c·σ[y]τ`.
 
-Its tensor products by modules of coefficients (`homology(R, M)`, `homology(R, ℤ)`, `ℤ ⊗ R ⊗ ℤ`, [`extend_scalars`](@ref)) compute the homology of the monoid. Since the monoid is a Garside monoid, this homology is also that of its enveloping group, with the same coefficients; this does not hold for a general monoid (see the page Background and conventions of the User guide).
+Its tensor products by modules of coefficients (`homology(R, M)`, `homology(R, ℤ)`, `ℤ ⊗ R ⊗ ℤ`, [`extend_scalars`](@ref)) compute the homology of the monoid. Since the monoid is a Garside monoid, this homology is also that of its enveloping group, with the same coefficients; this does not hold for a general monoid (see the page Mathematical background of the User guide).
 
 The main uses are:
 - `lcm_resolution(G)`, the reduced resolution ([`ComplementDeglex`](@ref));

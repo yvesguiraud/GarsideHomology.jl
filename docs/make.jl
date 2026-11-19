@@ -43,12 +43,10 @@ makedocs(;
         "Home" => "index.md",
         "User guide" => [
             "Getting started" => "user_guide/getting_started.md",
-            "Background and conventions" => "user_guide/background.md",
-            "Resolutions, cells and elements" => "user_guide/resolutions.md",
-            "Display settings" => "user_guide/display.md",
-            "Coefficients and homology" => "user_guide/homology.md",
-            "Orderings, certificates and snapshots" => "user_guide/orderings.md",
-            "Working with other packages" => "user_guide/interoperability.md",
+            "Mathematical background" => "user_guide/background.md",
+            "Germs and resolutions" => "user_guide/resolutions.md",
+            "Homology" => "user_guide/homology.md",
+            "Miscellaneous" => "user_guide/miscellaneous.md",
         ],
         "Examples" => [
             "Overview" => "examples/overview.md",
