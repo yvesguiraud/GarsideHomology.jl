@@ -21,3 +21,10 @@ French columns (d7 on N9), is not resumed. The CSV of J0 keeps its own columns.
 julia --project=benchmark -e "using Pkg; Pkg.instantiate()"
 julia --project=benchmark benchmark/run_construction.jl N9
 ```
+
+## Results
+
+The folder `results/` keeps the raw results of the page Benchmarks of the documentation, measured on 18 November 2026 on workstation 1 (Intel Core Ultra 9 285, named N8 in the files):
+
+- `construction_intel-core-ultra-9-285.csv`: the CSV written by `run_construction.jl` (commit 169582c, Julia 1.13.4, 24 threads);
+- `gauss_jl_intel-core-ultra-9-285.csv`: the times of Gauss.jl (variant `Gauss_a`, functions `lcm_gen_data` and `filtered_lcm_differential`) on the same cases and the same machine, measured with the same protocol by a separate script, with French column names (`cas`, `tour`, `cellules`, `termes`, `t_arbre_s` for the generating cells, `t_diff_s` for the differentials, `maxrss_fin_Gio` for the peak memory).
